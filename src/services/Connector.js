@@ -8,7 +8,6 @@ const ADDR = 'ws://localhost:8000/api/ws'
 export default class Connector {
 
     static init () {
-        Connector.ws = window.apiWs
         Connector.retries = 0
         Connector.queue = []
         Connector.ready = false
@@ -30,7 +29,7 @@ export default class Connector {
         if (Connector.retries >= MAX_RETRIES) throw new Error('Max retries hit')
         // if we're currently connecting or connecting, don't attempt
         if (Connector.ws != null && Connector.ws.readyState < 2) return
-        Connector.ws = window.apiWs = new WebSocket(ADDR)
+        Connector.ws = new WebSocket(ADDR)
 
         Connector.ws.onopen = () => {
             console.log('ws opened', ADDR)
