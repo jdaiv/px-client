@@ -1,0 +1,27 @@
+.header {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 4rem;
+	display: flex;
+	padding: 0;
+	color: #0f0;
+	background: #060;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+	z-index: 50;
+	font-weight: bold;
+}
+
+.header h1 {
+	margin: 0;
+	padding: 0 1rem;
+	font-size: 2rem;
+	line-height: 4rem;
+	font-weight: bold;
+	flex: 1;
+}
+
+.auth {
+	width: auto;
+}

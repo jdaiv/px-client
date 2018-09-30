@@ -1,0 +1,49 @@
+html, body {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	background: #000;
+	font-family: monospace;
+	font-weight: 400;
+	font-size: 16px;
+	color: #0f0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	min-height: 100%;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+#app {
+	margin-top: 4rem;
+	height: calc(100vh - 6rem);
+}
+
+.button {
+    color: #0f0;
+	background: #010;
+	border: 1px solid #0f0;
+	font-family: monospace;
+	font-size: 1rem;
+	line-height: 1;
+	padding: 7px;
+	cursor: pointer;
+}
+
+.button:hover {
+	background: #040;
+}
+
+.button:focus {
+	outline: 0;
+}
+
+.container {
+	display: flex;
+	height: 100%;
+	max-height: 100%;
+	overflow: hidden;
+	align-items: stretch;
+}

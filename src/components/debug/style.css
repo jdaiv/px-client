@@ -1,0 +1,48 @@
+.debug {
+    position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	flex-wrap: wrap;
+	z-index: 50;
+	box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.debug > .box {
+	display: none;
+}
+
+.active > .box {
+	display: block;
+}
+
+.toggle {
+	flex: 0 0 100%;
+	border: 0;
+	padding: 0.5rem;
+	/* border-right: 0;
+	border-left: 0; */
+}
+
+.box {
+	padding: 1rem;
+    color: #0f0;
+	background: #010;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+	flex: 1;
+	border: 0.5rem solid #000;
+	height: 250px;
+	overflow-y: auto;
+	border-collapse: collapse;
+}
+
+.box:last-child {
+	border-left: 0;
+}
+
+.box pre {
+    margin: 0;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
