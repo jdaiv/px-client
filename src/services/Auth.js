@@ -1,7 +1,8 @@
 import { Base64 } from 'js-base64'
 import EventManager from './EventManager'
+import { apiUrl } from '../config/const'
 
-const ADDR = '//localhost:8000/api/auth'
+const ADDR = `${apiUrl}/api/auth`
 
 export default class Auth {
 

@@ -1,9 +1,9 @@
 import EventManager from './EventManager'
 import Auth from './Auth'
+import { wsUrl } from '../config/const'
 
 const RETRY_WAIT = 1500
 const MAX_RETRIES = 3
-const ADDR = 'ws://localhost:8000/api/ws'
 
 export default class Connector {
 
@@ -29,10 +29,10 @@ export default class Connector {
         if (Connector.retries >= MAX_RETRIES) throw new Error('Max retries hit')
         // if we're currently connecting or connecting, don't attempt
         if (Connector.ws != null && Connector.ws.readyState < 2) return
-        Connector.ws = new WebSocket(ADDR)
+        Connector.ws = new WebSocket(wsUrl)
 
         Connector.ws.onopen = () => {
-            console.log('ws opened', ADDR)
+            console.log('ws opened', wsUrl)
             Connector.retries = 0
             EventManager.publish('ws_debug', null)
             Connector.send('global', 'ping', null, true)
