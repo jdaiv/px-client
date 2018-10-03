@@ -130,17 +130,14 @@ class FireworksCanvas {
 export default class ActFireworks extends Component {
 
     launch = () => {
-        Connector.send('activity', 'launch', {
-            room: Services.chat.activeRoom
-        })
+        Connector.send('activity', 'launch', Services.chat.activeRoom)
     }
 
     componentDidMount() {
         this.canvas = new FireworksCanvas(this.base)
-        EventManager.subscribe('ws_message', 'fireworks', ((data) => {
-            if (data.scope == 'activity' && data.action == 'launch' &&
-                data.data.room == Services.chat.activeRoom) {
-                this.canvas.launch(data.data.position, data.data.hue, data.data.lifetime)
+        EventManager.subscribe('ws/activity/launch', 'fireworks', (({ action, data }) => {
+            if (action.target == Services.chat.activeRoom) {
+                this.canvas.launch(data.position, data.hue, data.lifetime)
             }
         }).bind(this))
     }

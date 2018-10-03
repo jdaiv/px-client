@@ -20,7 +20,6 @@ export default class Connector {
                 Connector.authenticated = false
                 Connector.username = ''
                 Connector.close()
-                console.log('wack')
             }
         })
     }
@@ -35,7 +34,7 @@ export default class Connector {
             console.log('ws opened', wsUrl)
             Connector.retries = 0
             EventManager.publish('ws_debug', null)
-            Connector.send('global', 'ping', null, true)
+            Connector.send('global', 'ping', 'all', null, true)
         }
 
         Connector.ws.onmessage = (evt) => {
@@ -66,29 +65,32 @@ export default class Connector {
 
     static auth () {
         if (Auth.token && Connector.ready && !Connector.authenticated) {
-            Connector.send('auth', 'login', Auth.token, true)
+            Connector.send('auth', 'login', 'all', Auth.token, true)
         }
     }
 
     static flushQueue () {
         const queue = Connector.queue.slice()
         Connector.queue = []
-        queue.forEach(d => Connector.send(d.scope, d.action, d.data))
+        queue.forEach(d => Connector.send(d.scope, d.action, d.target, d.data))
     }
 
-    static send (scope, action, data, force) {
+    static send (scope, action, target, data, force) {
         if (force && !Connector.ws && Connector.ws.readyState != 1){
             console.log(`can't force send ${scope}/${action}:`, data)
         } else if (!force &&
             (!Connector.ws || Connector.ws.readyState != 1 ||
              !Connector.ready || !Connector.authenticated)) {
-            Connector.queue.push({ scope, action, data })
+            Connector.queue.push({ scope, action, target, data })
         } else {
-            console.log(`sending ${scope}/${action}:`, data)
+            console.log(`sending ${scope}/${action}/${target}:`, data)
             EventManager.publish('ws_debug', data)
             Connector.ws.send(JSON.stringify({
-                scope,
-                action,
+                action: {
+                    scope,
+                    type: action,
+                    target
+                },
                 data: JSON.stringify(data)
             }))
         }
@@ -105,18 +107,16 @@ export default class Connector {
 
         EventManager.publish('ws_debug', data)
 
-        if (data.error) {
-            console.error('server error', data)
-        }
+        const { type, scope } = data.action
 
         if (!Connector.ready && !Connector.authenticated) {
-            if (!data.error && data.scope == 'global' && data.action == 'pong') {
+            if (!data.error && scope == 'global' && type == 'pong') {
                 Connector.ready = true
                 Connector.auth()
             }
             EventManager.publish('ws_status', Connector.ready)
         } else if (!Connector.authenticated) {
-            if (data.scope == 'auth' && data.action == 'login') {
+            if (scope == 'auth' && type == 'login') {
                 if (data.error === 0) {
                     Connector.authenticated = true
                     Connector.username = data.data.name
@@ -127,7 +127,7 @@ export default class Connector {
             }
             EventManager.publish('ws_auth', Connector.authenticated)
         } else {
-            EventManager.publish('ws_message', data)
+            EventManager.publish(`ws/${scope}/${type}`, data)
         }
     }
 

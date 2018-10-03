@@ -29,7 +29,8 @@ export default class Chat {
         Chat.connected = false
         Chat.activeRoom = ''
         DEFAULT_ROOMS.forEach(r => Chat.joinRoom(r))
-        EventManager.subscribe('ws_message', 'chat_service', Chat.listen)
+        EventManager.subscribe('ws/chat/join_room', 'chat_service', Chat.listenJoin)
+        EventManager.subscribe('ws/chat/new_message', 'chat_service', Chat.listenMessage)
         EventManager.subscribe('ws_status', 'chat_service', Chat.status)
     }
 
@@ -54,7 +55,7 @@ export default class Chat {
     }
 
     static createRoom (name, activity) {
-        Connector.send('chat', 'create_room', {
+        Connector.send('chat', 'create_room', '', {
             name,
             activity
         })
@@ -67,38 +68,32 @@ export default class Chat {
     }
 
     static send (room, msg) {
-        Connector.send('chat', 'message', {
-            room,
+        Connector.send('chat', 'message', room, {
             content: msg
         })
     }
 
-    static listen (data) {
-        if (data.scope != 'chat') return
-        let shouldUpdate = false
-        switch (data.action) {
-        case 'new_message':
-            let roomName = data.data.room
-            if (Chat.rooms[roomName]) {
-                Chat.rooms[roomName].addEntry(data.data.from, data.data.content)
-                shouldUpdate = true
-            } else {
-                console.warn(`received message for ${roomName}, but we're not subscribed to it`)
-            }
-            break
-        case 'join_room':
-            if (data.error == 2002) {
-                if (Chat.activeRoom) Chat.setActiveRoom('public')
-                delete Chat.rooms[data.data]
-            } else {
-                const room = Chat.addRoom(data.data.name, data.data.friendly_name, data.data.activity)
-                room.addEntry('system', 'connected')
-                EventManager.publish('chat_join', data.data.name)
-            }
-            shouldUpdate = true
-            break
+    static listenJoin ({ error, action, data }) {
+        let roomName = action.target
+        if (error == 2002) {
+            if (Chat.activeRoom) Chat.setActiveRoom('public')
+            delete Chat.rooms[roomName]
+        } else if (!error) {
+            const room = Chat.addRoom(data.name, data.friendly_name, data.activity)
+            room.addEntry('system', 'connected')
+            EventManager.publish('chat_join', data.name)
         }
-        if (shouldUpdate) EventManager.publish('chat_update', true)
+        EventManager.publish('chat_update', true)
+    }
+
+    static listenMessage ({ error, action, data }) {
+        let roomName = action.target
+        if (Chat.rooms[roomName]) {
+            Chat.rooms[roomName].addEntry(data.from, data.content)
+            EventManager.publish('chat_update', true)
+        } else {
+            console.warn(`received message for ${roomName}, but we're not subscribed to it`)
+        }
     }
 
     static status (status) {
