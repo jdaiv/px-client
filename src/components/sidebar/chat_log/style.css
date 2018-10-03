@@ -1,0 +1,9 @@
+.log {
+    flex: 1;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-y: auto;
+	margin-bottom: 1rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

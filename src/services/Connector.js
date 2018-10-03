@@ -125,7 +125,7 @@ export default class Connector {
                     Auth.logout()
                 }
             }
-            EventManager.publish('ws_auth', data)
+            EventManager.publish('ws_auth', Connector.authenticated)
         } else {
             EventManager.publish('ws_message', data)
         }

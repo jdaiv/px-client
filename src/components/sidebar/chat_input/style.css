@@ -1,0 +1,24 @@
+.form {
+    width: 100%;
+    display: flex;
+    flex: 0 0 3rem;
+}
+
+.form input {
+    display: block;
+    flex: 1;
+    margin: 0;
+    font-family: monospace;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.form input[type=text] {
+    border: 0;
+    outline: 0;
+}
+
+.form input[type=submit] {
+    flex: 0;
+    margin-left: 1rem;
+}

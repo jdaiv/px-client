@@ -1,6 +1,11 @@
 import { h, Component } from 'preact'
 
+import ActFireworks from './ActFireworks'
+
 import style from './style'
+
+import EventManager from '../../services/EventManager'
+import Services from '../../services'
 
 let RAINBOWS = (d) => {
 
@@ -87,34 +92,14 @@ let RAINBOWS = (d) => {
 export default class ContentPortal extends Component {
 
     state = {
-        active: true
-    }
-
-    loop = (t) => {
-        // this.raf = window.requestAnimationFrame(this.loop)
-        // if (this.time < 0) {
-        //     this.time = t
-        //     return
-        // }
-
-        // this.dt = (t - this.time) / 1000
-        // this.time = t
-        // this.rainbows.loop(this.dt)
-        // this.rainbows.draw()
+        activity: 0
     }
 
     componentDidMount() {
-        // this.canvas = document.createElement('canvas')
-        // this.base.appendChild(this.canvas)
-
-        // const box = this.base.getBoundingClientRect()
-        // this.width = this.canvas.width = Math.floor(box.width / 4)
-        // this.height = this.canvas.height = Math.floor(box.height / 4)
-
-        // this.ctx = this.canvas.getContext('2d')
-        // this.rainbows = new RAINBOWS(this)
-        // this.time = -1
-        // this.raf = window.requestAnimationFrame(this.loop)
+        EventManager.subscribe('chat_change_room', 'content', ((room) => {
+            this.state.activity = room.activity
+            this.forceUpdate()
+        }).bind(this))
     }
 
     shouldComponentUpdate() {
@@ -122,13 +107,19 @@ export default class ContentPortal extends Component {
     }
 
     componentWillUnmount() {
-        // window.cancelAnimationFrame(this.raf)
+        EventManager.unsubscribe('chat_change_room', 'content')
     }
 
-    render() {
-        return (
-            <div class={style.portal} />
-        )
+    render({ }, { activity }) {
+        let content
+        switch (activity) {
+        case 1:
+            content = <ActFireworks />
+            break
+        default:
+            content = <div class={style.empty}>&nbsp;</div>
+        }
+        return <div class={style.portal}>{content}</div>
     }
 
 }

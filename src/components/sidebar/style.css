@@ -8,5 +8,84 @@
 
 .tabs {
 	text-align: center;
-	margin-bottom: 1rem;
+	/* margin-bottom: 1rem; */
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.tabs > a {
+    flex: 1 0 30%;
+    margin: 0.25rem;
+	color: #0f0;
+	background: #010;
+	border: 1px solid #0f0;
+	font-size: 1rem;
+	line-height: 1;
+	padding: 7px;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.tabs > a:hover {
+    background: #040;
+}
+
+a.active {
+    background: #0e0;
+    color: #000;
+}
+
+a.active:hover {
+    background: #0e0;
+}
+
+.chat {
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+	z-index: 50;
+	border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.chat h2 {
+    line-height: 1;
+    font-size: 1rem;
+    margin: 0;
+    flex: 0;
+}
+
+.form {
+    width: 100%;
+}
+
+.hr {
+	margin: 1rem 0;
+	border: 0.5px solid #0f0;
+}
+
+.form p, .form h2 {
+	font-size: 1rem;
+	line-height: 1.1;
+	margin: 0 0 1rem 0;
+	font-weight: 400;
+}
+
+.form h2 {
+	text-align: center;
+	font-size: 1.5rem;
+}
+
+.form input, .form select, .form button {
+    display: block;
+	width: 100%;
+    margin: 0 0 1rem 0;
+    font-family: monospace;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.form input[type=text] {
+    border: 0;
+    outline: 0;
 }

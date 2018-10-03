@@ -3,9 +3,10 @@ import Connector from './Connector'
 
 class Room {
 
-    constructor (id, name) {
+    constructor (id, name, act) {
         this.id = id
         this.name = name
+        this.activity = act
         this.log = []
     }
 
@@ -19,26 +20,44 @@ class Room {
 
 }
 
+const DEFAULT_ROOMS = ['system', 'public']
+
 export default class Chat {
 
     static init () {
         Chat.rooms = {}
         Chat.connected = false
-        Chat.addRoom('system')
-        Chat.addRoom('public')
+        Chat.activeRoom = ''
+        DEFAULT_ROOMS.forEach(r => Chat.joinRoom(r))
         EventManager.subscribe('ws_message', 'chat_service', Chat.listen)
-        EventManager.subscribe('ws_auth', 'chat_service', Chat.auth)
+        EventManager.subscribe('ws_status', 'chat_service', Chat.status)
     }
 
-    static addRoom (name) {
-        if (!Chat.rooms[name]) {
-            Chat.rooms[name] = new Room(name)
+    static setActiveRoom (id) {
+        if (!Chat.rooms[id]) {
+            console.warn('tried to change to nonexisting room:', id)
+            return
         }
-        return Chat.rooms[name]
+        Chat.activeRoom = id
+        EventManager.publish('chat_change_room', Chat.rooms[id])
+    }
+
+    static addRoom (id, name, act) {
+        if (!Chat.rooms[id]) {
+            Chat.rooms[id] = new Room(id, name, act)
+        }
+        return Chat.rooms[id]
     }
 
     static joinRoom (name) {
-        Connector.send('chat', name ? 'join_room' : 'create_room', name)
+        Connector.send('chat', 'join_room', name)
+    }
+
+    static createRoom (name, activity) {
+        Connector.send('chat', 'create_room', {
+            name,
+            activity
+        })
     }
 
     static broadcast (from, msg) {
@@ -55,7 +74,7 @@ export default class Chat {
     }
 
     static listen (data) {
-        if (data.error || data.scope != 'chat') return
+        if (data.scope != 'chat') return
         let shouldUpdate = false
         switch (data.action) {
         case 'new_message':
@@ -68,15 +87,21 @@ export default class Chat {
             }
             break
         case 'join_room':
-            const room = Chat.addRoom(data.data.name)
-            room.addEntry('system', 'connected')
+            if (data.error == 2002) {
+                if (Chat.activeRoom) Chat.setActiveRoom('public')
+                delete Chat.rooms[data.data]
+            } else {
+                const room = Chat.addRoom(data.data.name, data.data.friendly_name, data.data.activity)
+                room.addEntry('system', 'connected')
+                EventManager.publish('chat_join', data.data.name)
+            }
             shouldUpdate = true
             break
         }
         if (shouldUpdate) EventManager.publish('chat_update', true)
     }
 
-    static auth (status) {
+    static status (status) {
         // ignore if nothing's changed
         if (Chat.connected == status) return
 
