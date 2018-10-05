@@ -1,9 +1,9 @@
 import { h, Component } from 'preact'
+import { inject, observer } from 'mobx-preact'
 
 import style from './style'
 
 import EventManager from '../../services/EventManager'
-import Connector from '../../services/Connector'
 import Services from '../../services'
 
 class FireworksCanvas {
@@ -127,16 +127,19 @@ class FireworksCanvas {
     }
 }
 
+@inject('rooms')
+@inject('auth')
+@observer
 export default class ActFireworks extends Component {
 
     launch = () => {
-        Connector.send('activity', 'launch', Services.chat.activeRoom)
+        Services.socket.send('activity', 'launch', this.props.rooms.active)
     }
 
     componentDidMount() {
         this.canvas = new FireworksCanvas(this.base)
         EventManager.subscribe('ws/activity/launch', 'fireworks', (({ action, data }) => {
-            if (action.target == Services.chat.activeRoom) {
+            if (action.target == this.props.rooms.active) {
                 this.canvas.launch(data.position, data.hue, data.lifetime)
             }
         }).bind(this))
@@ -147,14 +150,14 @@ export default class ActFireworks extends Component {
     }
 
     componentWillUnmount() {
-        EventManager.unsubscribe('ws_message', 'fireworks')
+        EventManager.unsubscribe('ws/activity/launch', 'fireworks')
         this.canvas.destroy()
     }
 
-    render() {
+    render({ auth }) {
         return (
             <div class={style.container}>
-                <button onClick={this.launch} class={'button ' + style.launch}>launch!</button>
+                <button onClick={this.launch} class={'button ' + style.launch} style={{ display: auth.loggedIn ? 'block' : 'none' }}>launch!</button>
             </div>
         )
     }

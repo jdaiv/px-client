@@ -22,3 +22,8 @@
     flex: 0;
     margin-left: 1rem;
 }
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}

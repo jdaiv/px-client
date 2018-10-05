@@ -11,17 +11,24 @@
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 	z-index: 50;
 	font-weight: bold;
+	align-items: center;
+	padding: 0 1rem;
 }
 
 .header h1 {
 	margin: 0;
-	padding: 0 1rem;
 	font-size: 2rem;
 	line-height: 4rem;
 	font-weight: bold;
 	flex: 1;
 }
 
-.auth {
+.status {
 	width: auto;
+	text-align: right;
+	line-height: 1.5;
+}
+
+.status button, .status a {
+	padding: 0.125rem 0.5rem;
 }

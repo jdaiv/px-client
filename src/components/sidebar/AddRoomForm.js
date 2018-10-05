@@ -1,11 +1,14 @@
 import { h, Component } from 'preact'
 import { route } from 'preact-router'
+import { inject, observer } from 'mobx-preact'
 
 import style from './style'
 
 import EventManager from '../../services/EventManager'
 import Services from '../../services'
 
+@inject('auth')
+@observer
 export default class AddRoom extends Component {
 
     submitCreate = (evt) => {
@@ -13,7 +16,7 @@ export default class AddRoom extends Component {
         const name = evt.target.elements.name.value
         const act = parseInt(evt.target.elements.act.value, 10)
         if (name.length > 0) {
-            Services.chat.createRoom(name, act)
+            Services.rooms.create(name, act)
             evt.target.reset()
         }
     }
@@ -22,7 +25,7 @@ export default class AddRoom extends Component {
         evt.preventDefault()
         const id = evt.target.elements.id.value
         if (id.length > 0) {
-            Services.chat.joinRoom(id)
+            Services.rooms.join(id)
             evt.target.reset()
         }
     }
@@ -38,21 +41,23 @@ export default class AddRoom extends Component {
         EventManager.unsubscribe('chat_join', 'room_form')
     }
 
-    render() {
+    render({ auth }) {
         return (
             <div class={style.form}>
-                <h2>create a new room</h2>
-                <p>select an activity and name for your new room</p>
-                <form onSubmit={this.submitCreate}>
-                    <input name="name" placeholder="room name" autocomplete="off" />
-                    <select name="act">
-                        <option value="-1">Select Activity</option>
-                        <option value="0">Nothing</option>
-                        <option value="1">Fireworks</option>
-                    </select>
-                    <input class="button" type="submit" value="new room" />
-                </form>
-                <hr class={style.hr} />
+                {auth.loggedIn ? (<div>
+                    <h2>create a new room</h2>
+                    <p>select an activity and name for your new room</p>
+                    <form onSubmit={this.submitCreate}>
+                        <input name="name" placeholder="room name" autocomplete="off" />
+                        <select name="act">
+                            <option value="-1">Select Activity</option>
+                            <option value="0">Nothing</option>
+                            <option value="1">Fireworks</option>
+                        </select>
+                        <input class="button" type="submit" value="new room" />
+                    </form>
+                    <hr class={style.hr} />
+                </div>) : ''}
                 <h2>join an existing room</h2>
                 <p>enter a room code to join a room</p>
                 <form onSubmit={this.submitJoin}>

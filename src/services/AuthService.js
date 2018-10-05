@@ -4,46 +4,51 @@ import { apiUrl } from '../config/const'
 
 const ADDR = `${apiUrl}/api/auth`
 
-export default class Auth {
+export default class AuthService {
 
-    static init () {
-        Auth.loadToken()
-        Auth.readClaims()
+    constructor (authStore) {
+        this.store = authStore
+        this.loadToken()
+        this.readClaims()
     }
 
-    static loadToken () {
-        Auth.token = window.localStorage.getItem('auth_token')
-        EventManager.publish('auth_update', Auth.token != null)
+    loadToken () {
+        this.store.token = window.localStorage.getItem('auth_token')
+        if (this.store.token == 'null') this.store.token = null
+        this.store.loggedIn = this.store.token != null
+        EventManager.publish('auth_update', this.store.token != null)
     }
 
-    static storeToken (token) {
-        Auth.token = token
+    storeToken (token) {
+        this.store.token = token
         window.localStorage.setItem('auth_token', token)
         if (token != null) {
-            Auth.readClaims()
+            this.store.loggedIn = true
+            this.readClaims()
         }
     }
 
-    static invalidate () {
-        Auth.storeToken(null)
+    invalidate () {
+        this.storeToken(null)
+        this.store.loggedIn = false
         EventManager.publish('auth_update', false)
     }
 
-    static readClaims () {
-        if (!Auth.token) return
+    readClaims () {
+        if (!this.store.token) return
 
         try {
-            const [ , claimsRaw ] = Auth.token.split('.')
+            const [ , claimsRaw ] = this.store.token.split('.')
             // atob() butchers unicode, so we're bringing in something better?
             const claims = JSON.parse(Base64.fromBase64(claimsRaw))
-            Auth.username = claims.name
+            this.store.username = claims.name
         } catch (err) {
             console.log('token invalid', err)
-            Auth.invalidate()
+            this.invalidate()
         }
     }
 
-    static login (username, password) {
+    login (username, password) {
         const data = new FormData()
         data.append('username', username)
         data.append('password', password)
@@ -54,8 +59,8 @@ export default class Auth {
             return r.json()
         }).then(json => {
             if (!json.error) {
-                Auth.storeToken(json.data)
-                EventManager.publish('auth_update', true)
+                this.storeToken(json.data)
+                EventManager.publish('auth_update', this.loggedIn)
             } else {
                 throw new Error(json.message)
             }
@@ -65,8 +70,8 @@ export default class Auth {
         })
     }
 
-    static logout () {
-        Auth.invalidate()
+    logout () {
+        this.invalidate()
     }
 
 }

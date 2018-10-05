@@ -1,65 +1,67 @@
 import { h, Component } from 'preact'
 import Router from 'preact-router'
 import { Link } from 'preact-router/match'
+import { inject, observer } from 'mobx-preact'
 
 import AddRoomForm from './AddRoomForm'
 import SettingsForm from './SettingsForm'
 import AccountSettingsForm from './AccountSettingsForm'
 import ChatLog from './chat_log'
 import ChatInput from './chat_input'
+import Auth from './Auth'
 
 import style from './style'
 
-import EventManager from '../../services/EventManager'
 import Services from '../../services'
 
-const Chat = ({ id }) => (
-    <div class={style.chat}>
-        <ChatLog target={id} />
-        <ChatInput target={id} />
-    </div>
-)
+@inject('rooms')
+class Chat extends Component {
+    render({ id, rooms }) {
+        const room = rooms.get(id)
+        return (
+            (!room) ? <div /> :
+                <div class={style.chat}>
+                    <h2>room: {room.name}</h2>
+                    <ChatLog log={room.log} />
+                    <ChatInput target={id} />
+                </div>
+        )
+    }
+}
 
+@inject('auth')
+@inject('rooms')
+@observer
 export default class Sidebar extends Component {
-    state = {
-        active: false
-    }
-
-    toggle = () => {
-        this.setState({ active: !this.state.active })
-    }
-
     handleRoute = (r) => {
         let isRoomUrl = r.url.match(/\/room\/(.*)/)
         if (isRoomUrl) {
             const roomId = isRoomUrl[1]
-            if (roomId != 'system' && roomId != 'public' && !Services.chat.rooms[roomId]) {
-                Services.chat.joinRoom(roomId)
+            if (roomId != 'system' && roomId != 'public' && !this.props.rooms.get(roomId)) {
+                Services.rooms.join(roomId).then(() => this.props.rooms.setActive(roomId))
+            } else {
+                this.props.rooms.setActive(roomId)
             }
-            Services.chat.setActiveRoom(roomId)
+
         }
     }
 
-    componentDidMount() {
-        EventManager.subscribe('chat_update', 'sidebar', ((data) => {
-            this.forceUpdate()
-        }).bind(this))
-    }
-
-    componentWillUnmount() {
-        EventManager.unsubscribe('chat_update', 'sidebar')
-    }
-
-    render({ }, { log, active }) {
-        const chatTabs = Object.entries(Services.chat.rooms).map((e) => {
-            return <Link activeClassName={style.active} href={'/room/' + e[0]}>{e[1].name}</Link>
-        })
+    render({ auth, rooms }) {
+        let options = rooms.list.map(r => (
+            <Link activeClassName={style.active} href={'/room/' + r.id}>{r.name}</Link>
+        ))
+        if (rooms.list.length < 3) {
+            options.push(<Link activeClassName={style.active} href="/add_room">{auth.loggedIn ? 'add/join' : 'join'} room</Link>)
+        }
+        if (auth.loggedIn) {
+            options.push(<Link activeClassName={style.active} href="/account">account</Link>)
+        } else {
+            options.push(<Link activeClassName={style.active} href="/login">login</Link>)
+        }
         return (
             <div class={style.sidebar}>
                 <nav class={style.tabs}>
-                    {chatTabs}
-                    {Object.entries(Services.chat.rooms).length < 3 ? <Link activeClassName={style.active} href="/add_room">add room</Link> : null}
-                    <Link activeClassName={style.active} href="/account">account</Link>
+                    {options}
                     <Link activeClassName={style.active} href="/settings">settings</Link>
                 </nav>
                 <hr class={style.hr} />
@@ -67,6 +69,7 @@ export default class Sidebar extends Component {
                     <Chat path="/room/:id" />
                     <AddRoomForm path="/add_room" />
                     <AccountSettingsForm path="/account" />
+                    <Auth path="/login" />
                     <SettingsForm path="/settings" />
                 </Router>
             </div>

@@ -7,3 +7,11 @@
     white-space: pre-wrap;
     word-break: break-word;
 }
+
+.notice {
+    font-style: italic;
+}
+
+.message {
+    font-style: normal;
+}

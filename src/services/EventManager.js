@@ -24,7 +24,7 @@ export default class EventManager {
     static publish (type, data) {
         const group = EventManager.subscribers[type]
         if (group == null) {
-            console.warn('no subscribers for (', type, '), payload ignored', data)
+            // console.warn('no subscribers for (', type, '), payload ignored', data)
             return
         }
         for (let key in group) {

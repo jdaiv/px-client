@@ -1,23 +1,26 @@
 import { h, Component } from 'preact'
+import { inject, observer } from 'mobx-preact'
 
 import style from './style'
 
 import Services from '../../../services'
 
+@inject('auth')
+@observer
 export default class ChatInput extends Component {
     submit = (evt) => {
         evt.preventDefault()
         const message = evt.target.elements.message.value
         if (message.length > 0) {
-            Services.chat.send(this.props.target, message)
+            Services.rooms.send(this.props.target, message)
             evt.target.reset()
         }
     }
 
-    render() {
+    render({ auth }) {
         return (
-            <form class={style.form} onSubmit={this.submit}>
-                <input name="message" autocomplete="off" placeholder="message" />
+            <form class={style.form + ' ' + (auth.loggedIn ? '' : style.disabled)} onSubmit={this.submit}>
+                <input name="message" autocomplete="off" placeholder={(auth.loggedIn ? 'message' : 'log in first')} />
                 <input class="button" type="submit" value="send" />
             </form>
         )

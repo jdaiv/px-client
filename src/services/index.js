@@ -1,22 +1,18 @@
-import Auth from './Auth'
-import Connector from './Connector'
-import Chat from './Chat'
+import AuthService from './AuthService'
+import SocketService from './SocketService'
+import RoomService from './RoomService'
 import EventManager from './EventManager'
 
 export default class Services {
 
-    static init () {
-        Services.auth = Auth
-        Services.chat = Chat
-
-        // core
+    static init (socketStore, authStore, roomStore) {
         EventManager.init()
-        Connector.init()
-        Connector.open()
 
-        // services
-        Auth.init()
-        Chat.init()
+        Services.auth = new AuthService(authStore)
+        Services.socket = new SocketService(socketStore, Services.auth)
+        Services.rooms = new RoomService(roomStore, Services.socket)
+
+        Services.socket.open()
     }
 
 }

@@ -18,7 +18,12 @@ html, body {
 
 #app {
 	margin-top: 4rem;
-	height: calc(100vh - 6rem);
+	height: calc(100vh - 4rem);
+}
+
+/* provider block */
+#app > div {
+	height: 100%;
 }
 
 .button {
@@ -30,6 +35,8 @@ html, body {
 	line-height: 1;
 	padding: 7px;
 	cursor: pointer;
+	font-weight: 400;
+	text-decoration: none;
 }
 
 .button:hover {
