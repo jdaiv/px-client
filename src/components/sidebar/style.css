@@ -70,6 +70,14 @@ a.active:hover {
 	font-size: 1.5rem;
 }
 
+p.error {
+	color: #f00;
+}
+
+p.hint {
+	color: #090;
+}
+
 .form input, .form select, .form button {
     display: block;
 	width: 100%;

@@ -41,7 +41,7 @@ export default class AuthService {
             const [ , claimsRaw ] = this.store.token.split('.')
             // atob() butchers unicode, so we're bringing in something better?
             const claims = JSON.parse(Base64.fromBase64(claimsRaw))
-            this.store.username = claims.name
+            this.store.username = claims.full_name
         } catch (err) {
             console.log('token invalid', err)
             this.invalidate()
@@ -52,7 +52,7 @@ export default class AuthService {
         const data = new FormData()
         data.append('username', username)
         data.append('password', password)
-        fetch(ADDR, {
+        return fetch(ADDR, {
             method: 'POST',
             body: data
         }).then(r => {
@@ -60,10 +60,10 @@ export default class AuthService {
         }).then(json => {
             if (!json.error) {
                 this.storeToken(json.data)
-                EventManager.publish('auth_update', this.loggedIn)
-            } else {
-                throw new Error(json.message)
+                EventManager.publish('auth_update', this.store.loggedIn)
             }
+
+            return json
         }).catch(err => {
             console.error('auth error', err)
             EventManager.publish('auth_update', false)

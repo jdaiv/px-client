@@ -16,7 +16,8 @@ export default class SocketService {
         EventManager.subscribe('auth_update', 'ws_auth', (data) => {
             if (data === true) this.auth()
             else if (data === false) {
-                this.close()
+                this.send('auth', 'logout', 'all', null, true)
+                this.store.authenticated = false
             }
         })
     }
