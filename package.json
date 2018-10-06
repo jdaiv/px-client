@@ -28,7 +28,8 @@
       "arrow-body-style": "off",
       "no-console": "off",
       "no-case-declarations": "off",
-      "guard-for-in": "off"
+      "guard-for-in": "off",
+      "react/jsx-indent-props": "off"
     }
   },
   "eslintIgnore": [
@@ -50,6 +51,7 @@
     "mobx-preact": "^3.0.0",
     "preact": "^8.2.6",
     "preact-compat": "^3.17.0",
+    "preact-helmet": "^4.0.0-alpha-3",
     "preact-router": "^2.5.7"
   },
   "jest": {

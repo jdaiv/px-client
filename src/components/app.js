@@ -1,4 +1,5 @@
 import { h } from 'preact'
+import Helmet from 'preact-helmet'
 import { Provider } from 'mobx-preact'
 
 import Header from './header'
@@ -19,6 +20,16 @@ window.services = Services
 
 const App = () => (
     <div id="app">
+        <Helmet
+            title="The Panic Express"
+            htmlAttributes={{ lang: 'en' }}
+            meta={[
+                { name: 'description', content: 'Play poorly made things with friends!' }
+            ]}
+            link={[
+                // { rel: 'icon', type: 'image/png', href: '/favicon.png' }
+            ]}
+        />
         <Provider auth={authStore} socket={socketStore} rooms={roomStore}>
             <Header />
             <div class="container">

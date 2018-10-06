@@ -4,7 +4,6 @@ import { inject, observer } from 'mobx-preact'
 
 import style from './style'
 
-import EventManager from '../../services/EventManager'
 import Services from '../../services'
 
 @inject('auth')
@@ -25,20 +24,9 @@ export default class AddRoom extends Component {
         evt.preventDefault()
         const id = evt.target.elements.id.value
         if (id.length > 0) {
-            Services.rooms.join(id)
+            Services.rooms.join(id).then(() => route('/room/' + id))
             evt.target.reset()
         }
-    }
-
-    componentDidMount() {
-        EventManager.subscribe('chat_join', 'room_form', ((data) => {
-            console.log(data)
-            route('/room/' + data)
-        }).bind(this))
-    }
-
-    componentWillUnmount() {
-        EventManager.unsubscribe('chat_join', 'room_form')
     }
 
     render({ auth }) {
