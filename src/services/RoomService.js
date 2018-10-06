@@ -60,7 +60,10 @@ export default class RoomService {
             }
         } else if (!error) {
             const room = this.store.add(data.name, data.friendly_name, data.activity)
-            this.store.addEntry(room, '', 'connected')
+            this.store.addEntry(room, {
+                from: '',
+                content: 'connected',
+            })
             EventManager.publish('chat_join', data.name)
             if (this.promises[roomName]) {
                 this.promises[roomName].resolve()
