@@ -14,20 +14,20 @@ class Room {
     }
 
     @action.bound
-    addEntry (from, msg, notice) {
+    addEntry ({ from, content, notice, ...data }) {
         const timestamp = new Date()
         let formatted
-        if (from) {
-            formatted = `(${timestamp.toLocaleTimeString()}) ${from}: ${msg}`
+        if (from && data.class != 'server') {
+            formatted = `(${timestamp.toLocaleTimeString()}) ${from}: ${content}`
         } else {
-            formatted = `(${timestamp.toLocaleTimeString()}) ${msg}`
+            formatted = `(${data.class || 'system'}) ${content}`
         }
         this.log.push({
             from,
-            msg,
+            content,
             timestamp,
             formatted,
-            notice: notice || !from
+            notice: notice || data.class == 'server' || !from
         })
     }
 
@@ -83,17 +83,17 @@ export default class RoomStore {
     }
 
     @action.bound
-    addEntryById (id, from, msg, notice) {
+    addEntryById (id, data) {
         const room = this.get(id)
         if (!room) {
             return
         }
 
-        room.addEntry(from, msg, notice)
+        room.addEntry(data)
     }
 
     @action.bound
-    addEntry (room, from, msg, notice) {
-        room.addEntry(from, msg, notice)
+    addEntry (room, data) {
+        room.addEntry(data)
     }
 }

@@ -72,7 +72,7 @@ export default class RoomService {
     listenMessage = ({ error, action, data }) => {
         let room = this.store.get(action.target)
         if (room) {
-            this.store.addEntry(room, data.from, data.content)
+            this.store.addEntry(room, data)
         } else {
             console.warn(`received message for ${action.target}, but we're not subscribed to it`)
         }
@@ -86,12 +86,18 @@ export default class RoomService {
         this.store.list.forEach(({ id }) => {
             if (status) {
                 if (DEFAULT_ROOMS.includes(id)) {
-                    this.store.addEntryById(id, '', 'connected')
+                    this.store.addEntryById(id, {
+                        from: '',
+                        content: 'connected',
+                    })
                 } else {
                     this.join(id)
                 }
             } else {
-                this.store.addEntryById(id, '', 'disconnected')
+                this.store.addEntryById(id, {
+                    from: '',
+                    content: 'disconnected',
+                })
             }
         })
     }
