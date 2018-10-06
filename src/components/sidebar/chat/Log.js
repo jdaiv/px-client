@@ -3,7 +3,7 @@ import style from './style'
 import { observer } from 'mobx-preact'
 
 @observer
-export default class ChatLog extends Component {
+export default class Log extends Component {
 
     componentDidUpdate() {
         setTimeout(() => {

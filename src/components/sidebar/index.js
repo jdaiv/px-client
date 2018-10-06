@@ -1,31 +1,25 @@
 import { h, Component } from 'preact'
-import Router from 'preact-router'
-import { Link } from 'preact-router/match'
+import { Router, route, Link as StaticLink } from 'preact-router'
+import { Link, Match } from 'preact-router/match'
 import { inject, observer } from 'mobx-preact'
 
 import AddRoomForm from './AddRoomForm'
 import SettingsForm from './SettingsForm'
 import AccountSettingsForm from './AccountSettingsForm'
-import ChatLog from './chat_log'
-import ChatInput from './chat_input'
+import Chat from './chat'
 import Auth from './Auth'
 
 import style from './style'
 
 import Services from '../../services'
 
-@inject('rooms')
-class Chat extends Component {
-    render({ id, rooms }) {
-        const room = rooms.get(id)
-        return (
-            (!room) ? <div /> :
-                <div class={style.chat}>
-                    <h2>room: {room.name}</h2>
-                    <ChatLog log={room.log} />
-                    <ChatInput target={id} />
-                </div>
-        )
+class Redirect extends Component {
+    componentWillMount() {
+        route(this.props.to, true)
+    }
+
+    render() {
+        return null
     }
 }
 
@@ -34,7 +28,7 @@ class Chat extends Component {
 @observer
 export default class Sidebar extends Component {
     handleRoute = (r) => {
-        let isRoomUrl = r.url.match(/\/room\/(.*)/)
+        let isRoomUrl = r.url.match(/\/room\/([^/]*)\/?/)
         if (isRoomUrl) {
             const roomId = isRoomUrl[1]
             if (roomId != 'system' && roomId != 'public' && !this.props.rooms.get(roomId)) {
@@ -48,7 +42,12 @@ export default class Sidebar extends Component {
 
     render({ auth, rooms }) {
         let options = rooms.list.map(r => (
-            <Link activeClassName={style.active} href={'/room/' + r.id}>{r.name}</Link>
+            <Match>
+                {({ matches, path, url }) => {
+                    const key = '/room/' + r.id
+                    return <StaticLink class={url.startsWith(key) ? style.active : ''} href={key}>{r.name}</StaticLink>
+                }}
+            </Match>
         ))
         if (rooms.list.length < 3) {
             options.push(<Link activeClassName={style.active} href="/add_room">{auth.loggedIn ? 'add/join' : 'join'} room</Link>)
@@ -66,7 +65,8 @@ export default class Sidebar extends Component {
                 </nav>
                 <hr class={style.hr} />
                 <Router onChange={this.handleRoute}>
-                    <Chat path="/room/:id" />
+                    <Redirect default to="/room/public" />
+                    <Chat path="/room/:id/:option?" />
                     <AddRoomForm path="/add_room" />
                     <AccountSettingsForm path="/account" />
                     <Auth path="/login" />

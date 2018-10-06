@@ -7,7 +7,7 @@ import Services from '../../../services'
 
 @inject('auth')
 @observer
-export default class ChatInput extends Component {
+export default class Input extends Component {
     submit = (evt) => {
         evt.preventDefault()
         const message = evt.target.elements.message.value

@@ -1,5 +1,5 @@
 import EventManager from './EventManager'
-import { Promise } from 'es6-promise';
+import { Promise } from 'es6-promise'
 
 export const DEFAULT_ROOMS = ['system', 'public']
 
@@ -18,29 +18,56 @@ export default class RoomService {
             'chat_service',
             this.listenMessage)
         EventManager.subscribe(
+            'ws/chat/list_users',
+            'chat_service',
+            this.listenList)
+        EventManager.subscribe(
             'ws_status',
             'chat_service',
             this.status)
         this.promises = {}
     }
 
-    join (name) {
-        if (this.promises[name]) return this.promises[name]
-        this.socket.send('chat', 'join_room', name)
-        return new Promise((resolve, reject) => {
-            this.promises[name] = { resolve, reject }
-        })
+    join (id) {
+        const pKey = id
+        if (!this.promises[pKey]) {
+            const newP = {}
+            this.socket.send('chat', 'join_room', id)
+            newP.p = new Promise((resolve, reject) => {
+                newP.resolve = resolve
+                newP.reject = reject
+            })
+            this.promises[pKey] = newP
+        }
+        return this.promises[pKey].p
     }
 
     create (name, activity) {
-        if (this.promises[name]) return this.promises[name]
-        this.socket.send('chat', 'create_room', '', {
-            name,
-            activity
-        })
-        return new Promise((resolve, reject) => {
-            this.promises[name] = { resolve, reject }
-        })
+        const pKey = name
+        if (!this.promises[pKey]) {
+            const newP = {}
+            this.socket.send('chat', 'create_room', '', { name, activity })
+            newP.p = new Promise((resolve, reject) => {
+                newP.resolve = resolve
+                newP.reject = reject
+            })
+            this.promises[pKey] = newP
+        }
+        return this.promises[pKey].p
+    }
+
+    getUserList (id) {
+        const pKey = id + '/list'
+        if (!this.promises[pKey]) {
+            const newP = {}
+            this.socket.send('chat', 'list_users', id)
+            newP.p = new Promise((resolve, reject) => {
+                newP.resolve = resolve
+                newP.reject = reject
+            })
+            this.promises[pKey] = newP
+        }
+        return this.promises[pKey].p
     }
 
     send (room, msg) {
@@ -78,6 +105,18 @@ export default class RoomService {
             this.store.addEntry(room, data)
         } else {
             console.warn(`received message for ${action.target}, but we're not subscribed to it`)
+        }
+    }
+
+    listenList = ({ error, action, data }) => {
+        const pKey = action.target + '/list'
+        if (this.promises[pKey]) {
+            if (error != 0) {
+                this.promises[pKey].reject()
+            } else {
+                this.promises[pKey].resolve(data)
+            }
+            delete this.promises[pKey]
         }
     }
 

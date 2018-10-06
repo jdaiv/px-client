@@ -1,6 +1,6 @@
-import { h } from 'preact'
+import { h, Component } from 'preact'
 import Helmet from 'preact-helmet'
-import { Provider } from 'mobx-preact'
+import { Provider, observer } from 'mobx-preact'
 
 import Header from './header'
 import Sidebar from './sidebar'
@@ -18,26 +18,31 @@ const roomStore = new RoomStore()
 Services.init(socketStore, authStore, roomStore)
 window.services = Services
 
-const App = () => (
-    <div id="app">
-        <Helmet
-            title="The Panic Express"
-            htmlAttributes={{ lang: 'en' }}
-            meta={[
-                { name: 'description', content: 'Play poorly made things with friends!' }
-            ]}
-            link={[
-                // { rel: 'icon', type: 'image/png', href: '/favicon.png' }
-            ]}
-        />
-        <Provider auth={authStore} socket={socketStore} rooms={roomStore}>
-            <Header />
-            <div class="container">
-                <ContentPortal />
-                <Sidebar />
+@observer
+export default class App extends Component{
+    render() {
+        return (
+            <div id="app">
+                <Helmet
+                    title={'The Panic Express' + (roomStore.active ? ' - ' + roomStore.active : '')}
+                    htmlAttributes={{ lang: 'en' }}
+                    meta={[
+                        { name: 'description', content: 'Play poorly made things with friends!' }
+                    ]}
+                    link={[
+                        // { rel: 'icon', type: 'image/png', href: '/favicon.png' }
+                    ]}
+                />
+                <Provider auth={authStore} socket={socketStore} rooms={roomStore}>
+                    <Header />
+                    <div class="container">
+                        <ContentPortal />
+                        <Sidebar />
+                    </div>
+                </Provider>
             </div>
-        </Provider>
-    </div>
-)
+        )
+    }
+}
 
-export default App
+

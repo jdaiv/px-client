@@ -36,7 +36,7 @@ export default class SocketService {
         }
 
         this.ws.onmessage = (evt) => {
-            console.log('ws message', evt)
+            // console.log('ws message', evt)
             this.receive(evt)
             EventManager.publish('ws_debug', null)
         }
@@ -82,7 +82,7 @@ export default class SocketService {
             (!this.ws || this.ws.readyState != 1 || !this.store.ready)) {
             this.queue.push([scope, action, target, data])
         } else {
-            console.log(`sending ${scope}/${action}/${target}:`, data)
+            // console.log(`sending ${scope}/${action}/${target}:`, data)
             EventManager.publish('ws_debug', data)
             this.ws.send(JSON.stringify({
                 action: {

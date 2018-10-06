@@ -2,6 +2,7 @@ export default class EventManager {
 
     static init () {
         EventManager.subscribers = {}
+        console.log('wack')
     }
 
     static subscribe (type, id, func) {
