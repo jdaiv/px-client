@@ -37,6 +37,7 @@ export default class RoomStore {
     @observable connected = false
     @observable active = null
     @observable list = []
+    @observable activityTypes = []
 
     @computed get activeRoom () {
         return this.get(this.active)

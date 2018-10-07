@@ -13,9 +13,8 @@ export default class AddRoom extends Component {
     submitCreate = (evt) => {
         evt.preventDefault()
         const name = evt.target.elements.name.value
-        const act = parseInt(evt.target.elements.act.value, 10)
         if (name.length > 0) {
-            Services.rooms.create(name, act)
+            Services.rooms.create(name).then((id) => route('/room/' + id))
             evt.target.reset()
         }
     }
@@ -37,12 +36,7 @@ export default class AddRoom extends Component {
                     <p>select an activity and name for your new room</p>
                     <form onSubmit={this.submitCreate}>
                         <input name="name" placeholder="room name" autocomplete="off" />
-                        <select name="act">
-                            <option value="-1">Select Activity</option>
-                            <option value="0">Nothing</option>
-                            <option value="1">Fireworks</option>
-                        </select>
-                        <input class="button" type="submit" value="new room" />
+                        <input class="button" type="submit" value="create" />
                     </form>
                     <hr class={style.hr} />
                 </div>) : ''}

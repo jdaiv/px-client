@@ -22,10 +22,16 @@ export default class RoomService {
             'chat_service',
             this.listenList)
         EventManager.subscribe(
+            'ws/activity/list',
+            'chat_service',
+            this.listenListAct)
+        EventManager.subscribe(
             'ws_status',
             'chat_service',
             this.status)
         this.promises = {}
+
+        this.socket.send('activity', 'list', '')
     }
 
     join (id) {
@@ -42,11 +48,11 @@ export default class RoomService {
         return this.promises[pKey].p
     }
 
-    create (name, activity) {
-        const pKey = name
+    create (name) {
+        const pKey = 'create'
         if (!this.promises[pKey]) {
             const newP = {}
-            this.socket.send('chat', 'create_room', '', { name, activity })
+            this.socket.send('chat', 'create_room', '', { name })
             newP.p = new Promise((resolve, reject) => {
                 newP.resolve = resolve
                 newP.reject = reject
@@ -82,8 +88,11 @@ export default class RoomService {
             if (this.store.active == roomName) this.store.setActive('public')
             this.store.delete(roomName)
             if (this.promises[roomName]) {
-                this.promises[roomName].reject()
+                this.promises[roomName].reject(roomName)
                 delete this.promises[roomName]
+            } else if (this.promises.create) {
+                this.promises.create.reject(roomName)
+                delete this.promises.create
             }
         } else if (!error) {
             const room = this.store.add(data.name, data.friendly_name, data.activity)
@@ -91,10 +100,13 @@ export default class RoomService {
                 from: '',
                 content: 'connected',
             })
-            EventManager.publish('chat_join', data.name)
+            EventManager.publish('chat_join', roomName)
             if (this.promises[roomName]) {
-                this.promises[roomName].resolve()
+                this.promises[roomName].resolve(roomName)
                 delete this.promises[roomName]
+            } else if (this.promises.create) {
+                this.promises.create.resolve(roomName)
+                delete this.promises.create
             }
         }
     }
@@ -117,6 +129,12 @@ export default class RoomService {
                 this.promises[pKey].resolve(data)
             }
             delete this.promises[pKey]
+        }
+    }
+
+    listenlistAct = ({ error, data }) => {
+        if (!error) {
+            this.store.activityTypes = data
         }
     }
 
