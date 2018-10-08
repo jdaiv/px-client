@@ -2,6 +2,7 @@ import { h, Component } from 'preact'
 import { inject, observer } from 'mobx-preact'
 
 import ActFireworks from './ActFireworks'
+import ActTictactoe from './ActTictactoe'
 
 import style from './style'
 
@@ -20,6 +21,9 @@ export default class ContentPortal extends Component {
         switch (activity) {
         case 'fireworks':
             content = <ActFireworks />
+            break
+        case 'tictactoe':
+            content = <ActTictactoe />
             break
         default:
             content = <div class={style.empty}>&nbsp;</div>
