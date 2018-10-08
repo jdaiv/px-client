@@ -10,10 +10,9 @@ class Room {
 
     @observable.shallow log = []
 
-    constructor (id, name, act) {
+    constructor (id, name) {
         this.id = id
         this.name = name
-        this.activity = act
     }
 
     @action.bound
@@ -58,10 +57,10 @@ export default class RoomStore {
     }
 
     @action.bound
-    add (id, name, act) {
+    add (id, name = '') {
         let room = this.get(id)
         if (!room) {
-            room = new Room(id, name, act)
+            room = new Room(id, name)
             this.list.push(room)
         }
         return room

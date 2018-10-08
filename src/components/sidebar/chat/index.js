@@ -41,9 +41,8 @@ export default class Chat extends Component {
             route('/rooms/public')
             return
         }
-        console.log(room.owner, auth.usernameN)
         const options = [<Link activeClassName={style.active} href={'/room/' + id} class="button">chat</Link>]
-        if (id != 'public' && id != 'system' && room.owner == auth.usernameN) {
+        if (id != 'public' && id != 'system' && auth.loggedIn && room.owner == auth.usernameN) {
             options.push(<Link activeClassName={style.active} href={'/room/' + id + '/options'} class="button">options</Link>)
         }
         if (id != 'system') {

@@ -31,9 +31,9 @@ export default class Options extends Component {
                     <p>select an activity</p>
                     <select name="act">
                         <option value="">nothing</option>
-                        {rooms.activityTypes.map(a => <option value={a}>{a}</option>)}
+                        {rooms.activityTypes.map(a => <option value={a.id}>{a.title}</option>)}
                     </select>
-                    <input class="button" type="submit" value="new room" />
+                    <input class="button" type="submit" value="save" />
                 </form>
             </div>
         )
