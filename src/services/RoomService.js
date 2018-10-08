@@ -1,5 +1,6 @@
 import EventManager from './EventManager'
 import { Promise } from 'es6-promise'
+import { action } from 'mobx'
 
 export const DEFAULT_ROOMS = ['system', 'public']
 
@@ -90,6 +91,7 @@ export default class RoomService {
         })
     }
 
+
     listenJoin = ({ error, action, data }) => {
         let roomName = action.target
         if (error == 2002) {
@@ -103,7 +105,7 @@ export default class RoomService {
                 delete this.promises.create
             }
         } else if (!error) {
-            const room = this.store.add(data.name)
+            const room = this.store.add(data.name, data.friendly_name)
             this.updateRoom(room, data)
             this.store.addEntry(room, {
                 from: '',
@@ -130,6 +132,7 @@ export default class RoomService {
         }
     }
 
+    @action
     updateRoom (room, data) {
         [
             ['owner', 'owner',],

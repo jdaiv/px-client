@@ -72,8 +72,9 @@ export default class RoomStore {
 
     @action.bound
     delete (id) {
-        const idx = this.list.find(r => r.id == id)
+        const idx = this.list.findIndex(r => r.id == id)
         if (idx >= 0) {
+            this.list[idx].dispose()
             this.list.splice(idx, 1)
         }
     }

@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'
-import { Router, route } from 'preact-router'
+import { Router } from 'preact-router'
 import { Link } from 'preact-router/match'
 import { inject, observer } from 'mobx-preact'
 import { observable } from 'mobx'
@@ -38,7 +38,6 @@ export default class Chat extends Component {
     render({ id, rooms, auth }) {
         const room = rooms.get(id)
         if (!room) {
-            route('/rooms/public')
             return
         }
         const options = [<Link activeClassName={style.active} href={'/room/' + id} class="button">chat</Link>]
