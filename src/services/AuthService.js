@@ -41,6 +41,7 @@ export default class AuthService {
             const [ , claimsRaw ] = this.store.token.split('.')
             // atob() butchers unicode, so we're bringing in something better?
             const claims = JSON.parse(Base64.fromBase64(claimsRaw))
+            this.store.usernameN = claims.name
             this.store.username = claims.full_name
         } catch (err) {
             console.log('token invalid', err)

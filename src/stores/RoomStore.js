@@ -2,9 +2,12 @@ import { observable, computed, action } from 'mobx'
 
 class Room {
 
+    @observable owner
     @observable id
     @observable name
     @observable activity
+    @observable.shallow activityState
+
     @observable.shallow log = []
 
     constructor (id, name, act) {

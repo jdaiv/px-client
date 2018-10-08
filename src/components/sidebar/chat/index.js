@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'
-import { Router } from 'preact-router'
+import { Router, route } from 'preact-router'
 import { Link } from 'preact-router/match'
 import { inject, observer } from 'mobx-preact'
 import { observable } from 'mobx'
@@ -8,6 +8,7 @@ import style from './style'
 
 import Log from './Log'
 import Input from './Input'
+import Options from './Options'
 
 import Services from '../../../services'
 
@@ -31,18 +32,25 @@ class UserList extends Component {
 }
 
 @inject('rooms')
+@inject('auth')
+@observer
 export default class Chat extends Component {
-    render({ id, rooms }) {
+    render({ id, rooms, auth }) {
         const room = rooms.get(id)
+        if (!room) {
+            route('/rooms/public')
+            return
+        }
+        console.log(room.owner, auth.usernameN)
         const options = [<Link activeClassName={style.active} href={'/room/' + id} class="button">chat</Link>]
-        if (id != 'public' && id != 'system') {
+        if (id != 'public' && id != 'system' && room.owner == auth.usernameN) {
             options.push(<Link activeClassName={style.active} href={'/room/' + id + '/options'} class="button">options</Link>)
         }
         if (id != 'system') {
             options.push(<Link activeClassName={style.active} href={'/room/' + id + '/users'} class="button">user list</Link>)
         }
         if (id != 'public' && id != 'system') {
-            options.push(<button class="button">leave</button>)
+            // options.push(<button class="button">leave</button>)
         }
         return (
             (!room) ? <div /> : (
@@ -52,11 +60,12 @@ export default class Chat extends Component {
                         {options.length > 1 ? options : null}
                     </div>
                     <Router>
-                        <div path={'/room/' + id} class={style.container}>
+                        <div path="/room/:id" class={style.container}>
                             <Log log={room.log} />
                             <Input target={id} />
                         </div>
-                        <UserList path={'/room/' + id + '/users'} id={id} />
+                        <UserList path="/room/:id/users" />
+                        <Options path="/room/:id/options" />
                     </Router>
                 </div>
             )

@@ -14,6 +14,10 @@ export default class RoomService {
             'chat_service',
             this.listenJoin)
         EventManager.subscribe(
+            'ws/chat/update_room',
+            'chat_service',
+            this.listenUpdate)
+        EventManager.subscribe(
             'ws/chat/new_message',
             'chat_service',
             this.listenMessage)
@@ -76,6 +80,10 @@ export default class RoomService {
         return this.promises[pKey].p
     }
 
+    update (id, data) {
+        this.socket.send('chat', 'update_room', id, data)
+    }
+
     send (room, msg) {
         this.socket.send('chat', 'message', room, {
             content: msg
@@ -95,7 +103,8 @@ export default class RoomService {
                 delete this.promises.create
             }
         } else if (!error) {
-            const room = this.store.add(data.name, data.friendly_name, data.activity)
+            const room = this.store.add(data.name)
+            this.updateRoom(room, data)
             this.store.addEntry(room, {
                 from: '',
                 content: 'connected',
@@ -109,6 +118,27 @@ export default class RoomService {
                 delete this.promises.create
             }
         }
+    }
+
+    listenUpdate = ({ error, action, data }) => {
+        let room = this.store.get(action.target)
+        if (room) {
+            this.updateRoom(room, data)
+        } else {
+            console.warn(`received update for ${action.target}, but we're not subscribed to it`)
+        }
+    }
+
+    updateRoom (room, data) {
+        [
+            ['owner', 'owner'],
+            ['name', 'friendly_name'],
+            ['activity', 'activity'],
+            ['activityState', 'activity_state'],
+        ].forEach(m => {
+            if (data[m[1]] !== null || data[m[1]] !== undefined)
+                room[m[0]] = data[m[1]]
+        })
     }
 
     listenMessage = ({ error, action, data }) => {
@@ -132,9 +162,9 @@ export default class RoomService {
         }
     }
 
-    listenlistAct = ({ error, data }) => {
+    listenListAct = ({ error, data }) => {
         if (!error) {
-            this.store.activityTypes = data
+            this.store.activityTypes.replace(data)
         }
     }
 

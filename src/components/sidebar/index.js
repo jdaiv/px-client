@@ -32,7 +32,8 @@ export default class Sidebar extends Component {
         if (isRoomUrl) {
             const roomId = isRoomUrl[1]
             if (roomId != 'system' && roomId != 'public' && !this.props.rooms.get(roomId)) {
-                Services.rooms.join(roomId).then(() => this.props.rooms.setActive(roomId))
+                Services.rooms.join(roomId).then(
+                    () => this.props.rooms.setActive(roomId)).catch(() => route('/add_room'))
             } else {
                 this.props.rooms.setActive(roomId)
             }

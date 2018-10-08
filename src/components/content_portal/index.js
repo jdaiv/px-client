@@ -18,7 +18,7 @@ export default class ContentPortal extends Component {
 
         let content
         switch (activity) {
-        case 1:
+        case 'fireworks':
             content = <ActFireworks />
             break
         default:

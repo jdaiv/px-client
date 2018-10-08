@@ -23,17 +23,17 @@ export default class App extends Component{
     render() {
         return (
             <div id="app">
-                <Helmet
-                    title={'The Panic Express' + (roomStore.active ? ' - ' + roomStore.active : '')}
-                    htmlAttributes={{ lang: 'en' }}
-                    meta={[
-                        { name: 'description', content: 'Play poorly made things with friends!' }
-                    ]}
-                    link={[
-                        // { rel: 'icon', type: 'image/png', href: '/favicon.png' }
-                    ]}
-                />
                 <Provider auth={authStore} socket={socketStore} rooms={roomStore}>
+                    <Helmet
+                        title={'The Panic Express' + (roomStore.active ? ' - ' + roomStore.activeRoom.name : '')}
+                        htmlAttributes={{ lang: 'en' }}
+                        meta={[
+                            { name: 'description', content: 'Play poorly made things with friends!' }
+                        ]}
+                        link={[
+                            // { rel: 'icon', type: 'image/png', href: '/favicon.png' }
+                        ]}
+                    />
                     <Header />
                     <div class="container">
                         <ContentPortal />
