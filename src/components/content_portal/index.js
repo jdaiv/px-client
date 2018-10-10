@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-preact'
 
 import ActFireworks from './ActFireworks'
 import ActTictactoe from './ActTictactoe'
+// import BootlegHearthstone from '../../activities/bootleg_hearthstone'
 
 import style from './style'
 
@@ -26,6 +27,7 @@ export default class ContentPortal extends Component {
             content = <ActTictactoe />
             break
         default:
+            // content = <BootlegHearthstone />
             content = <div class={style.empty}>&nbsp;</div>
         }
 
