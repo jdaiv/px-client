@@ -15,7 +15,7 @@ export default class ParticleSystem {
             if (!p.active) return
             p.x += dt * p.vx
             p.y += dt * p.vy
-            p.vy += this.gravity * dt
+            p.vy += this.gravity * dt * p.weight
             p.lifetime -= dt
             if (p.lifetime <= 0) {
                 p.active = false
@@ -52,10 +52,11 @@ export default class ParticleSystem {
         particle.vy = (vy / length) * (Math.random() * 100)
         particle.lifetime = Math.random() * 1 + 1.5
         particle.color = color
+        particle.weight = 1
         particle.active = true
     }
 
-    add2 (x, y, vx, vy, lifetime, color) {
+    add2 (x, y, vx, vy, lifetime, color, weight = 1) {
         let particle
         this.particles.forEach((p) => {
             if (!p.active) particle = p
@@ -70,6 +71,7 @@ export default class ParticleSystem {
         particle.vy = vy
         particle.lifetime = lifetime
         particle.color = color
+        particle.weight = weight
         particle.active = true
     }
 

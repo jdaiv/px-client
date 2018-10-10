@@ -28,7 +28,7 @@ export default class Tictactoe extends Activity {
 
         this.room = room
         this.particles.particleSize = 4
-        this.particles.gravity = -100
+        this.particles.gravity = 40
         this.canvas.el.onmousemove = this.mouseMove
         this.canvas.el.onclick = this.click
     }
@@ -136,8 +136,11 @@ export default class Tictactoe extends Activity {
                             0, 0 - Math.PI * 0.5, angle
                         )
                         if (b.timer < 1) {
-                            this.tileParticle(Math.cos(angle) * radius + tile.centerX,
-                                Math.sin(angle) * radius + tile.centerY)
+                            this.tileParticle(
+                                Math.cos(angle) * radius + tile.centerX,
+                                Math.sin(angle) * radius + tile.centerY,
+                                Math.cos(angle + 1) * radius + tile.centerX,
+                                Math.sin(angle + 1) * radius + tile.centerY)
                         }
                     }
                     this.ctx.stroke()
@@ -240,7 +243,7 @@ export default class Tictactoe extends Activity {
         this.ctx.moveTo(fromX, fromY)
         this.ctx.lineTo(x, y)
         if (particle) {
-            this.tileParticle(x, y)
+            this.tileParticle(x, y, toX, toY)
         }
         this.ctx.stroke()
     }
@@ -261,10 +264,20 @@ export default class Tictactoe extends Activity {
         )
     }
 
-    tileParticle (x, y) {
-        this.particles.add2(this.offsetX + x - 2, this.offsetY + y - 2,
-            Math.random() * 6 - 3, 0,
-            1, '#00ff00')
+    tileParticle (fromX, fromY, toX, toY) {
+        const vx = toX - fromX
+        const vy = toY - fromY
+        const length = Math.sqrt(vx * vx + vy * vy)
+
+        this.particles.add2(
+            this.offsetX + fromX - 2,
+            this.offsetY + fromY - 2,
+            (Math.random() * 20 + 20)* (vx / length),
+            (Math.random() * 20 + 20) * (vy / length),
+            0.5,
+            '#0f0',
+            0
+        )
     }
 
     randomParticle (box) {
@@ -291,7 +304,7 @@ export default class Tictactoe extends Activity {
 
         this.particles.add2(x - 2, y - 2,
             Math.random() * 6 - 3, Math.random() * 20 - 10,
-            0.2, '#00ff00')
+            0.2 + Math.random() / 8, '#00ff00', -2)
     }
 
 }
