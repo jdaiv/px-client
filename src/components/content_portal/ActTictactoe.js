@@ -22,6 +22,7 @@ export default class ActTictactoe extends Component {
             winner: room.activityState.winner,
             isOwner,
             isMyTurn: (currentPlayer == 0 && isOwner) || (currentPlayer == 1 && !isOwner),
+            loggedIn: auth.loggedIn,
             // : isOwner ? ['', 'winner', 'loser', 'draw'] : ['', 'loser', 'winner', 'draw'],
         }
     }

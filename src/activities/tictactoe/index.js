@@ -165,18 +165,22 @@ export default class Tictactoe extends Activity {
         this.ctx.font = '16px monospace'
 
         let text = ''
-        if (this.state.winner > 0) {
-            if (this.state.winner == 1) {
-                text = this.state.isOwner ? 'win!' : 'lose!'
-            } else if (this.state.winner == 2) {
-                text = this.state.isOwner ? 'lose!' : 'win!'
+        if (this.state.loggedIn) {
+            if (this.state.winner > 0) {
+                if (this.state.winner == 1) {
+                    text = this.state.isOwner ? 'win!' : 'lose!'
+                } else if (this.state.winner == 2) {
+                    text = this.state.isOwner ? 'lose!' : 'win!'
+                } else {
+                    text = 'draw!'
+                }
+            } else if (this.state.isMyTurn) {
+                text = 'my turn'
             } else {
-                text = 'draw!'
+                text = 'waiting for player'
             }
-        } else if (this.state.isMyTurn) {
-            text = 'my turn'
         } else {
-            text = 'waiting for player'
+            text = 'spectating'
         }
         this.ctx.fillText(text, 0, max + 18)
 
@@ -212,7 +216,7 @@ export default class Tictactoe extends Activity {
 
         this.ctx.restore()
 
-        if (this.state.winner <= 0 && this.state.isMyTurn) {
+        if (this.state.winner <= 0 && this.state.isMyTurn && this.state.loggedIn) {
             this.clickableAreas.forEach(box => {
                 if (this.hitTest(box, this.mouseX, this.mouseY)) {
                     for (let i = 0; i < 4; i++) this.randomParticle(box)
