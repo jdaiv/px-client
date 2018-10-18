@@ -2,6 +2,7 @@ import { h, Component } from 'preact'
 import { Router, route, Link as StaticLink } from 'preact-router'
 import { Link, Match } from 'preact-router/match'
 import { inject, observer } from 'mobx-preact'
+import { observable } from 'mobx'
 
 import AddRoomForm from './AddRoomForm'
 import SettingsForm from './SettingsForm'
@@ -27,6 +28,10 @@ class Redirect extends Component {
 @inject('rooms')
 @observer
 export default class Sidebar extends Component {
+    @observable active = true
+
+    close = () => { this.active = false }
+
     handleRoute = (r) => {
         let isRoomUrl = r.url.match(/\/room\/([^/]*)\/?/)
         if (isRoomUrl) {
@@ -36,8 +41,8 @@ export default class Sidebar extends Component {
             } else {
                 this.props.rooms.setActive(roomId)
             }
-
         }
+        if (!this.active) this.active = true
     }
 
     render({ auth, rooms }) {
@@ -50,7 +55,7 @@ export default class Sidebar extends Component {
             </Match>
         ))
         if (rooms.list.length < 3) {
-            options.push(<Link activeClassName={style.active} href="/add_room">{auth.loggedIn ? 'add/join' : 'join'} room</Link>)
+            options.push(<Link activeClassName={style.active} href="/add_room">{auth.loggedIn ? 'add' : 'join'} room</Link>)
         }
         if (auth.loggedIn) {
             options.push(<Link activeClassName={style.active} href="/account">account</Link>)
@@ -59,19 +64,24 @@ export default class Sidebar extends Component {
         }
         return (
             <div class={style.sidebar}>
-                <nav class={style.tabs}>
-                    {options}
-                    <Link activeClassName={style.active} href="/settings">settings</Link>
-                </nav>
-                <hr class={style.hr} />
-                <Router onChange={this.handleRoute}>
-                    <Redirect default to="/room/public" />
-                    <Chat path="/room/:id/:option?" />
-                    <AddRoomForm path="/add_room" />
-                    <AccountSettingsForm path="/account" />
-                    <Auth path="/login" />
-                    <SettingsForm path="/settings" />
-                </Router>
+                <div class={style.inner}>
+                    <nav class={style.tabs}>
+                        {options}
+                        <Link activeClassName={style.active} href="/settings">settings</Link>
+                        {/* {this.active ? <button onClick={this.close}>close</button> : null} */}
+                    </nav>
+                    {this.active ? <hr class={style.hr} /> : null}
+                    <div class={style.content} /* style={{ display: this.active ? 'block' : 'none' }} */>
+                        <Router onChange={this.handleRoute}>
+                            <Redirect default to="/room/public" />
+                            <Chat path="/room/:id/:option?" />
+                            <AddRoomForm path="/add_room" />
+                            <AccountSettingsForm path="/account" />
+                            <Auth path="/login" />
+                            <SettingsForm path="/settings" />
+                        </Router>
+                    </div>
+                </div>
             </div>
         )
     }

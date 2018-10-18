@@ -23,6 +23,7 @@ export default class SocketService {
     }
 
     open (manual) {
+        if (typeof window === 'undefined') return
         if (this.retries >= MAX_RETRIES && !manual) throw new Error('Max retries hit')
         // if we're currently connecting or connecting, don't attempt
         if (this.ws != null && this.ws.readyState < 2) return

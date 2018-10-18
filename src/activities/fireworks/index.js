@@ -1,22 +1,21 @@
 import Activity from '../Activity'
 
 const MISSLE_SIZE = 3
+const WATER_HEIGHT = 100
 
 export default class Fireworks extends Activity {
 
     missles = []
 
-    launch ({ position, lifetime, hue }) {
-        let missle
-        this.missles.forEach((m) => {
-            if (!m.active) missle = m
-        })
+    launch ({ position, lifetime, hue, velocity }) {
+        let missle = this.missles.find(m => !m.active)
         if (!missle) {
             missle = {}
             this.missles.push(missle)
         }
-        missle.x = position / 100 * this.canvas.width
-        missle.y = this.canvas.height
+        missle.vy = 200 * velocity + 300
+        missle.x = position * this.canvas.width
+        missle.y = this.canvas.height - WATER_HEIGHT
         missle.lifetime = lifetime
         missle.colorStr = `hsl(${hue}, ${100}%, ${50}%)`
         missle.hue = hue
@@ -25,9 +24,10 @@ export default class Fireworks extends Activity {
 
     tick (dt) {
         super.tick(dt)
-        this.missles.forEach((m) => {
+        this.missles.forEach(m => {
             if (!m.active) return
-            m.y -= 200 * dt
+            m.y -= m.vy * dt
+            m.vy -= 200 * dt
             m.lifetime -= dt
             if (m.lifetime <= 0) {
                 m.active = false
@@ -41,7 +41,7 @@ export default class Fireworks extends Activity {
 
     draw (dt) {
         super.draw()
-        this.missles.forEach((m) => {
+        this.missles.forEach(m => {
             if (!m.active) return
             this.ctx.fillStyle = m.colorStr
             this.ctx.fillRect(
@@ -49,6 +49,21 @@ export default class Fireworks extends Activity {
                 MISSLE_SIZE, MISSLE_SIZE)
         })
         this.particles.draw()
+
+        const chunkHeight = 10
+        const startY = this.canvas.height - WATER_HEIGHT
+
+        this.ctx.fillStyle = '#003'
+        this.ctx.fillRect(0, startY, this.canvas.width, WATER_HEIGHT)
+
+        this.ctx.globalAlpha = 0.5
+        for (let i = 0; i <= WATER_HEIGHT; i++) {
+            this.ctx.drawImage(this.canvas.el,
+                0, startY - i * chunkHeight, this.canvas.width, chunkHeight,
+                Math.sin(this.time / 2000 + i * 20) * 1 +  Math.cos(this.time / 5000 + i * 5) * 2,
+                startY + i, this.canvas.width, 1)
+        }
+        this.ctx.globalAlpha = 1
     }
 
 

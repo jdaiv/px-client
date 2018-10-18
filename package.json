@@ -30,7 +30,15 @@
       "no-case-declarations": "off",
       "guard-for-in": "off",
       "react/jsx-indent-props": "off"
+    },
+    "overrides": [
+    {
+      "files": [ "src/engine/**/*.js" ],
+      "rules": {
+        "react/sort-comp": "off"
+      }
     }
+  ]
   },
   "eslintIgnore": [
     "build/*"
@@ -46,6 +54,7 @@
     "preact-render-spy": "^1.2.1"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^4.5.3",
     "js-base64": "^2.4.9",
     "mobx": "5",
     "mobx-preact": "^3.0.0",

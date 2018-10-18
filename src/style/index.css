@@ -17,8 +17,8 @@ html, body {
 }
 
 #app {
-	margin-top: 4rem;
-	height: calc(100vh - 4rem);
+	margin-top: 3rem;
+	height: calc(100vh - 3rem);
 }
 
 /* provider block */

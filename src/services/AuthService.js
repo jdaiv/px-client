@@ -4,6 +4,8 @@ import { apiUrl } from '../config/const'
 
 const ADDR = `${apiUrl}/api/auth`
 
+const isBrowser = typeof window !== 'undefined'
+
 export default class AuthService {
 
     constructor (authStore) {
@@ -13,7 +15,7 @@ export default class AuthService {
     }
 
     loadToken () {
-        this.store.token = window.localStorage.getItem('auth_token')
+        if (isBrowser) this.store.token = window.localStorage.getItem('auth_token')
         if (this.store.token == 'null') this.store.token = null
         this.store.loggedIn = this.store.token != null
         EventManager.publish('auth_update', this.store.token != null)
@@ -21,7 +23,7 @@ export default class AuthService {
 
     storeToken (token) {
         this.store.token = token
-        window.localStorage.setItem('auth_token', token)
+        if (isBrowser) window.localStorage.setItem('auth_token', token)
         if (token != null) {
             this.store.loggedIn = true
             this.readClaims()

@@ -33,10 +33,7 @@ export default class ParticleSystem {
     }
 
     add (x, y, color) {
-        let particle
-        this.particles.forEach((p) => {
-            if (!p.active) particle = p
-        })
+        let particle = this.particles.find(p => !p.active)
         if (!particle) {
             particle = {}
             this.particles.push(particle)
@@ -57,10 +54,7 @@ export default class ParticleSystem {
     }
 
     add2 (x, y, vx, vy, lifetime, color, weight = 1) {
-        let particle
-        this.particles.forEach((p) => {
-            if (!p.active) particle = p
-        })
+        let particle = this.particles.find(p => !p.active)
         if (!particle) {
             particle = {}
             this.particles.push(particle)

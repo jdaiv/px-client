@@ -18,7 +18,7 @@ const authStore = new AuthStore()
 const roomStore = new RoomStore()
 
 Services.init(socketStore, authStore, roomStore)
-window.services = Services
+// window.services = Services
 
 @observer
 export default class App extends Component{

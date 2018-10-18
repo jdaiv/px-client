@@ -1,9 +1,22 @@
 .sidebar {
-    flex: 0 0 450px;
-	/* border-left: 1px solid #0f0; */
-	padding: 1rem;
+	position: fixed;
+	width: 450px;
+	left: 1rem;
+	bottom: 1rem;
+	border: 16px solid transparent;
+	border-image: url('/resources/small-display.png') 16;
+}
+
+.inner {
 	display: flex;
-	flex-direction: column;
+	flex-direction: column-reverse;
+	background: #000;
+	padding: 0.5rem;
+}
+
+.content {
+	max-height: 400px;
+	overflow-y: auto;
 }
 
 .tabs {
@@ -13,9 +26,10 @@
 	justify-content: center;
 }
 
-.tabs > a {
+.tabs > a, .tabs > button {
+	font: inherit;
     flex: 0;
-    margin: 0.25rem;
+    /* margin: 0.25rem; */
 	color: #0f0;
 	background: #010;
 	border: 1px solid #0f0;
@@ -27,7 +41,7 @@
 	white-space: nowrap;
 }
 
-.tabs > a:hover {
+.tabs > a:hover, .tabs > button:hover {
     background: #040;
 }
 
