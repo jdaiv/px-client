@@ -53,15 +53,16 @@ export default class Fireworks extends Activity {
         const chunkHeight = 10
         const startY = this.canvas.height - WATER_HEIGHT
 
-        this.ctx.fillStyle = '#003'
-        this.ctx.fillRect(0, startY, this.canvas.width, WATER_HEIGHT)
+        this.ctx.fillStyle = '#002'
 
-        this.ctx.globalAlpha = 0.5
         for (let i = 0; i <= WATER_HEIGHT; i++) {
+            this.ctx.globalAlpha = 0.5 + Math.cos(this.time / 4000 + i) * 0.2
+            this.ctx.fillRect(0, startY + i, this.canvas.width, 1)
             this.ctx.drawImage(this.canvas.el,
                 0, startY - i * chunkHeight, this.canvas.width, chunkHeight,
-                Math.sin(this.time / 2000 + i * 20) * 1 +  Math.cos(this.time / 5000 + i * 5) * 2,
-                startY + i, this.canvas.width, 1)
+                Math.sin(this.time / 2000 + i * 20) * Math.sin(this.time / 400 + i * 0.1) + Math.cos(this.time / 5000 + i * 5),
+                startY + i, this.canvas.width,
+                Math.sin(this.time / 2000 + i * 0.3) * Math.sin(this.time / 1000 + i * 0.1) * 5)
         }
         this.ctx.globalAlpha = 1
     }
