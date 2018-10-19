@@ -39,7 +39,7 @@ export default class App extends Component{
                     <Header />
                     <div class="container">
                         <ContentPortal />
-                        <Sidebar />
+                        {/* <Sidebar /> */}
                     </div>
                 </Provider>
             </div>

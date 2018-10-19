@@ -1,4 +1,4 @@
-
+import { GLTexture } from './Video'
 
 const PATH = '/resources/'
 
@@ -61,8 +61,11 @@ const RESOURCES = {
             }
         },
     },
-    TEXT: {
-        // none yet
+    TEXTS: {
+        default_post_vs: 'shaders/default_post_vs.glsl',
+        default_post_fs: 'shaders/default_post_fs.glsl',
+        default_vs: 'shaders/default_vs.glsl',
+        default_fs: 'shaders/default_fs.glsl',
     }
 }
 
@@ -95,8 +98,8 @@ export default class Resources {
                     .then(updateStats))
             }
 
-            for (let key in RESOURCES.TEXT) {
-                const url = RESOURCES.TEXT[key]
+            for (let key in RESOURCES.TEXTS) {
+                const url = RESOURCES.TEXTS[key]
                 console.log(`[engine/resources] loading text ${url}`)
                 stats.total++
                 promises.push(Resources.loadText(key, url)
@@ -118,6 +121,7 @@ export default class Resources {
                 Resources.images[name] = {
                     ...data,
                     el: img,
+                    tex: new GLTexture(img),
                     width: data.frames > 1 ? img.width / data.frames : img.width,
                     height: img.height
                 }

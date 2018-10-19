@@ -1,4 +1,5 @@
 import Video from './Video'
+import MaterialManager from './MaterialManager'
 import Resources from './Resources'
 import Station from './stages/Station'
 import { Vector2 } from './Vector'
@@ -13,6 +14,7 @@ export default class Engine {
         Resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)
         }).then(() => {
+            MaterialManager.load()
             this.activeStage = new Station(this)
             this.start()
         })
@@ -47,17 +49,17 @@ export default class Engine {
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
             this.v.clear()
-            this.v.ctx.save()
-            this.v.ctx.translate(
-                Math.floor(this.v.width / 2 + this.camera.offset.x),
-                Math.floor(this.v.height / 2 + this.camera.offset.y)
-            )
-            this.v.ctx.scale(this.camera.zoom, this.camera.zoom)
+            // this.v.ctx.save()
+            // this.v.ctx.translate(
+            //     Math.floor(this.v.width / 2 + this.camera.offset.x),
+            //     Math.floor(this.v.height / 2 + this.camera.offset.y)
+            // )
+            // this.v.ctx.scale(this.camera.zoom, this.camera.zoom)
             this.activeStage.draw(this.dt)
             this.v.run()
-            this.v.ctx.fillStyle = '#00f'
+            // this.v.ctx.fillStyle = '#00f'
             // this.v.ctx.fillRect(-1, -1, 2, 2)
-            this.v.ctx.restore()
+            // this.v.ctx.restore()
             this.activeStage.lateTick(this.dt)
         }
     }

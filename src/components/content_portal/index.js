@@ -17,31 +17,31 @@ export default class ContentPortal extends Component {
     }
 
     componentWillUnmount() {
-        this.engine.destory()
+        this.engine.destroy()
     }
 
     render({ rooms }) {
-        let activity = -1
-        const activeRoom = rooms.activeRoom
-        if (activeRoom) {
-            activity = activeRoom.activity
-        }
+        // let activity = -1
+        // const activeRoom = rooms.activeRoom
+        // if (activeRoom) {
+        //     activity = activeRoom.activity
+        // }
 
-        let content
-        switch (activity) {
-        case 'fireworks':
-            content = <ActFireworks />
-            break
-        case 'tictactoe':
-            content = <ActTictactoe />
-            break
-        default:
-            // content = <BootlegHearthstone />
-            content = <div class={style.empty}>&nbsp;</div>
-        }
-        return <div class={style.portal}>{content}</div>
+        // let content
+        // switch (activity) {
+        // case 'fireworks':
+        //     content = <ActFireworks />
+        //     break
+        // case 'tictactoe':
+        //     content = <ActTictactoe />
+        //     break
+        // default:
+        //     // content = <BootlegHearthstone />
+        //     content = <div class={style.empty}>&nbsp;</div>
+        // }
+        // return <div class={style.portal}>{content}</div>
 
-        // return <div class={style.portal} />
+        return <div class={style.portal} />
     }
 
 }

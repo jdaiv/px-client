@@ -1,3 +1,7 @@
+import MaterialManager from './MaterialManager'
+
+export let gl
+
 export default class Video {
 
     constructor (el) {
@@ -5,19 +9,25 @@ export default class Video {
         this.el = document.createElement('canvas')
         el.appendChild(this.el)
 
+        gl = this.ctx = this.el.getContext('webgl', {
+            antialias: false
+        })
+
+        this.resize()
         setTimeout(this.resize, 100)
         window.addEventListener('resize', this.resize)
 
-        this.ctx = this.el.getContext('2d')
-        // this.ctx.imageSmoothingEnabled = false
         this.queue = []
         console.log('[engine/video] initialised')
+
     }
 
     resize = () => {
         const box = this.el.getBoundingClientRect()
         this.width = this.el.width = Math.floor(box.width / 2)
         this.height = this.el.height = Math.floor(box.height / 2)
+        gl.viewport(0, 0, this.width, this.height)
+        if (this.fbo) this.fbo.resize()
     }
 
     destroy () {
@@ -27,7 +37,8 @@ export default class Video {
     }
 
     clear () {
-        this.ctx.clearRect(0, 0, this.width, this.height)
+        gl.clearColor(0, 0, 0, 0)
+        gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
     }
 
     fillBox (color, x, y, w, h) {
@@ -38,57 +49,182 @@ export default class Video {
         this.queue.push(['3d', 'img', x, y, z, img, frame])
     }
 
-    run () {
-        this.queue.filter(q => q[0] == '3d').sort((a, b) => {
-            if (a[3] > b[3]) return 1
-            if (a[3] < b[3]) return -1
+    drawVolume (v, x, y, z) {
+        this.queue.push(['3d', 'vol', x, y, z, v])
+    }
 
-            if (a[3] == b[3]) {
+    run (t) {
+        if (!this.fbo) {
+            console.log('[engine/video] creating framebuffer')
+            this.fbo = new GLFBO()
+        }
+        this.fbo.bind()
+        this.clear()
 
-                if (a[2] < b[2]) return 1
-                if (a[2] > b[2]) return -1
+        const data = {
+            t, width: this.width, height: this.height
+        }
 
-                if (a[4] > b[4]) return 1
-                if (a[4] < b[4]) return -1
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        this.fbo.render(data)
+    }
 
-            } else {
+}
 
-                if (a[4] > b[4]) return 1
-                if (a[4] < b[4]) return -1
+export class GLTexture {
 
-                if (a[2] < b[2]) return 1
-                if (a[2] > b[2]) return -1
+    constructor (image) {
+        this.tex = gl.createTexture()
+        gl.bindTexture(gl.TEXTURE_2D, this.tex)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    }
 
-            }
+}
 
-            return 0
-        }).forEach(q => {
-            const img = q[5]
-            const d = q[4] - img.dim.d / 2
-            const x = Math.round(q[2] - img.dim.w / 2 + d)
-            const y = Math.round((0 - q[3]) - img.dim.h + d)
-            const frame = q[6]
-            if (img.frames > 1) {
-                this.ctx.drawImage(
-                    img.el,
-                    frame * img.width, 0, img.width, img.height,
-                    x, y, img.width, img.height
-                )
-            } else {
-                this.ctx.drawImage(img.el, x, y)
-            }
-        })
+class GLObject3D {
 
-        this.queue.filter(q => q[0] == '2d').forEach(q => {
-            switch (q[1]) {
-            case 'rect':
-                this.ctx.fillStyle = q[6]
-                this.ctx.fillRect(q[2], q[3], q[4], q[5])
-                break
-            }
-        })
+    constructor (material) {
+        this.material = material
+        this.verts = []
+        this.uvs = []
+        this.texture = null
+    }
 
-        this.queue = []
+    setVerts (verts, mode) {
+        this.verts = verts
+        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
+        this.vertBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.verts), gl.STATIC_DRAW)
+        this.mode = mode || 2
+    }
+
+    setColors (colors) {
+        this.colors = colors
+        if (this.colorBuffer) gl.deleteBuffer(this.colorBuffers)
+        this.colorBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW)
+    }
+
+    draw (data) {
+
+        this.material.use()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
+        this.material.attributes.aScreenCoord.set(this.mode)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer)
+
+        this.material.setUniforms(data)
+
+        gl.drawArrays(gl.TRIANGLES, 0, this.verts.length / 2)
+    }
+
+}
+
+class GLObject2D {
+
+    constructor (material) {
+        this.material = material
+        this.verts = []
+        this.uvs = []
+        this.texture = null
+    }
+
+    setVerts (verts, mode) {
+        this.verts = verts
+        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
+        this.vertBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.verts), gl.STATIC_DRAW)
+        this.mode = mode || 2
+    }
+
+    setUVs (uvs) {
+        this.uvs = uvs
+        if (this.uvsBuffer) gl.deleteBuffer(this.uvsBuffers)
+        this.uvsBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.uvs), gl.STATIC_DRAW)
+    }
+
+    setTexture (tex) {
+        this.texture = tex
+    }
+
+    draw (data) {
+
+        this.material.use()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
+        this.material.attributes.aScreenCoord.set(this.mode)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
+        this.material.attributes.aTextureCoord.set(2)
+
+        if (this.texture) {
+            gl.activeTexture(gl.TEXTURE0)
+            gl.bindTexture(gl.TEXTURE_2D, this.texture.tex)
+        }
+
+        if (this.color) {
+            this.material.uniforms.uColor.set(this.color)
+        }
+
+        this.material.setUniforms(data)
+
+        gl.drawArrays(gl.TRIANGLES, 0, this.verts.length / 2)
+    }
+
+}
+
+class GLFBO {
+
+    constructor () {
+        this.texture = gl.createTexture()
+        gl.bindTexture(gl.TEXTURE_2D, this.texture)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+        this.buffer = gl.createFramebuffer()
+        this.renderObject = new GLObject2D(MaterialManager.materials.defaultPost)
+        this.renderObject.setTexture({tex: this.texture})
+        this.renderObject.setUVs([
+            0, 1,
+            1, 1,
+            0, 0,
+            1, 1,
+            1, 0,
+            0, 0
+        ])
+        this.resize()
+    }
+
+    resize (w, h) {
+        gl.bindTexture(gl.TEXTURE_2D, this.texture)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+            w, h,
+            0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+        this.renderObject.setVerts([
+            -1, 1,
+            1, 1,
+            -1, -1,
+            1, 1,
+            1, -1,
+            -1, -1
+        ])
+    }
+
+    bind () {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.buffer)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+            gl.TEXTURE_2D, this.texture, 0)
+    }
+
+    render (data) {
+        this.renderObject.draw(data)
     }
 
 }

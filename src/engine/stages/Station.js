@@ -1,9 +1,11 @@
 import Stage from '../Stage'
 import Entity from '../Entity'
-import Sprite3D from '../components/Sprite3D'
 import Resources from '../Resources'
 import { Vector3 } from '../Vector'
 import Player from '../entities/Player'
+import Sprite3D from '../components/Sprite3D'
+import Volume3D from '../components/Volume3D'
+import { platform } from '../volumes/Station'
 
 export default class Station extends Stage {
 
@@ -14,8 +16,8 @@ export default class Station extends Stage {
         this.building.position = new Vector3(0, 0, 5)
         this.fence = this.makeSprite('fence', 'stationFence')
         this.fence.position = new Vector3(0, 0, 0)
-        this.edge = this.makeSprite('edge', 'stationEdge')
-        this.edge.position = new Vector3(0, -28, 20)
+        this.edge = this.makeVolume('edge', platform)
+        this.edge.position = new Vector3(-128, 0, 0)
 
         this.player = this.addEntity(new Player('player'))
         this.player.position.x = 6
@@ -33,6 +35,13 @@ export default class Station extends Stage {
     makeSprite (name, imgName) {
         const ent = new Entity('building')
         ent.addComponent(new Sprite3D(Resources.images[imgName]))
+        this.addEntity(ent)
+        return ent
+    }
+
+    makeVolume (name, volume) {
+        const ent = new Entity('building')
+        ent.addComponent(new Volume3D(volume))
         this.addEntity(ent)
         return ent
     }
