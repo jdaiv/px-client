@@ -34,7 +34,6 @@ export default class Player extends Entity {
         // this.face.frame = Math.floor(this.faceTimer += dt) % 5
 
         let targetVelocity = vec3.create()
-        targetVelocity[1] = this.velocity[1]
 
         this.keysDown.forEach((v, k) => {
             if (!v) return
@@ -54,7 +53,10 @@ export default class Player extends Entity {
             }
         })
 
-        this.velocity = vec3.lerp(this.velocity, this.velocity, targetVelocity, dt * 10)
+        vec3.normalize(targetVelocity, targetVelocity)
+        vec3.lerp(this.velocity, this.velocity, targetVelocity, dt * 10)
+
+        targetVelocity[1] = this.velocity[1]
 
         this.velocity[1] -= 10 * dt
         vec3.add(this.position, this.position, this.velocity)
