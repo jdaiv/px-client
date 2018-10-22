@@ -1,6 +1,9 @@
+attribute vec2 aTextureCoord;
+
 varying highp vec2 vTextureCoord;
+varying lowp vec4 vColor;
 
 void main() {
-    gl_Position = vec4(aScreenCoord, 1);
+    gl_Position = aVertexPosition;
     vTextureCoord = aTextureCoord;
 }

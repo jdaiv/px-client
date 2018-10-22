@@ -2,6 +2,7 @@
     flex: 1;
     align-items: stretch;
     height: 100%;
+    overflow: hidden;
 }
 
 .portal canvas {

@@ -6,51 +6,78 @@ import { gl } from './Video'
 const MATERIALS = {
     default: {
         vs: 'default_vs',
-        fs: 'default_fs'
+        fs: 'default_fs',
+        attributes: [
+            {
+                name: 'aVertexColor',
+                type: 'vec4'
+            }
+        ]
+    },
+    defaultSprite: {
+        vs: 'default_sprite_vs',
+        fs: 'default_sprite_fs',
+        attributes: [
+            {
+                name: 'aTextureCoord',
+                type: 'vec2'
+            }
+        ]
     },
     defaultPost: {
         vs: 'default_post_vs',
-        fs: 'default_post_fs'
+        fs: 'default_post_fs',
+        attributes: [
+            {
+                name: 'aTextureCoord',
+                type: 'vec2'
+            }
+        ]
     },
 }
 
 const DEFAULT_ATTRIBUTES = [
     {
-        name: 'aScreenCoord',
-        type: 'f',
-        length: 3
-    },
-    {
-        name: 'aTextureCoord',
-        type: 'f',
-        length: 2
+        name: 'aVertexPosition',
+        type: 'vec4'
     }
 ]
 
 const DEFAULT_UNIFORMS = [
     {
         name: 'uTime',
-        type: 'f',
+        type: 'float',
         precision: 'highp',
         length: 1,
         value: ({ t }) => t
     },
     {
         name: 'uColor',
-        type: 'f',
-        length: 4,
+        type: 'vec4',
         fsOnly: true
     },
     {
         name: 'uSampler',
         type: 'sampler2D',
-        length: 1,
         value: () => 0,
         fsOnly: true
     },
     {
+        name: 'uVP_Matrix',
+        type: 'mat4',
+        length: 4,
+        value: ({ matrix }) => matrix,
+        vsOnly: true
+    },
+    {
+        name: 'uM_Matrix',
+        type: 'mat4',
+        length: 4,
+        vsOnly: true
+    },
+    {
         name: 'uScreenSize',
-        type: 'f',
+        type: 'vec2',
         precision: 'mediump',
         length: 2,
         value: ({ width, height }) => [width, height]
@@ -73,27 +100,13 @@ export default class MaterialManager {
         MaterialManager.defaultVSHeader = 'precision mediump float;\n'
         MaterialManager.defaultFSHeader = 'precision highp float;\n'
 
-        function getType (d) {
-            switch (d.type) {
-            case 'i':
-                if (d.length > 1 && !d.array) return 'ivec' + d.length
-                return 'int'
-            case 'f':
-                if (d.length > 1 && !d.array) return 'vec' + d.length
-                return 'float'
-            default:
-                return d.type
-            }
-        }
-
         DEFAULT_ATTRIBUTES.forEach(a => {
-            MaterialManager.defaultVSHeader +=
-                `attribute ${getType(a)} ${a.name};\n`
+            MaterialManager.defaultVSHeader += `attribute ${a.type} ${a.name};\n`
         })
         DEFAULT_UNIFORMS.forEach(u => {
             const precision = u.precision || ''
-            const str = `uniform ${precision} ${getType(u)} ${u.name + (u.array ? `[${u.length}]` : '')};\n`
-            MaterialManager.defaultFSHeader += str
+            const str = `uniform ${precision} ${u.type} ${u.name + (u.array ? `[${u.length}]` : '')};\n`
+            if (!u.vsOnly) MaterialManager.defaultFSHeader += str
             if (!u.fsOnly) MaterialManager.defaultVSHeader += str
         })
     }
@@ -109,31 +122,47 @@ class Material {
         this.attributes = {}
         this.uniforms = {}
         DEFAULT_ATTRIBUTES.forEach(a => this.addAttribute(a))
+        if (data.attributes) data.attributes.forEach(a => this.addAttribute(a))
         DEFAULT_UNIFORMS.forEach(u => this.addUniform(u))
     }
 
     use () {
         gl.useProgram(this.program)
+        for (let key in this.attributes) {
+            gl.enableVertexAttribArray(this.attributes[key].location)
+        }
+    }
+
+    end () {
+        for (let key in this.attributes) {
+            gl.disableVertexAttribArray(this.attributes[key].location)
+        }
     }
 
     addAttribute (a) {
         const location = gl.getAttribLocation(this.program, a.name)
-        gl.enableVertexAttribArray(location)
         this.attributes[a.name] = {
             location,
-            set: (length) => {
-                gl.vertexAttribPointer(location, length, gl.FLOAT, false, 0, 0)
+            set: (length, type = gl.FLOAT, normalized = false) => {
+                gl.vertexAttribPointer(location, length, type, normalized, 0, 0)
             }
         }
     }
 
     addUniform (u) {
         const location = gl.getUniformLocation(this.program, u.name)
-        const type = u.type == 'sampler2D' ? 'i' : u.type
-        const func = gl['uniform' + (u.array ? 1 : u.length) + type + (u.length > 1 || u.array ? 'v' : '')]
+        const func = {
+            float: '1f',
+            vec2: '2fv',
+            vec4: '4fv',
+            mat4: 'Matrix4fv',
+            sampler2D: '1i',
+        }[u.type]
         this.uniforms[u.name] = {
             location,
-            set: func.bind(gl, location)
+            set: u.type == 'mat4' ?
+                gl['uniform' + func].bind(gl, location, false) :
+                gl['uniform' + func].bind(gl, location)
         }
     }
 

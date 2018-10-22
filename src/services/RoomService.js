@@ -9,7 +9,8 @@ export default class RoomService {
     constructor (roomStore, socket) {
         this.store = roomStore
         this.socket = socket
-        DEFAULT_ROOMS.forEach(r => this.store.add(r, r, 0))
+        // DEFAULT_ROOMS.forEach(r => this.store.add(r, r, 0))
+
         EventManager.subscribe(
             'ws/chat/join_room',
             'chat_service',
@@ -35,6 +36,8 @@ export default class RoomService {
             'chat_service',
             this.status)
         this.promises = {}
+
+        this.join('station')
 
         this.socket.send('activity', 'list', '')
     }
@@ -106,6 +109,7 @@ export default class RoomService {
             }
         } else if (!error) {
             const room = this.store.add(data.name, data.friendly_name)
+            this.store.setActive(roomName)
             this.updateRoom(room, data)
             this.store.addEntry(room, {
                 from: '',

@@ -35,21 +35,16 @@ class UserList extends Component {
 @inject('auth')
 @observer
 export default class Chat extends Component {
-    render({ id, rooms, auth }) {
-        const room = rooms.get(id)
+    render({ rooms, auth }) {
+        const room = rooms.activeRoom
         if (!room) {
             return
         }
-        const options = [<Link activeClassName={style.active} href={'/room/' + id} class="button">chat</Link>]
-        if (id != 'public' && id != 'system' && auth.loggedIn && room.owner == auth.usernameN) {
-            options.push(<Link activeClassName={style.active} href={'/room/' + id + '/options'} class="button">options</Link>)
+        const options = [<Link activeClassName={style.active} href="/room" class="button">chat</Link>]
+        if (room.owner == auth.usernameN) {
+            options.push(<Link activeClassName={style.active} href="/room/options" class="button">options</Link>)
         }
-        if (id != 'system') {
-            options.push(<Link activeClassName={style.active} href={'/room/' + id + '/users'} class="button">user list</Link>)
-        }
-        if (id != 'public' && id != 'system') {
-            // options.push(<button class="button">leave</button>)
-        }
+        options.push(<Link activeClassName={style.active} href="/room/users" class="button">user list</Link>)
         return (
             (!room) ? <div /> : (
                 <div class={style.chat}>
@@ -58,12 +53,12 @@ export default class Chat extends Component {
                         {options.length > 1 ? options : null}
                     </div>
                     <Router>
-                        <div path="/room/:id" class={style.container}>
+                        <div path="/room" class={style.container}>
                             <Log log={room.log} />
-                            <Input target={id} />
+                            <Input target={room.id} />
                         </div>
-                        <UserList path="/room/:id/users" />
-                        <Options path="/room/:id/options" />
+                        <UserList id={room.id} path="/room/users" />
+                        <Options path="/room/options" />
                     </Router>
                 </div>
             )

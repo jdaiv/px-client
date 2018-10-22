@@ -4,9 +4,14 @@ import Resources from './Resources'
 import Station from './stages/Station'
 import { Vector2 } from './Vector'
 
+import Services from '../services'
+import EventManager from '../services/EventManager'
+
 export default class Engine {
 
     camera = { offset: new Vector2(), zoom: 1 }
+    players = {}
+    me = null
 
     constructor (el) {
         console.log('[engine] starting...')
@@ -16,6 +21,20 @@ export default class Engine {
         }).then(() => {
             MaterialManager.load()
             this.activeStage = new Station(this)
+
+            EventManager.subscribe('ws/chat/update_room', 'engine', (({ action, data }) => {
+                const players = data.state.players
+                for (let key in players) {
+                    if (Services.auth.store.usernameN == key) continue
+                    this.players[key] = players[key]
+                }
+                for (let key in this.players) {
+                    if (!players[key]) {
+                        this.players[key] = null
+                    }
+                }
+            }).bind(this))
+
             this.start()
         })
     }
@@ -40,6 +59,7 @@ export default class Engine {
 
         if (this.time < 0) {
             this.time = t
+            console.log('[engine] starting loop')
             return
         }
 
@@ -48,18 +68,14 @@ export default class Engine {
 
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
+
+            if (this.me != null && this.sendUpdate) {
+                Services.socket.send('chat', 'player_move', Services.rooms.store.active, this.me)
+            }
+
             this.v.clear()
-            // this.v.ctx.save()
-            // this.v.ctx.translate(
-            //     Math.floor(this.v.width / 2 + this.camera.offset.x),
-            //     Math.floor(this.v.height / 2 + this.camera.offset.y)
-            // )
-            // this.v.ctx.scale(this.camera.zoom, this.camera.zoom)
             this.activeStage.draw(this.dt)
-            this.v.run()
-            // this.v.ctx.fillStyle = '#00f'
-            // this.v.ctx.fillRect(-1, -1, 2, 2)
-            // this.v.ctx.restore()
+            this.v.run(this.time)
             this.activeStage.lateTick(this.dt)
         }
     }

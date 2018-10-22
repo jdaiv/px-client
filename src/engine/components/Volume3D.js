@@ -1,23 +1,24 @@
+import { vec3 } from 'gl-matrix'
+
 import Component from '../Component'
-import { Vector3 } from '../Vector'
+import { GLObject3D } from '../Video'
+import MaterialManager from '../MaterialManager'
 
 export default class Volume3D extends Component {
 
-    constructor (volume, x, y, z) {
+    constructor (volume, x = 0, y = 0, z = 0) {
         super()
         this.volume = volume
-        this.offset = new Vector3(x, y, z)
+        this.offset = vec3.set(vec3.create(), x, y, z)
         this.frame = 0
+        this.object = new GLObject3D(MaterialManager.materials.default)
+        this.object.setVerts(volume.verts)
+        this.object.setColors(volume.colors)
     }
 
     draw (dt) {
-        const p = this.parent.position
-        this.parent.engine.v.drawVolume(
-            this.volume,
-            p.x + this.offset.x,
-            p.y + this.offset.y,
-            p.z + this.offset.z
-        )
+        this.object.position = vec3.add(vec3.create(), this.offset, this.parent.position)
+        this.parent.engine.v.drawVolume(this.object)
     }
 
 }

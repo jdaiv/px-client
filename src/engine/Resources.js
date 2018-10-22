@@ -4,13 +4,20 @@ const PATH = '/resources/'
 
 const RESOURCES = {
     IMAGES: {
+        test: {
+            src: 'test.png',
+            frames: 5,
+            dim: {
+                w: 64,
+                h: 64
+            }
+        },
         faces: {
             src: 'faces.png',
             frames: 5,
             dim: {
                 w: 16,
-                h: 16,
-                d: 1
+                h: 16
             }
         },
         poses: {
@@ -18,46 +25,55 @@ const RESOURCES = {
             frames: 7,
             dim: {
                 w: 64,
-                h: 32,
-                d: 1
+                h: 32
             }
         },
-        stationBuilding: {
-            src: 'station-building.png',
-            frames: 1,
-            centerX: 8,
-            centerY: 8,
-            dim: {
-                w: 104,
-                h: 44,
-                d: 8
-            }
-        },
-        stationTrack: {
-            src: 'station-rail.png',
+        door: {
+            src: 'station-door.png',
             frames: 1,
             dim: {
-                w: 7,
-                h: 4,
-                d: 32
+                w: 20,
+                h: 26
             }
         },
-        stationFence: {
+        seat: {
+            src: 'station-seat.png',
+            frames: 1,
+            dim: {
+                w: 32,
+                h: 18
+            }
+        },
+        posters: {
+            src: 'station-posters.png',
+            frames: 1,
+            dim: {
+                w: 24,
+                h: 8
+            }
+        },
+        bin: {
+            src: 'bin.png',
+            frames: 1,
+            dim: {
+                w: 12,
+                h: 12
+            }
+        },
+        fence: {
             src: 'station-fence.png',
             frames: 1,
             dim: {
                 w: 256,
-                h: 21,
-                d: 1
+                h: 21
             }
         },
-        stationEdge: {
-            src: 'station-edge.png',
+        trainSign: {
+            src: 'train-sign.png',
             frames: 1,
             dim: {
-                w: 222,
-                h: 29,
-                d: 40
+                w: 64,
+                h: 16
             }
         },
     },
@@ -66,6 +82,8 @@ const RESOURCES = {
         default_post_fs: 'shaders/default_post_fs.glsl',
         default_vs: 'shaders/default_vs.glsl',
         default_fs: 'shaders/default_fs.glsl',
+        default_sprite_vs: 'shaders/default_sprite_vs.glsl',
+        default_sprite_fs: 'shaders/default_sprite_fs.glsl',
     }
 }
 

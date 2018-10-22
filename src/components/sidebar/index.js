@@ -46,17 +46,13 @@ export default class Sidebar extends Component {
     }
 
     render({ auth, rooms }) {
-        let options = rooms.list.map(r => (
-            <Match>
-                {({ matches, path, url }) => {
-                    const key = '/room/' + r.id
-                    return <StaticLink class={url.startsWith(key) ? style.active : ''} href={key}>{r.name}</StaticLink>
-                }}
-            </Match>
-        ))
-        if (rooms.list.length < 3) {
-            options.push(<Link activeClassName={style.active} href="/add_room">{auth.loggedIn ? 'add' : 'join'} room</Link>)
-        }
+        let options = [<Match>
+            {({ matches, path, url }) => {
+                const key = '/room'
+                return <StaticLink class={url.startsWith(key) ? style.active : ''} href={key}>chat</StaticLink>
+            }}
+        </Match>]
+        options.push(<Link activeClassName={style.active} href="/add_room">{auth.loggedIn ? 'add' : 'join'} room</Link>)
         if (auth.loggedIn) {
             options.push(<Link activeClassName={style.active} href="/account">account</Link>)
         } else {
@@ -73,8 +69,8 @@ export default class Sidebar extends Component {
                     {this.active ? <hr class={style.hr} /> : null}
                     <div class={style.content} /* style={{ display: this.active ? 'block' : 'none' }} */>
                         <Router onChange={this.handleRoute}>
-                            <Redirect default to="/room/public" />
-                            <Chat path="/room/:id/:option?" />
+                            <Redirect default to="/room" />
+                            <Chat path="/room/:option?" />
                             <AddRoomForm path="/add_room" />
                             <AccountSettingsForm path="/account" />
                             <Auth path="/login" />

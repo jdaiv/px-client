@@ -1,84 +1,79 @@
-import { Vector3 } from './Vector'
-
 export default class Volume {
 
-    constructor (x, y, z) {
-        this.bounds = new Vector3(x, y, z)
-        this.data = new Array(z)
-        for (let _z = 0; _z < z; _z++) {
-            this.data[_z] = new Array(y)
-            for (let _y = 0; _y < y; _y++) {
-                this.data[_z][_y] = new Array(x)
-                for (let _x = 0; _x < x; _x++) {
-                    this.data[_z][_y][_x] = 0
-                }
-            }
-        }
+    constructor () {
+        this.boxes = []
+        this.verts = []
+        this.colors = []
     }
 
-    box (x, y, z, w, h, d, color = 1) {
-        for (let _z = z; _z < z + d; _z++) {
-            for (let _y = y; _y < y + h; _y++) {
-                for (let _x = x; _x < x + w; _x++) {
-                    this.data[_z][_y][_x] = color
-                }
-            }
-        }
+    box (x, y, z, w, h, d, color = 1, sides = [1, 1, 1, 1, 1, 1]) {
+        this.boxes.push({ x, y, z, w, h, d, color, sides })
         return this
     }
 
-    outline (color = -1) {
-        const bX = this.bounds.x, bY = this.bounds.y, bZ = this.bounds.z
-        for (let _z = 0; _z < bZ; _z++) {
-            for (let _y = 0; _y < bY; _y++) {
-                for (let _x = 0; _x < bX; _x++) {
-                    if (this.data[_z][_y][_x] > 0) continue
-                    if (
-
-                        this.data[_z][_y][_x + 1] > 0 ||
-                        this.data[_z][_y][_x - 1] > 0 ||
-
-                        ((_y > 0 && _y < bY - 1) && (
-                            this.data[_z][_y + 1][_x] > 0 ||
-                            this.data[_z][_y - 1][_x] > 0 ||
-                            this.data[_z][_y - 1][_x - 1] > 0 ||
-                            this.data[_z][_y - 1][_x + 1] > 0 ||
-                            this.data[_z][_y + 1][_x - 1] > 0 ||
-                            this.data[_z][_y + 1][_x + 1] > 0
-                        ))
-
-                        ||
-
-                        ((_z > 0 && _z < bZ - 1) && (
-                            this.data[_z + 1][_y][_x] > 0 ||
-                            this.data[_z - 1][_y][_x] > 0 ||
-                            this.data[_z - 1][_y][_x - 1] > 0 ||
-                            this.data[_z - 1][_y][_x + 1] > 0 ||
-                            this.data[_z + 1][_y][_x - 1] > 0 ||
-                            this.data[_z + 1][_y][_x + 1] > 0
-
-                            ||
-
-                            ((_y > 0 && _y < bY - 1) && (
-                                this.data[_z - 1][_y - 1][_x] > 0 ||
-                                this.data[_z + 1][_y - 1][_x] > 0 ||
-                                this.data[_z - 1][_y + 1][_x] > 0 ||
-                                this.data[_z + 1][_y + 1][_x] > 0 ||
-                                this.data[_z + 1][_y + 1][_x + 1] > 0 ||
-                                this.data[_z + 1][_y + 1][_x - 1] > 0 ||
-                                this.data[_z + 1][_y - 1][_x - 1] > 0 ||
-                                this.data[_z - 1][_y - 1][_x - 1] > 0 ||
-                                this.data[_z - 1][_y + 1][_x - 1] > 0 ||
-                                this.data[_z - 1][_y + 1][_x + 1] > 0 ||
-                                this.data[_z + 1][_y - 1][_x + 1] > 0
-                            ))
-                        ))
-
-                    ) this.data[_z][_y][_x] = color
-                }
-            }
-        }
+    outline (color = -1, sides = null) {
+        const b = this.boxes[this.boxes.length - 1]
+        this.boxes.push({
+            x: b.x - 0.5,
+            y: b.y - 0.5,
+            z: b.z - 0.5,
+            w: b.w + 1,
+            h: b.h + 1,
+            d: b.d + 1,
+            color,
+            sides: sides === null ? b.sides : sides
+        })
         return this
+    }
+
+    finalize () {
+        const colors = {
+            1: [0, 0, 0],
+            2: [0, 255, 0],
+            3: [0, 0, 255],
+            4: [255, 0, 0]
+        }
+        this.boxes.forEach(b => {
+            if (b.color == 0) return
+            const color = colors[Math.abs(b.color)]
+            this.makeCube(
+                b.x, b.y, b.z,
+                b.x + b.w, b.y + b.h, b.z + b.d,
+                color[0], color[1], color[2],
+                b.color < 0, b.sides)
+        })
+    }
+
+    makeCube (x0, y0, z0, x1, y1, z1, r, g, b, flipped, sides) {
+        let verts = [
+            x0, y0, z0, // 0
+            x1, y0, z0,
+            x1, y1, z0, // 2
+            x0, y1, z0,
+            x0, y1, z1, // 4
+            x1, y1, z1,
+            x1, y0, z1, // 6
+            x0, y0, z1,
+        ]
+
+        let tris = []
+        if (sides[0]) tris.push(0, 2, 1, 0, 3, 2) // front
+        if (sides[1]) tris.push(2, 3, 4, 2, 4, 5) // top
+        if (sides[2]) tris.push(1, 2, 5, 1, 5, 6) // right
+        if (sides[3]) tris.push(0, 7, 4, 0, 4, 3) // left
+        if (sides[4]) tris.push(5, 4, 7, 5, 7, 6) // back
+        if (sides[5]) tris.push(0, 6, 7, 0, 1, 6) // bottom
+
+        if (flipped) {
+            tris.reverse()
+        }
+
+        tris.forEach(t => {
+            this.verts.push(verts[t * 3], verts[t * 3 + 1], verts[t * 3 + 2])
+        })
+
+        for (let i = 0; i < tris.length; i++)
+            this.colors.push(r, g, b, 255)
     }
 
 }

@@ -26,7 +26,8 @@ export default class Stage {
     }
 
     removeEntity (e) {
-        this.entities.splice(this.entities.indexOf(e), 1)
+        const idx = this.entities.indexOf(e)
+        if (idx >= 0) this.entities.splice(idx, 1)
     }
 
 }

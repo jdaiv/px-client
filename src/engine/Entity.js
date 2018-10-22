@@ -1,4 +1,4 @@
-import { Vector3 } from './Vector'
+import { vec3 } from 'gl-matrix'
 
 export default class Entity {
 
@@ -6,7 +6,7 @@ export default class Entity {
         this.components = []
         this.name = name
 
-        this.position = new Vector3()
+        this.position = vec3.create()
         this.active = true
         this.destroyed = false
     }

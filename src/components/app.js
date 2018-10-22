@@ -18,7 +18,7 @@ const authStore = new AuthStore()
 const roomStore = new RoomStore()
 
 Services.init(socketStore, authStore, roomStore)
-// window.services = Services
+if (typeof window !== 'undefined') window.services = Services
 
 @observer
 export default class App extends Component{
@@ -39,7 +39,7 @@ export default class App extends Component{
                     <Header />
                     <div class="container">
                         <ContentPortal />
-                        {/* <Sidebar /> */}
+                        <Sidebar />
                     </div>
                 </Provider>
             </div>
