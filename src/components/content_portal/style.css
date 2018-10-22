@@ -3,6 +3,7 @@
     align-items: stretch;
     height: 100%;
     overflow: hidden;
+    position: relative;
 }
 
 .portal canvas {
@@ -27,4 +28,19 @@
     position: absolute;
     left: 1rem;
     top: 1rem;
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.bit {
+	position: absolute;
+    font-size: 0.75rem;
+    text-align: center;
+    width: 100px;
 }
