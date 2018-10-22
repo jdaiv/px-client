@@ -71,6 +71,7 @@ export default class Engine {
 
             if (this.me != null && this.sendUpdate) {
                 Services.socket.send('chat', 'player_move', Services.rooms.store.active, this.me)
+                this.sendUpdate = false
             }
 
             this.v.clear()

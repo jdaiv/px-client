@@ -32,19 +32,6 @@ export default class Sidebar extends Component {
 
     close = () => { this.active = false }
 
-    handleRoute = (r) => {
-        let isRoomUrl = r.url.match(/\/room\/([^/]*)\/?/)
-        if (isRoomUrl) {
-            const roomId = isRoomUrl[1]
-            if (roomId != 'system' && roomId != 'public' && !this.props.rooms.get(roomId)) {
-                Services.rooms.join(roomId).then(this.props.rooms.setActive, () => route('/add_room'))
-            } else {
-                this.props.rooms.setActive(roomId)
-            }
-        }
-        if (!this.active) this.active = true
-    }
-
     render({ auth, rooms }) {
         let options = [<Match>
             {({ matches, path, url }) => {
@@ -68,7 +55,7 @@ export default class Sidebar extends Component {
                     </nav>
                     {this.active ? <hr class={style.hr} /> : null}
                     <div class={style.content} /* style={{ display: this.active ? 'block' : 'none' }} */>
-                        <Router onChange={this.handleRoute}>
+                        <Router>
                             <Redirect default to="/room" />
                             <Chat path="/room/:option?" />
                             <AddRoomForm path="/add_room" />

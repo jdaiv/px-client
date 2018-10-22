@@ -54,9 +54,8 @@ export default class Player extends Entity {
         })
 
         vec3.normalize(targetVelocity, targetVelocity)
-        vec3.lerp(this.velocity, this.velocity, targetVelocity, dt * 10)
-
         targetVelocity[1] = this.velocity[1]
+        vec3.lerp(this.velocity, this.velocity, targetVelocity, dt * 10)
 
         this.velocity[1] -= 10 * dt
         vec3.add(this.position, this.position, this.velocity)
@@ -69,7 +68,7 @@ export default class Player extends Entity {
             this.face.offset[1] = 8
         }
 
-        if (vec3.distance(this.position, this.lastPostion) > 0.5) {
+        if (vec3.distance(this.position, this.lastPostion) > 1) {
             this.engine.me = {
                 x: this.position[0],
                 y: this.position[1],
