@@ -83,7 +83,7 @@ class Overlay extends Component {
         const cY = rect.height / 2
         let bits = this.state.players.map(p => {
             const left = cX + p.data.x * 2 + p.data.z * 2 - 50
-            const top = cY + p.data.y * 2 + p.data.z * 2
+            const top = cY + p.data.y * -2 + p.data.z * 2
             return <div class={style.bit} style={{ left, top }}>{p.key}</div>
         })
         return (
