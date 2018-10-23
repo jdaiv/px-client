@@ -27,14 +27,7 @@ export default class Station extends Stage {
         this.makeSprite('door', 'door', -30, 0, 10 + 0.01)
         this.makeSprite('posters', 'posters', 30, 24, 10 + 0.01)
 
-        this.player = this.addEntity(new Player('player'))
-        this.player.position[0] = 2
-        this.player.position[1] = 0
-        this.player.position[2] = 11
-
         this.trainTarget = 0
-
-        this.players = {}
     }
 
     makeSprite (name, imgName, x, y, z) {
@@ -72,22 +65,6 @@ export default class Station extends Stage {
         signPos[2] += 16
         signPos[1] += 18
         this.trainSign.position = signPos
-
-        for (let key in this.engine.players) {
-            const p = this.engine.players[key]
-            if (!p) continue
-            if (!this.players[key]) {
-                this.players[key] = this.makeSprite(key, 'poses', p.x, p.y, p.z)
-            } else {
-                vec3.set(this.players[key].position, p.x, p.y, p.z)
-            }
-        }
-        for (let key in this.players) {
-            if (!this.engine.players[key] && this.players[key]) {
-                this.removeEntity(this.players[key])
-                delete this.players[key]
-            }
-        }
     }
 
     draw (dt) {

@@ -21,4 +21,9 @@ export default class Volume3D extends Component {
         this.parent.engine.v.drawVolume(this.object)
     }
 
+    remove () {
+        super.remove()
+        this.object.destroy()
+    }
+
 }

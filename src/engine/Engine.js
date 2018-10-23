@@ -1,8 +1,13 @@
+import Physics from './Physics'
 import Video from './Video'
 import MaterialManager from './MaterialManager'
 import Resources from './Resources'
 import Station from './stages/Station'
 import { Vector2 } from './Vector'
+
+import Player from './entities/Player'
+import FireworkLauncher from './entities/FireworkLauncher'
+import Firework from './entities/Firework'
 
 import Services from '../services'
 import EventManager from '../services/EventManager'
@@ -22,21 +27,52 @@ export default class Engine {
             MaterialManager.load()
             this.activeStage = new Station(this)
 
-            EventManager.subscribe('ws/chat/update_room', 'engine', (({ action, data }) => {
-                const players = data.state.players
-                for (let key in players) {
-                    if (Services.auth.store.usernameN == key) continue
-                    this.players[key] = players[key]
-                }
-                for (let key in this.players) {
-                    if (!players[key]) {
-                        this.players[key] = null
+            EventManager.subscribe('ws/room/update', 'engine',
+                (({ action, data }) => {
+                    if (!this.activeStage) return
+
+                    const nE = this.activeStage.networkedEntities
+
+                    for (let key in data) {
+                        const eData = data[key]
+                        let ent = nE.get(key)
+                        if (ent === undefined) {
+
+                            switch (eData.type) {
+                            case 'player':
+                                ent = new Player('p_' + eData.id,
+                                    eData.id, eData.owner)
+                                break
+                            case 'firework_launcher':
+                                ent = new FireworkLauncher('fl_' + eData.id,
+                                    eData.id)
+                                break
+                            case 'firework':
+                                ent = new Firework('f_' + eData.id,
+                                    eData.id)
+                                break
+                            }
+
+                            if (!ent) continue
+
+                            this.activeStage.addNetworkedEntity(ent)
+                        }
+                        if (eData) {
+                            ent.networkRecv(eData)
+                        }
                     }
-                }
-            }).bind(this))
+
+                    nE.forEach((e, id) => {
+                        if (!data.hasOwnProperty(id)) {
+                            e.destroy()
+                        }
+                    })
+                }).bind(this))
 
             this.start()
         })
+
+        this.phys = new Physics(1)
     }
 
     start () {
@@ -68,16 +104,26 @@ export default class Engine {
 
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
-
-            if (this.me != null && this.sendUpdate) {
-                Services.socket.send('chat', 'player_move', Services.rooms.store.active, this.me)
-                this.sendUpdate = false
-            }
-
-            this.v.clear()
+            this.activeStage.lateTick(this.dt)
             this.activeStage.draw(this.dt)
             this.v.run(this.time)
-            this.activeStage.lateTick(this.dt)
+
+            let toSend = {}
+            let hasUpdate = false
+            this.activeStage.networkedEntities.forEach((e, id) => {
+                if (e.networked && e.isAuthority) {
+                    let data = e.networkSend()
+                    if (data && data.length > 0) {
+                        toSend[id] = data
+                        hasUpdate = true
+                    }
+                }
+            })
+
+            if (hasUpdate) {
+                Services.socket.send('room', 'update',
+                    Services.rooms.store.active, toSend)
+            }
         }
     }
 

@@ -9,15 +9,21 @@ export default class Entity {
         this.position = vec3.create()
         this.active = true
         this.destroyed = false
+
+        this.networked = false
+        this.isAuthority = false
+        this.networkId = ''
+        this.networkDirty = false
     }
 
     addComponent (c) {
-        c.parent = this
+        c.init(this, this.engine)
         this.components.push(c)
         return c
     }
 
     removeComponent (c) {
+        c.remove()
         this.components.splice(this.components.indexOf(c), 1)
     }
 
@@ -38,6 +44,15 @@ export default class Entity {
     destroy () {
         this.active = false
         this.destroyed = true
+        this.components.forEach(c => c.remove())
+    }
+
+    networkRecv () {
+
+    }
+
+    networkSend () {
+        this.networkDirty = false
     }
 
 

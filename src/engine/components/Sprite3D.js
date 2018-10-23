@@ -47,4 +47,9 @@ export default class Sprite3D extends Component {
         this.parent.engine.v.drawVolume(this.object)
     }
 
+    remove () {
+        super.remove()
+        this.object.destroy()
+    }
+
 }

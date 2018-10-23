@@ -7,7 +7,7 @@ export default class Volume {
     }
 
     box (x, y, z, w, h, d, color = 1, sides = [1, 1, 1, 1, 1, 1]) {
-        this.boxes.push({ x, y, z, w, h, d, color, sides })
+        this.boxes.push({ x, y, z, w, h, d, color, sides, outline: false })
         return this
     }
 
@@ -21,7 +21,8 @@ export default class Volume {
             h: b.h + 1,
             d: b.d + 1,
             color,
-            sides: sides === null ? b.sides : sides
+            sides: sides === null ? b.sides : sides,
+            outline: true
         })
         return this
     }

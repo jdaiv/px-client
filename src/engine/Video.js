@@ -142,6 +142,11 @@ export class GLObject3D {
         gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(this.colors), gl.STATIC_DRAW)
     }
 
+    destroy () {
+        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
+        if (this.colorBuffer) gl.deleteBuffer(this.colorBuffers)
+    }
+
     draw (data) {
         this.material.use()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
@@ -196,6 +201,11 @@ export class GLObject3DSprite {
 
     setTexture (tex) {
         this.texture = tex
+    }
+
+    destroy () {
+        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
+        if (this.uvsBuffers) gl.deleteBuffer(this.uvsBuffers)
     }
 
     draw (data) {
@@ -254,6 +264,11 @@ class GLObject2D {
 
     setTexture (tex) {
         this.texture = tex
+    }
+
+    destroy () {
+        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
+        if (this.uvsBuffers) gl.deleteBuffer(this.uvsBuffers)
     }
 
     draw (data) {
