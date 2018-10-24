@@ -134,6 +134,7 @@ export default class Player extends Entity {
         this.keysDown.set(evt.code, true)
         if (evt.code == 'Space' && this.position[1] <= 0) {
             this.velocity[1] = 240
+            this.engine.synth.channel[0].playNote(103.83)
         }
     }
 
@@ -141,6 +142,7 @@ export default class Player extends Entity {
         this.keysDown.set(evt.code, false)
     }
 
+    /* eslint-disable camelcase */
     networkRecv ({ transform, velocity, animation_state, user }) {
         super.networkRecv()
         if (!this.isAuthority){
@@ -157,6 +159,7 @@ export default class Player extends Entity {
 
         this.update(user)
     }
+    /* eslint-enable */
 
     networkSend () {
         if (!this.networkDirty) return []

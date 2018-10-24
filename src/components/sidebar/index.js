@@ -58,7 +58,7 @@ export default class Sidebar extends Component {
                         <Router>
                             <Redirect default to="/room" />
                             <Chat path="/room/:option?" />
-                            <AddRoomForm path="/add_room" />
+                            {/* <AddRoomForm path="/add_room" /> */}
                             <AccountSettingsForm path="/account" />
                             <Auth path="/login" />
                             <SettingsForm path="/settings" />

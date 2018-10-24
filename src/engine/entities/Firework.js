@@ -19,6 +19,8 @@ export default class Firework extends Entity {
         this.networkId = id
 
         this.display = this.addComponent(new Volume3D(box))
+
+        this.engine.synth.channel[2].playNote(87.31)
     }
 
     tick (dt) {
@@ -39,6 +41,7 @@ export default class Firework extends Entity {
                     this.engine.activeStage.addEntity(p)
                 }
                 this.popped = true
+                this.engine.synth.channel[1].playNote(38.89)
             }
         }
     }

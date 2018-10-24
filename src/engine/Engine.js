@@ -1,6 +1,7 @@
 import Physics from './Physics'
 import Video from './Video'
 import Overlay from './Overlay'
+import Synth from './audio/Synth'
 import MaterialManager from './MaterialManager'
 import Resources from './Resources'
 import Station from './stages/Station'
@@ -23,6 +24,7 @@ export default class Engine {
         console.log('[engine] starting...')
         this.v = new Video(el)
         this.overlay = new Overlay(el)
+        this.synth = new Synth()
         Resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)
         }).then(() => {
@@ -110,6 +112,7 @@ export default class Engine {
             this.activeStage.draw(this.dt)
             this.v.run(this.time)
             this.overlay.run()
+            this.synth.tick(this.dt)
 
             let toSend = {}
             let hasUpdate = false
