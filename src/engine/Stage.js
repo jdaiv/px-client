@@ -26,7 +26,6 @@ export default class Stage {
     }
 
     addEntity (e) {
-        e.engine = this.engine
         this.entities.push(e)
         return e
     }

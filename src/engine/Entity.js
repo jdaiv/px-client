@@ -2,7 +2,8 @@ import { vec3 } from 'gl-matrix'
 
 export default class Entity {
 
-    constructor (name) {
+    constructor (engine, name) {
+        this.engine = engine
         this.components = []
         this.name = name
 

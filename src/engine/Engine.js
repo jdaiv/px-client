@@ -1,5 +1,6 @@
 import Physics from './Physics'
 import Video from './Video'
+import Overlay from './Overlay'
 import MaterialManager from './MaterialManager'
 import Resources from './Resources'
 import Station from './stages/Station'
@@ -21,6 +22,7 @@ export default class Engine {
     constructor (el) {
         console.log('[engine] starting...')
         this.v = new Video(el)
+        this.overlay = new Overlay(el)
         Resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)
         }).then(() => {
@@ -40,15 +42,15 @@ export default class Engine {
 
                             switch (eData.type) {
                             case 'player':
-                                ent = new Player('p_' + eData.id,
+                                ent = new Player(this, 'p_' + eData.id,
                                     eData.id, eData.owner)
                                 break
                             case 'firework_launcher':
-                                ent = new FireworkLauncher('fl_' + eData.id,
+                                ent = new FireworkLauncher(this, 'fl_' + eData.id,
                                     eData.id)
                                 break
                             case 'firework':
-                                ent = new Firework('f_' + eData.id,
+                                ent = new Firework(this, 'f_' + eData.id,
                                     eData.id)
                                 break
                             }
@@ -107,6 +109,7 @@ export default class Engine {
             this.activeStage.lateTick(this.dt)
             this.activeStage.draw(this.dt)
             this.v.run(this.time)
+            this.overlay.run()
 
             let toSend = {}
             let hasUpdate = false

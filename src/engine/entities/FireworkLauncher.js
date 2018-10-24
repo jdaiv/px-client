@@ -6,8 +6,8 @@ import Resources from '../Resources'
 
 export default class FireworkLauncher extends Entity {
 
-    constructor (name, id) {
-        super(name)
+    constructor (engine, name, id) {
+        super(engine, name)
 
         this.networked = true
         this.networkId = id

@@ -3,7 +3,6 @@ import { vec3 } from 'gl-matrix'
 import Stage from '../Stage'
 import Entity from '../Entity'
 import Resources from '../Resources'
-import Player from '../entities/Player'
 import Sprite3D from '../components/Sprite3D'
 import Volume3D from '../components/Volume3D'
 import { platform, train } from '../volumes/Station'
@@ -31,7 +30,7 @@ export default class Station extends Stage {
     }
 
     makeSprite (name, imgName, x, y, z) {
-        const ent = new Entity(name)
+        const ent = new Entity(this.engine, name)
         ent.position[0] = x
         ent.position[1] = y
         ent.position[2] = z
@@ -41,7 +40,7 @@ export default class Station extends Stage {
     }
 
     makeVolume (name, volume) {
-        const ent = new Entity(name)
+        const ent = new Entity(this.engine, name)
         ent.addComponent(new Volume3D(volume))
         this.addEntity(ent)
         return ent

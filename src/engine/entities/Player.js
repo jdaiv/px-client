@@ -12,8 +12,8 @@ export default class Player extends Entity {
 
     velocity = vec3.create()
 
-    constructor (name, id, owner) {
-        super(name)
+    constructor (engine, name, id, owner) {
+        super(engine, name)
 
         this.networked = true
         this.networkId = id
@@ -24,6 +24,9 @@ export default class Player extends Entity {
             Resources.images.faces, 0, 0, 0.1))
         this.face.frame = 2
         this.faceTimer = 0
+
+        this.overlay = this.engine.overlay.addPoint(this)
+        this.overlay.titleOffset[1] = 10
 
         this.update(owner)
     }
@@ -47,6 +50,8 @@ export default class Player extends Entity {
                 window.removeEventListener('keyup', this.keyup)
             }
         }
+
+        this.overlay.title = owner
     }
 
     tick (dt) {

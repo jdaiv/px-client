@@ -12,8 +12,8 @@ export default class Firework extends Entity {
     timer = 0
     velocity = vec3.create()
 
-    constructor (name, id) {
-        super(name)
+    constructor (engine, name, id) {
+        super(engine, name)
 
         this.networked = true
         this.networkId = id
@@ -28,13 +28,13 @@ export default class Firework extends Entity {
 
         if (this.timer !== undefined) {
             if (this.timer > 0) {
-                const p = new Particle('hmm')
+                const p = new Particle(this.engine, 'hmm')
                 p.position = vec3.clone(this.position)
                 this.engine.activeStage.addEntity(p)
             } else if (!this.popped) {
                 this.removeComponent(this.display)
                 for (let i = 0; i < 40; i++) {
-                    const p = new Particle('hmm', true)
+                    const p = new Particle(this.engine, 'hmm', true)
                     p.position = vec3.clone(this.position)
                     this.engine.activeStage.addEntity(p)
                 }
@@ -61,8 +61,8 @@ class Particle extends Entity {
 
     velocity = vec3.create()
 
-    constructor (name, bang = false) {
-        super(name)
+    constructor (engine, name, bang = false) {
+        super(engine, name)
         this.timer = Math.random() * 0.5
 
         this.display = this.addComponent(new Volume3D(box))
