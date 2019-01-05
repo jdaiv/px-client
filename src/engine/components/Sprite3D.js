@@ -43,7 +43,7 @@ export default class Sprite3D extends Component {
             uvX2, 0,
         ])
 
-        this.object.position = vec3.add(vec3.create(), this.offset, this.parent.position)
+        this.object.position = vec3.add(vec3.create(), this.offset, this.parent.transform.position)
         this.parent.engine.v.drawVolume(this.object)
     }
 

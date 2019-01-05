@@ -38,8 +38,8 @@ export default class App extends Component{
                     />
                     <Header />
                     <div class="container">
-                        <ContentPortal />
                         <Sidebar />
+                        <ContentPortal />
                     </div>
                 </Provider>
             </div>

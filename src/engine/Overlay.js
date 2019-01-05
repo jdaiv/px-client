@@ -102,7 +102,7 @@ export default class Overlay {
     }
 
     removePoint (ent) {
-        this.points.remove(ent)
+        this.points.delete(ent)
     }
 
     run (t) {

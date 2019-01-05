@@ -4,6 +4,7 @@ export default class Volume {
         this.boxes = []
         this.verts = []
         this.colors = []
+        this.finalized = false
     }
 
     box (x, y, z, w, h, d, color = 1, sides = [1, 1, 1, 1, 1, 1]) {
@@ -43,6 +44,7 @@ export default class Volume {
                 color[0], color[1], color[2],
                 b.color < 0, b.sides)
         })
+        this.finalized = true
     }
 
     makeCube (x0, y0, z0, x1, y1, z1, r, g, b, flipped, sides) {

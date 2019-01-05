@@ -25,8 +25,8 @@ export default class Header extends Component {
                 <h1>the panic express</h1>
                 <div class={style.auth}>
                     {auth.loggedIn ?
-                        <span>logged in as {auth.username} <button class="button" onClick={this.logout}>logout</button></span>:
-                        <span>not logged in <a class="button" href="/login">login</a></span>}
+                        <span>logged in as {auth.username}</span>:
+                        <span>not logged in</span>}
                 </div>
             </header>
         )

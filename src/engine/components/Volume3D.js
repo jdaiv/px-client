@@ -17,7 +17,7 @@ export default class Volume3D extends Component {
     }
 
     draw (dt) {
-        this.object.position = vec3.add(vec3.create(), this.offset, this.parent.position)
+        this.object.position = vec3.add(vec3.create(), this.offset, this.parent.transform.position)
         this.parent.engine.v.drawVolume(this.object)
     }
 

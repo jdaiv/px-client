@@ -6,7 +6,7 @@ const RESOURCES = {
     IMAGES: {
         test: {
             src: 'test.png',
-            frames: 5,
+            frames: 1,
             dim: {
                 w: 64,
                 h: 64

@@ -4,7 +4,7 @@ let _platform = new Volume()
 // _platform.box(-118, -300, 0, 236, 298, 36, 1, [1, 1, 1, 1, 1, 0]).outline(-2).outline(-1)
 _platform.box(-128, -4, 0, 256, 4, 40, 1).outline(-2).outline(-1)
 _platform.box(-128, -1, 40, 256, 1, 1, 2)
-_platform.box(-45, 2, 2, 90, 40, 8, 1).outline(-2).outline(-1)
+_platform.box(-45, 0, 2, 90, 42, 8, 1).outline(-2).outline(-1)
 _platform.box(-45, 41, 10, 90, 1, 4, 1, [0, 1, 1, 1, 1, 1]).outline(-2).outline(-1)
 
 const size = 5

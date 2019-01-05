@@ -12,7 +12,7 @@ export default class Services {
         Services.socket = new SocketService(socketStore, Services.auth)
         Services.rooms = new RoomService(roomStore, Services.socket)
 
-        Services.socket.open()
+        // Services.socket.open()
     }
 
 }

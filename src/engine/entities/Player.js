@@ -2,7 +2,6 @@ import { vec3 } from 'gl-matrix'
 
 import Entity from '../Entity'
 import Sprite3D from '../components/Sprite3D'
-import PlayerController from '../components/PlayerController'
 import Resources from '../Resources'
 import Services from '../../services'
 
@@ -31,14 +30,16 @@ export default class Player extends Entity {
         this.update(owner)
     }
 
+    destroy () {
+        this.engine.overlay.removePoint(this)
+        super.destroy()
+    }
+
     update (owner) {
         const old = this.isAuthority
-        this.isAuthority = owner == Services.auth.store.usernameN
+        this.isAuthority = owner === Services.auth.store.usernameN
         if (old != this.isAuthority) {
             if (this.isAuthority) {
-                if (!this.controller)
-                    this.controller = this.addComponent(new PlayerController(4, 4, 4))
-
                 this.keysDown = new Map()
 
                 window.addEventListener('keydown', this.keydown)
@@ -55,8 +56,6 @@ export default class Player extends Entity {
     }
 
     tick (dt) {
-        super.tick(dt)
-
         if (this.isAuthority) {
             let targetVelocity = vec3.create()
 
@@ -80,22 +79,17 @@ export default class Player extends Entity {
 
             vec3.normalize(targetVelocity, targetVelocity)
             vec3.mul(targetVelocity, targetVelocity, [SPEED, SPEED, SPEED])
-            targetVelocity[1] = this.velocity[1]
-            vec3.lerp(this.velocity, this.velocity, targetVelocity, dt * 10)
+            targetVelocity[1] = this.controller.velocity[1]
+            vec3.lerp(this.controller.velocity, this.controller.velocity, targetVelocity, dt * 10)
 
 
         }
 
-        this.velocity[1] -= 600 * dt
-        vec3.add(this.position, this.position,
-            vec3.scale(vec3.create(), this.velocity, dt))
+        super.tick(dt)
 
         if (this.isAuthority) {
-            if (this.position[1] <= 0) {
-                this.position[1] = 0
-                this.velocity[1] = 0
-
-                if (vec3.length(this.velocity) > 0.3) {
+            if (this.controller.grounded) {
+                if (vec3.length(this.controller.velocity) > 0.3) {
                     this.faceTimer += dt * 10
                     this.animState = this.faceTimer % 2
                 } else {
@@ -108,10 +102,6 @@ export default class Player extends Entity {
             if (vec3.distance(this.position, this.lastPostion) > 0.01) {
                 this.networkDirty = true
                 this.lastPostion = vec3.clone(this.position)
-            }
-        } else {
-            if (this.position[1] <= 0) {
-                this.position[1] = 0
             }
         }
 
@@ -132,8 +122,8 @@ export default class Player extends Entity {
 
     keydown = (evt) => {
         this.keysDown.set(evt.code, true)
-        if (evt.code == 'Space' && this.position[1] <= 0) {
-            this.velocity[1] = 240
+        if (evt.code == 'Space' && this.controller.grounded) {
+            this.controller.velocity[1] = 300
             this.engine.synth.channel[0].playNote(103.83)
         }
     }
@@ -150,7 +140,7 @@ export default class Player extends Entity {
                 transform.position.x,
                 transform.position.y,
                 transform.position.z)
-            vec3.set(this.velocity,
+            vec3.set(this.controller.velocity,
                 velocity.x,
                 velocity.y,
                 velocity.z)
