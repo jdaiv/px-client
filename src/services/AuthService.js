@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64'
 import EventManager from './EventManager'
 import { apiUrl } from '../config/const'
 
-const ADDR = `${apiUrl}/api/auth`
+const ADDR = `${apiUrl}/api/auth/`
 
 const isBrowser = typeof window !== 'undefined'
 
@@ -10,65 +10,72 @@ export default class AuthService {
 
     constructor (authStore) {
         this.store = authStore
-        this.loadToken()
-        this.readClaims()
-    }
-
-    loadToken () {
-        if (isBrowser) this.store.token = window.localStorage.getItem('auth_token')
-        if (this.store.token == 'null') this.store.token = null
-        this.store.loggedIn = this.store.token != null
-        EventManager.publish('auth_update', this.store.token != null)
-    }
-
-    storeToken (token) {
-        this.store.token = token
-        if (isBrowser) window.localStorage.setItem('auth_token', token)
-        if (token != null) {
-            this.store.loggedIn = true
-            this.readClaims()
+        this.password = null
+        this.loadPassword()
+        if (this.password !== null) {
+            this.login(this.password)
         }
     }
 
+    loadPassword () {
+        if (isBrowser) this.password = window.localStorage.getItem('password')
+        if (this.password == 'null') this.password = null
+    }
+
+    savePassword (password) {
+        this.password = password
+        if (isBrowser) window.localStorage.setItem('password', password)
+    }
+
     invalidate () {
-        this.storeToken(null)
+        this.savePassword(null)
         this.store.loggedIn = false
         EventManager.publish('auth_update', false)
     }
 
-    readClaims () {
-        if (!this.store.token) return
-
-        try {
-            const [ , claimsRaw ] = this.store.token.split('.')
-            // atob() butchers unicode, so we're bringing in something better?
-            const claims = JSON.parse(Base64.fromBase64(claimsRaw))
-            this.store.usernameN = claims.name
-            this.store.username = claims.full_name
-        } catch (err) {
-            console.log('token invalid', err)
-            this.invalidate()
-        }
-    }
-
-    login (username, password) {
+    login (password) {
         const data = new FormData()
-        data.append('username', username)
         data.append('password', password)
-        return fetch(ADDR, {
+        return fetch(ADDR + 'login', {
             method: 'POST',
             body: data
         }).then(r => {
             return r.json()
         }).then(json => {
             if (!json.error) {
-                this.storeToken(json.data)
-                EventManager.publish('auth_update', this.store.loggedIn)
+                this.savePassword(password)
+                this.store.usernameN = json.data.nameNormal
+                this.store.username = json.data.name
+                this.store.loggedIn = true
+                EventManager.publish('auth_update', true)
             }
 
             return json
         }).catch(err => {
             console.error('auth error', err)
+            this.store.loggedIn = false
+            EventManager.publish('auth_update', false)
+        })
+    }
+
+    createUser (username) {
+        const data = new FormData()
+        data.append('username', username)
+        return fetch(ADDR + 'create', {
+            method: 'POST',
+            body: data
+        }).then(r => {
+            return r.json()
+        }).then(json => {
+            if (!json.error) {
+                this.savePassword(json.data)
+                return this.login(json.data)
+            }
+
+            return false
+        }).catch(err => {
+            console.error('auth error', err)
+            this.store.loggedIn = false
             EventManager.publish('auth_update', false)
         })
     }

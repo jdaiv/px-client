@@ -76,6 +76,14 @@ const RESOURCES = {
                 h: 16
             }
         },
+        grid: {
+            src: 'grid.png',
+            frames: 1,
+            dim: {
+                w: 16,
+                h: 16
+            }
+        },
     },
     TEXTS: {
         default_post_vs: 'shaders/default_post_vs.glsl',

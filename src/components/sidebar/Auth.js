@@ -16,7 +16,13 @@ export default class AuthBox extends Component {
     login = (evt) => {
         evt.preventDefault()
         const fields = evt.target.elements
-        Services.auth.login(fields.username.value, fields.password.value).then(
+        let authMethod
+        if (this.recovery) {
+            authMethod = Services.auth.login(fields.password.value)
+        } else {
+            authMethod = Services.auth.createUser(fields.username.value)
+        }
+        authMethod.then(
             ({ error, message }) => {
                 if (error != 0) {
                     this.error = message

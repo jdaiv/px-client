@@ -8,7 +8,6 @@ import style from './style'
 
 import Log from './Log'
 import Input from './Input'
-import Options from './Options'
 
 import Services from '../../../services'
 
@@ -40,11 +39,8 @@ export default class Chat extends Component {
         if (!room) {
             return
         }
-        const options = [<Link activeClassName={style.active} href="/room" class="button">chat</Link>]
-        if (room.owner == auth.usernameN) {
-            options.push(<Link activeClassName={style.active} href="/room/options" class="button">options</Link>)
-        }
-        options.push(<Link activeClassName={style.active} href="/room/users" class="button">user list</Link>)
+        const options = [<Link activeClassName={style.active} href="/chat" class="button">chat</Link>]
+        options.push(<Link activeClassName={style.active} href="/chat/users" class="button">user list</Link>)
         return (
             (!room) ? <div /> : (
                 <div class={style.chat}>
@@ -53,12 +49,11 @@ export default class Chat extends Component {
                         {options.length > 1 ? options : null}
                     </div>
                     <Router>
-                        <div path="/room" class={style.container}>
+                        <div path="/chat" class={style.container}>
                             <Log log={room.log} />
                             <Input target={room.id} />
                         </div>
-                        <UserList id={room.id} path="/room/users" />
-                        <Options path="/room/options" />
+                        <UserList id={room.id} path="/chat/users" />
                     </Router>
                 </div>
             )

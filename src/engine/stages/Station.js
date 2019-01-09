@@ -2,27 +2,81 @@ import { vec3 } from 'gl-matrix'
 
 import Stage from '../Stage'
 import Entity from '../Entity'
+import { NOTE_MAP } from '../audio/Notes'
 import Resources from '../Resources'
+import MaterialManager from '../MaterialManager'
+import Util from '../Util'
+import { GLObject3DTextured } from '../Video'
 import Sprite3D from '../components/Sprite3D'
 import Volume3D from '../components/Volume3D'
 import { platform, train } from '../volumes/Station'
 
 const OFFSET = -24
 
+const NOTES = [
+    'E5', null, null, null,
+    null, null, 'A5', 'C6',
+    'B5', null, 'A5', null,
+    'A4', null, 'F5', null,
+    'E5', null, null, null,
+    null, null, 'D5', 'C5',
+    'B4', null, null, null,
+    'E5', null, null, null,
+    'E5', null, null, null,
+    null, null, 'A5', 'C6',
+    'B5', null, 'A5', null,
+    'A4', null, 'F5', null,
+    'E5', null, null, null,
+    null, null, 'D5', 'C5',
+    'G#5', null, null, null,
+    'E5', null, null, null,
+
+    'E5', null, null, null,
+    null, null, 'D5', 'C5',
+    'G5', null, null, null,
+    'C5', null, null, null,
+    'D5', null, null, null,
+    null, null, 'E5', 'F5',
+    'E5', null, null, null,
+    'D5', null, null, null,
+    'C5', 'B4', 'A4', 'B4',
+    'C5', null, null, null,
+    'F5', null, null, null,
+    'E5', null, null, null,
+    'G#5', null, null, null,
+    'B5', null, null, null,
+    'F6', null, null, null,
+    'E6', null, null, null,
+]
+
 export default class Station extends Stage {
 
     constructor (engine) {
         super(engine)
 
-        this.edge = this.makeVolume('platform', platform, 0, 0, OFFSET, true)
-        this.train = this.makeVolume('train', train, -600, -32, 60 + OFFSET)
-        this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 0, 0 + OFFSET)
+        // this.edge = this.makeVolume('platform', platform, 0, 0, OFFSET, true)
+        // this.train = this.makeVolume('train', train, -600, -32, 60 + OFFSET)
+        this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 32, 0 + OFFSET)
 
-        this.makeSprite('fence', 'fence', 0, 0, 0 + OFFSET)
-        this.makeSprite('bin', 'bin', 24, 0, 10 + 0.01 + OFFSET)
-        this.makeSprite('seat', 'seat', 0, 0, 11 - 0.01 + OFFSET)
-        this.makeSprite('door', 'door', -30, 0, 10 + 0.01 + OFFSET)
-        this.makeSprite('posters', 'posters', 30, 24, 10 + 0.01 + OFFSET)
+        this.noteTimer = 0
+        this.noteCount = 0
+
+        // this.makeSprite('fence', 'fence', 0, 0, 0 + OFFSET)
+        this.makeSprite('bin', 'bin', 8, 0, 12)
+        // this.makeSprite('seat', 'seat', 0, 0, 13 + OFFSET)
+        this.makeSprite('door', 'door', 0, -32, 17)
+        this.makeSprite('posters', 'posters', 0, -12, -17)
+        this.makeSprite('poses', 'poses', 0, 0, 0)
+        this.makeSprite('faces', 'faces', 0, 8, 1)
+        this.makeSprite('faces', 'faces', 0, 8, -1)
+
+        this.object = new GLObject3DTextured(MaterialManager.materials.defaultSprite)
+        const cubeSize = 16
+        let cube = Util.makeCube(-cubeSize, -cubeSize - cubeSize, -cubeSize, cubeSize, cubeSize - cubeSize, cubeSize)
+        console.log(cube)
+        this.object.setVerts(cube.verts)
+        this.object.setUVs(cube.uvs)
+        this.object.setTexture(Resources.images.grid.tex)
 
         this.trainTarget = 0
     }
@@ -50,6 +104,14 @@ export default class Station extends Stage {
     tick (dt) {
         super.tick(dt)
 
+        this.noteTimer -= dt
+        if (this.noteTimer <= 0) {
+            let note = NOTES[this.noteCount % NOTES.length]
+            if (note !== null) this.engine.synth.channel[this.noteCount % 8].playNote(NOTE_MAP[note])
+            this.noteCount++
+            this.noteTimer += 0.15
+        }
+
         // let pos = vec3.clone(this.train.position)
 
         // pos[0] = this.trainTarget
@@ -69,6 +131,7 @@ export default class Station extends Stage {
 
     draw (dt) {
         super.draw(dt)
+        this.engine.v.drawVolume(this.object)
     }
 
 }

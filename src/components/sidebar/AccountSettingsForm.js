@@ -18,10 +18,11 @@ export default class AccountSettingsForm extends Component {
                 <p>NONFUNCTIONAL</p>
                 <form>
                     <input placeholder="username" />
-                    <input placeholder="current password" />
-                    <input placeholder="new password" />
                     <input class="button" type="submit" value="update" />
                 </form>
+                <hr class={style.hr} />
+                <h2>recovery code</h2>
+                <p style="overflow-wrap: break-word;">{ Services.auth.password }</p>
                 <hr class={style.hr} />
                 <button class="button" onClick={this.logout}>logout</button>
             </div>

@@ -17,7 +17,7 @@ export default class Video {
 
         gl.enable(gl.DEPTH_TEST)
         gl.enable(gl.BLEND)
-        gl.enable(gl.CULL_FACE)
+        // gl.enable(gl.CULL_FACE)
 
         this.resize = this.resize.bind(this)
         this.resize()
@@ -69,12 +69,19 @@ export default class Video {
         let matrix = mat4.create()
         let matrixV = mat4.create()
         mat4.identity(matrixV)
-        mat4.ortho(matrix,
-            0, this.width, 0, this.height,
-            -1000, 1000)
-        mat4.translate(matrixV, matrixV, [this.width / 2, this.height / 2, 0])
-        // mat4.rotate(matrixV, matrixV, Math.sin(t / 100), [0, 0, 1])
-        // mat4.rotate(matrixV, matrixV, (t / 1000), [0.2, 1, 0])
+        // mat4.ortho(matrix,
+        //     0, this.width / 2, 0, this.height / 2,
+        //     -1000, 1000)
+
+        mat4.perspective(matrix,
+            90 * Math.PI / 180,
+            this.width / this.height,
+            0.1, 1000)
+
+        // mat4.translate(matrixV, matrixV, [this.width / 4, this.height / 4, -10])
+        mat4.translate(matrixV, matrixV, [0, -20, -120])
+        mat4.rotate(matrixV, matrixV, t / 800, [0, 1, 0])
+        mat4.rotate(matrixV, matrixV, Math.sin(t / 1200) * 0.25, [1, 0, 0])
         mat4.mul(matrix, matrix, matrixV)
 
         const data = {
@@ -155,6 +162,71 @@ export class GLObject3D {
         this.material.attributes.aVertexColor.set(4, gl.UNSIGNED_BYTE, true)
 
         this.material.setUniforms(data)
+
+        let matrix = mat4.create()
+        mat4.identity(matrix)
+        mat4.scale(matrix, matrix, this.scale)
+        mat4.translate(matrix, matrix, this.position)
+
+        this.material.setUniforms(data)
+        this.material.uniforms.uM_Matrix.set(matrix)
+
+        gl.drawArrays(gl.TRIANGLES, 0, this.verts.length / 3)
+
+        this.material.end()
+    }
+
+}
+
+export class GLObject3DTextured {
+
+    constructor (material) {
+        this.material = material
+        this.verts = []
+        this.uvs = []
+        this.texture = null
+        this.position = vec3.create()
+        this.rotation = vec3.create()
+        this.scale = [1, 1, 1]
+    }
+
+    setVerts (verts) {
+        this.verts = verts
+        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
+        this.vertBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.verts), gl.STATIC_DRAW)
+    }
+
+    setUVs (uvs) {
+        this.uvs = uvs
+        if (this.uvsBuffer) gl.deleteBuffer(this.uvsBuffers)
+        this.uvsBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.uvs), gl.STATIC_DRAW)
+    }
+
+    setTexture (tex) {
+        this.texture = tex
+    }
+
+    destroy () {
+        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
+        if (this.uvsBuffers) gl.deleteBuffer(this.uvsBuffers)
+    }
+
+    draw (data) {
+
+        this.material.use()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
+        this.material.attributes.aVertexPosition.set(3)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
+        this.material.attributes.aTextureCoord.set(2)
+
+        if (this.texture) {
+            gl.activeTexture(gl.TEXTURE0)
+            gl.bindTexture(gl.TEXTURE_2D, this.texture.tex)
+        }
 
         let matrix = mat4.create()
         mat4.identity(matrix)

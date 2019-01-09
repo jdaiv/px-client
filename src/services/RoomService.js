@@ -16,10 +16,6 @@ export default class RoomService {
             'chat_service',
             this.listenJoin)
         EventManager.subscribe(
-            'ws/chat/update_room',
-            'chat_service',
-            this.listenUpdate)
-        EventManager.subscribe(
             'ws/chat/new_message',
             'chat_service',
             this.listenMessage)
@@ -28,18 +24,12 @@ export default class RoomService {
             'chat_service',
             this.listenList)
         EventManager.subscribe(
-            'ws/activity/list',
-            'chat_service',
-            this.listenListAct)
-        EventManager.subscribe(
             'ws_status',
             'chat_service',
             this.status)
         this.promises = {}
 
-        this.join('station')
-
-        this.socket.send('activity', 'list', '')
+        this.join('public')
     }
 
     join (id) {

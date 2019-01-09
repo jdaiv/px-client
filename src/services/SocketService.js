@@ -65,8 +65,8 @@ export default class SocketService {
     }
 
     auth () {
-        if (this.authService.store.token && this.store.ready && !this.store.authenticated) {
-            this.send('auth', 'login', 'all', this.authService.store.token, true)
+        if (this.authService.password && this.store.ready && !this.store.authenticated) {
+            this.send('auth', 'login', 'all', this.authService.password, true)
         }
     }
 
@@ -83,7 +83,7 @@ export default class SocketService {
             (!this.ws || this.ws.readyState != 1 || !this.store.ready)) {
             this.queue.push([scope, action, target, data])
         } else {
-            // console.log(`sending ${scope}/${action}/${target}:`, data)
+            console.log(`sending ${scope}/${action}/${target}:`, data)
             EventManager.publish('ws_debug', data)
             this.ws.send(JSON.stringify({
                 action: {
@@ -112,13 +112,13 @@ export default class SocketService {
         if (!this.store.ready && !this.store.authenticated) {
             if (!data.error && scope == 'global' && type == 'pong') {
                 this.store.ready = true
-                this.flushQueue()
                 this.auth()
             }
             EventManager.publish('ws_status', this.store.ready)
         } else if (scope == 'auth' && type == 'login') {
             if (data.error === 0) {
                 this.store.authenticated = true
+                this.flushQueue()
             } else {
                 this.authService.logout()
             }
