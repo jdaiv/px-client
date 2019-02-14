@@ -56,27 +56,28 @@ export default class Station extends Stage {
 
         // this.edge = this.makeVolume('platform', platform, 0, 0, OFFSET, true)
         // this.train = this.makeVolume('train', train, -600, -32, 60 + OFFSET)
-        this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 32, 0 + OFFSET)
+        // this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 32, 0 + OFFSET)
 
         this.noteTimer = 0
         this.noteCount = 0
 
         // this.makeSprite('fence', 'fence', 0, 0, 0 + OFFSET)
-        this.makeSprite('bin', 'bin', 8, 0, 12)
+        // this.makeSprite('bin', 'bin', 8, 0, 12)
         // this.makeSprite('seat', 'seat', 0, 0, 13 + OFFSET)
-        this.makeSprite('door', 'door', 0, -32, 17)
-        this.makeSprite('posters', 'posters', 0, -12, -17)
-        this.makeSprite('poses', 'poses', 0, 0, 0)
-        this.makeSprite('faces', 'faces', 0, 8, 1)
-        this.makeSprite('faces', 'faces', 0, 8, -1)
+        // this.makeSprite('door', 'door', 0, -32, 17)
+        // this.makeSprite('posters', 'posters', 0, -12, -17)
+        // this.makeSprite('poses', 'poses', 0, 0, 0)
+        // this.makeSprite('faces', 'faces', 0, 8, 1)
+        // this.makeSprite('faces', 'faces', 0, 8, -1)
 
         this.object = new GLObject3DTextured(MaterialManager.materials.defaultSprite)
-        const cubeSize = 16
-        let cube = Util.makeCube(-cubeSize, -cubeSize - cubeSize, -cubeSize, cubeSize, cubeSize - cubeSize, cubeSize)
+        // const cubeSize = 16
+        // let cube = Util.makeCube(-cubeSize, -cubeSize - cubeSize, -cubeSize, cubeSize, cubeSize - cubeSize, cubeSize)
+        let cube = Util.readObj(Resources.texts.model_arcadecab)
         console.log(cube)
         this.object.setVerts(cube.verts)
         this.object.setUVs(cube.uvs)
-        this.object.setTexture(Resources.images.grid.tex)
+        this.object.setTexture(Resources.images.arcadecab.tex)
 
         this.trainTarget = 0
     }
@@ -104,13 +105,13 @@ export default class Station extends Stage {
     tick (dt) {
         super.tick(dt)
 
-        this.noteTimer -= dt
-        if (this.noteTimer <= 0) {
-            let note = NOTES[this.noteCount % NOTES.length]
-            if (note !== null) this.engine.synth.channel[this.noteCount % 8].playNote(NOTE_MAP[note])
-            this.noteCount++
-            this.noteTimer += 0.15
-        }
+        // this.noteTimer -= dt
+        // if (this.noteTimer <= 0) {
+        //     let note = NOTES[this.noteCount % NOTES.length]
+        //     if (note !== null) this.engine.synth.channels[this.noteCount % this.engine.synth.channels.length].playNote(NOTE_MAP[note])
+        //     this.noteCount++
+        //     this.noteTimer += 0.15
+        // }
 
         // let pos = vec3.clone(this.train.position)
 

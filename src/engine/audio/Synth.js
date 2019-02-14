@@ -12,15 +12,10 @@ export default class Synth {
 
     constructor () {
         this.ctx = new AudioContext()
-        this.channel = []
-        this.channel[0] = new Channel(this.ctx, 0)
-        this.channel[1] = new Channel(this.ctx, 0)
-        this.channel[2] = new Channel(this.ctx, 0)
-        this.channel[3] = new Channel(this.ctx, 0)
-        this.channel[4] = new Channel(this.ctx, 0)
-        this.channel[5] = new Channel(this.ctx, 0)
-        this.channel[6] = new Channel(this.ctx, 0)
-        this.channel[7] = new Channel(this.ctx, 0)
+        this.channels = []
+        for (let i = 0; i < 32; i++) {
+            this.channels[i] = new Channel(this.ctx, 3)
+        }
     }
 
     i = 0
@@ -55,7 +50,7 @@ class Channel {
     }
 
     playNote (freq) {
-        this.gainNode.gain.setValueCurveAtTime([0.0, 0.4, 0.2, 0.1, 0.1, 0.1, 0], this.ctx.currentTime, 0.7)
+        this.gainNode.gain.setValueCurveAtTime([0.2, 0.3, 0.1, 0.2, 0.05, 0.1, 0.01, 0.05, 0], this.ctx.currentTime, 0.7)
         this.oscNode.frequency.setValueAtTime(freq, 0)
     }
 

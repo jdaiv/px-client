@@ -84,6 +84,14 @@ const RESOURCES = {
                 h: 16
             }
         },
+        arcadecab: {
+            src: 'arcadecab.png',
+            frames: 1,
+            dim: {
+                w: 64,
+                h: 64
+            }
+        },
     },
     TEXTS: {
         default_post_vs: 'shaders/default_post_vs.glsl',
@@ -92,6 +100,7 @@ const RESOURCES = {
         default_fs: 'shaders/default_fs.glsl',
         default_sprite_vs: 'shaders/default_sprite_vs.glsl',
         default_sprite_fs: 'shaders/default_sprite_fs.glsl',
+        model_arcadecab: 'models/arcadecab.obj',
     }
 }
 
