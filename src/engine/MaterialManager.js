@@ -21,6 +21,24 @@ const MATERIALS = {
             {
                 name: 'aTextureCoord',
                 type: 'vec2'
+            },
+            {
+                name: 'aVertexNormal',
+                type: 'vec4'
+            }
+        ]
+    },
+    outline: {
+        vs: 'outline_vs',
+        fs: 'outline_fs',
+        attributes: [
+            {
+                name: 'aTextureCoord',
+                type: 'vec2'
+            },
+            {
+                name: 'aVertexNormal',
+                type: 'vec4'
             }
         ]
     },

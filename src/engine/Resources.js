@@ -100,6 +100,9 @@ const RESOURCES = {
         default_fs: 'shaders/default_fs.glsl',
         default_sprite_vs: 'shaders/default_sprite_vs.glsl',
         default_sprite_fs: 'shaders/default_sprite_fs.glsl',
+        outline_vs: 'shaders/outline.vs',
+        outline_fs: 'shaders/outline.fs',
+
         model_arcadecab: 'models/arcadecab.obj',
     }
 }

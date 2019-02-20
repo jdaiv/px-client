@@ -55,8 +55,7 @@ export default class Engine {
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
             this.activeStage.lateTick(this.dt)
-            this.activeStage.draw(this.dt)
-            this.v.run(this.time)
+            this.v.run(this.time, () => this.activeStage.draw(this.dt))
             this.overlay.run()
             this.synth.tick(this.dt)
         }

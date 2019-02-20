@@ -6,7 +6,7 @@ import { NOTE_MAP } from '../audio/Notes'
 import Resources from '../Resources'
 import MaterialManager from '../MaterialManager'
 import Util from '../Util'
-import { GLObject3DTextured } from '../Video'
+import { GLObject3D } from '../Video'
 import Sprite3D from '../components/Sprite3D'
 import Mesh3D from '../components/Mesh3D'
 
@@ -53,27 +53,28 @@ export default class Station extends Stage {
     constructor (engine) {
         super(engine)
 
-        this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 32, 0 + OFFSET)
+        // this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 32, 0 + OFFSET)
 
         this.noteTimer = 0
         this.noteCount = 0
 
         // this.makeSprite('fence', 'fence', 0, 0, 0 + OFFSET)
-        // this.makeSprite('bin', 'bin', 8, 0, 12)
+        this.makeSprite('bin', 'bin', -16, 0, 0)
         // this.makeSprite('seat', 'seat', 0, 0, 13 + OFFSET)
-        this.makeSprite('door', 'door', 0, -32, 17)
-        this.makeSprite('posters', 'posters', 0, -12, -17)
-        this.makeSprite('poses', 'poses', 0, 0, 0)
-        this.makeSprite('faces', 'faces', 0, 8, 1)
-        this.makeSprite('faces', 'faces', 0, 8, -1)
+        // this.makeSprite('door', 'door', 0, -32, 17)
+        // this.makeSprite('posters', 'posters', 0, -12, -17)
+        this.makeSprite('poses', 'poses', 16, 0, 0)
+        this.makeSprite('faces', 'faces', 16, 8, 0.5)
+        this.makeSprite('faces', 'faces', 16, 8, -0.5)
 
-        this.object = new GLObject3DTextured(MaterialManager.materials.defaultSprite)
+        this.object = new GLObject3D(MaterialManager.materials.defaultSprite)
         // const cubeSize = 16
         // let cube = Util.makeCube(-cubeSize, -cubeSize - cubeSize, -cubeSize, cubeSize, cubeSize - cubeSize, cubeSize)
-        let cube = Util.readObj(Resources.texts.model_arcadecab)
+        let cube = Util.readObj(Resources.texts.model_arcadecab, 6)
         console.log(cube)
         this.object.setVerts(cube.verts)
         this.object.setUVs(cube.uvs)
+        this.object.setNormals(cube.normals)
         this.object.setTexture(Resources.images.arcadecab.tex)
 
         this.trainTarget = 0
@@ -119,6 +120,11 @@ export default class Station extends Stage {
 
     draw (dt) {
         super.draw(dt)
+        this.object.material = MaterialManager.materials.outline
+        this.object.cull = -1
+        this.engine.v.draw(this.object)
+        this.object.cull = 1
+        this.object.material = MaterialManager.materials.defaultSprite
         this.engine.v.draw(this.object)
     }
 
