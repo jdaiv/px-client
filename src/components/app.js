@@ -10,14 +10,14 @@ import ContentPortal from './content_portal'
 
 import AuthStore from '../stores/AuthStore'
 import SocketStore from '../stores/SocketStore'
-import RoomStore from '../stores/RoomStore'
 import Services from '../services'
+import UIStore from '../stores/UIStore'
 
 const socketStore = new SocketStore()
 const authStore = new AuthStore()
-const roomStore = new RoomStore()
+const uiStore = new UIStore()
 
-Services.init(socketStore, authStore, roomStore)
+Services.init(socketStore, authStore, uiStore)
 if (typeof window !== 'undefined') window.services = Services
 
 @observer
@@ -25,9 +25,9 @@ export default class App extends Component{
     render() {
         return (
             <div id="app">
-                <Provider auth={authStore} socket={socketStore} rooms={roomStore}>
+                <Provider auth={authStore} socket={socketStore} ui={uiStore}>
                     <Helmet
-                        title={'The Panic Express' + (roomStore.active ? ' - ' + roomStore.activeRoom.name : '')}
+                        title="The Panic Express"
                         htmlAttributes={{ lang: 'en' }}
                         meta={[
                             { name: 'description', content: 'Play poorly made things with friends!' }

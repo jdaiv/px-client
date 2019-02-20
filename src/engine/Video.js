@@ -54,7 +54,7 @@ export default class Video {
         // this.ctx.clearRect(0, 0, this.width, this.height)
     }
 
-    drawVolume (obj, x, y, z) {
+    draw (obj) {
         this.queue.push(obj)
     }
 

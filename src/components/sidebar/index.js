@@ -6,7 +6,7 @@ import { observable } from 'mobx'
 
 import SettingsForm from './SettingsForm'
 import AccountSettingsForm from './AccountSettingsForm'
-import Chat from './chat'
+// import Chat from './chat'
 import Auth from './Auth'
 
 import style from './style'
@@ -22,14 +22,13 @@ class Redirect extends Component {
 }
 
 @inject('auth')
-@inject('rooms')
 @observer
 export default class Sidebar extends Component {
     @observable active = true
 
     close = () => { this.active = false }
 
-    render({ auth, rooms }) {
+    render({ auth }) {
 
         if (auth.loggedIn) {
             return (
@@ -43,8 +42,8 @@ export default class Sidebar extends Component {
                         <hr class={style.hr} />
                         <div class={style.content} /* style={{ display: this.active ? 'block' : 'none' }} */>
                             <Router>
-                                <Redirect default to="/chat" />
-                                <Chat path="/chat/:option?" />
+                                <Redirect default to="/account" />
+                                {/* <Chat path="/chat/:option?" /> */}
                                 <AccountSettingsForm path="/account" />
                                 <SettingsForm path="/settings" />
                             </Router>

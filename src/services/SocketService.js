@@ -33,7 +33,7 @@ export default class SocketService {
             console.log('ws opened', wsUrl)
             this.retries = 0
             EventManager.publish('ws_debug', null)
-            this.send('global', 'ping', 'all', null, true)
+            this.send('ping', null, true)
         }
 
         this.ws.onmessage = (evt) => {
@@ -66,7 +66,7 @@ export default class SocketService {
 
     auth () {
         if (this.authService.password && this.store.ready && !this.store.authenticated) {
-            this.send('auth', 'login', 'all', this.authService.password, true)
+            this.send('login', this.authService.password, true)
         }
     }
 
@@ -76,21 +76,17 @@ export default class SocketService {
         queue.forEach(d => this.send(...d))
     }
 
-    send (scope, action, target, data, force) {
+    send (action, data, force) {
         if (force && !this.ws && this.ws.readyState != 1){
-            console.log(`can't force send ${scope}/${action}:`, data)
+            console.log(`can't force send ${action}:`, data)
         } else if (!force &&
             (!this.ws || this.ws.readyState != 1 || !this.store.ready)) {
-            this.queue.push([scope, action, target, data])
+            this.queue.push([action, data])
         } else {
-            console.log(`sending ${scope}/${action}/${target}:`, data)
+            console.log(`sending ${action}:`, data)
             EventManager.publish('ws_debug', data)
             this.ws.send(JSON.stringify({
-                action: {
-                    scope,
-                    type: action,
-                    target
-                },
+                action,
                 data: JSON.stringify(data)
             }))
         }
@@ -107,15 +103,13 @@ export default class SocketService {
 
         EventManager.publish('ws_debug', data)
 
-        const { type, scope } = data.action
-
         if (!this.store.ready && !this.store.authenticated) {
-            if (!data.error && scope == 'global' && type == 'pong') {
+            if (!data.error && data.action == 'ping') {
                 this.store.ready = true
                 this.auth()
             }
             EventManager.publish('ws_status', this.store.ready)
-        } else if (scope == 'auth' && type == 'login') {
+        } else if (data.action == 'login') {
             if (data.error === 0) {
                 this.store.authenticated = true
                 this.flushQueue()
@@ -124,7 +118,7 @@ export default class SocketService {
             }
             EventManager.publish('ws_auth', this.store.authenticated)
         } else {
-            EventManager.publish(`ws/${scope}/${type}`, data)
+            EventManager.publish(`ws/${data.action}`, data)
         }
     }
 

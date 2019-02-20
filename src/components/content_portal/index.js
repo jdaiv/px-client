@@ -1,11 +1,10 @@
 import { h, Component } from 'preact'
-import { inject, observer } from 'mobx-preact'
+import { observer } from 'mobx-preact'
 
 import Engine from '../../engine/Engine'
 
 import style from './style'
 
-@inject('rooms')
 @observer
 export default class ContentPortal extends Component {
 

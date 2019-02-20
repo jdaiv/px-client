@@ -1,29 +1,5 @@
 import { vec3 } from 'gl-matrix'
 
-export class NetworkInfo {
-
-    get isAuthority () {
-        return false
-    }
-
-    constructor (enabled, id, owner) {
-        this.enabled = enabled
-        this.id = id
-        this.owner = owner
-    }
-
-}
-
-export class PhysicsInfo {
-
-    constructor (enabled, collider, weight = 0) {
-        this.enabled = enabled
-        this.collider = collider
-        this.weight = weight
-    }
-
-}
-
 export class Transform {
     _position = vec3.create()
 
@@ -71,10 +47,6 @@ export default class Entity {
         this.destroyed = false
 
         this.transform = new Transform()
-
-        this.physInfo = new PhysicsInfo()
-        this.netInfo = netInfo
-        this.renderInfo = null
     }
 
     addComponent (name, c) {
@@ -112,14 +84,6 @@ export default class Entity {
         this.active = false
         this.destroyed = true
         this.components.forEach(c => c.remove())
-    }
-
-    networkRecv () {
-
-    }
-
-    networkSend () {
-        this.networkDirty = false
     }
 
 }

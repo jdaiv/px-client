@@ -8,8 +8,7 @@ import MaterialManager from '../MaterialManager'
 import Util from '../Util'
 import { GLObject3DTextured } from '../Video'
 import Sprite3D from '../components/Sprite3D'
-import Volume3D from '../components/Volume3D'
-import { platform, train } from '../volumes/Station'
+import Mesh3D from '../components/Mesh3D'
 
 const OFFSET = -24
 
@@ -54,9 +53,7 @@ export default class Station extends Stage {
     constructor (engine) {
         super(engine)
 
-        // this.edge = this.makeVolume('platform', platform, 0, 0, OFFSET, true)
-        // this.train = this.makeVolume('train', train, -600, -32, 60 + OFFSET)
-        // this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 32, 0 + OFFSET)
+        this.trainSign = this.makeSprite('trainSign', 'trainSign', 0, 32, 0 + OFFSET)
 
         this.noteTimer = 0
         this.noteCount = 0
@@ -64,11 +61,11 @@ export default class Station extends Stage {
         // this.makeSprite('fence', 'fence', 0, 0, 0 + OFFSET)
         // this.makeSprite('bin', 'bin', 8, 0, 12)
         // this.makeSprite('seat', 'seat', 0, 0, 13 + OFFSET)
-        // this.makeSprite('door', 'door', 0, -32, 17)
-        // this.makeSprite('posters', 'posters', 0, -12, -17)
-        // this.makeSprite('poses', 'poses', 0, 0, 0)
-        // this.makeSprite('faces', 'faces', 0, 8, 1)
-        // this.makeSprite('faces', 'faces', 0, 8, -1)
+        this.makeSprite('door', 'door', 0, -32, 17)
+        this.makeSprite('posters', 'posters', 0, -12, -17)
+        this.makeSprite('poses', 'poses', 0, 0, 0)
+        this.makeSprite('faces', 'faces', 0, 8, 1)
+        this.makeSprite('faces', 'faces', 0, 8, -1)
 
         this.object = new GLObject3DTextured(MaterialManager.materials.defaultSprite)
         // const cubeSize = 16
@@ -88,16 +85,6 @@ export default class Station extends Stage {
         ent.transform.position[1] = y
         ent.transform.position[2] = z
         ent.addComponent('v', new Sprite3D(Resources.images[imgName]))
-        this.addEntity(ent)
-        return ent
-    }
-
-    makeVolume (name, volume, x = 0, y = 0, z = 0, colliders = false) {
-        const ent = new Entity(this.engine, name)
-        ent.transform.position[0] = x
-        ent.transform.position[1] = y
-        ent.transform.position[2] = z
-        ent.addComponent('v', new Volume3D(volume))
         this.addEntity(ent)
         return ent
     }
@@ -132,7 +119,7 @@ export default class Station extends Stage {
 
     draw (dt) {
         super.draw(dt)
-        this.engine.v.drawVolume(this.object)
+        this.engine.v.draw(this.object)
     }
 
 }

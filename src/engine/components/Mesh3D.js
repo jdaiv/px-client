@@ -4,7 +4,7 @@ import Component from '../Component'
 import { GLObject3D } from '../Video'
 import MaterialManager from '../MaterialManager'
 
-export default class Volume3D extends Component {
+export default class Mesh3D extends Component {
 
     constructor (volume, x = 0, y = 0, z = 0) {
         super()
@@ -18,7 +18,7 @@ export default class Volume3D extends Component {
 
     draw (dt) {
         this.object.position = vec3.add(vec3.create(), this.offset, this.parent.transform.position)
-        this.parent.engine.v.drawVolume(this.object)
+        this.parent.engine.v.draw(this.object)
     }
 
     remove () {
