@@ -6,6 +6,11 @@ publish = 'build/'
 command = 'preact build --no-prerender'
 
 [[redirects]]
+  from = "/resources/*"
+  to = "/resources/*"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
