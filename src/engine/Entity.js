@@ -37,8 +37,7 @@ export class Transform {
 
 export default class Entity {
 
-    constructor (engine, name, netInfo) {
-        this.engine = engine
+    constructor (name) {
         this.components = new Map()
         this.componentsInfo = new Map()
         this.name = name

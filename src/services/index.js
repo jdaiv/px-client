@@ -29,6 +29,22 @@ export default class Services {
             })
 
         EventManager.subscribe(
+            'ws/game_state',
+            'chat_service',
+            ({ error, action, data }) => {
+                const pKey = 'game_state'
+                if (Services.promises[pKey]) {
+                    if (error != 0) {
+                        Services.promises[pKey].reject()
+                    } else {
+                        Services.promises[pKey].resolve(data)
+                    }
+                    delete Services.promises[pKey]
+                }
+            })
+
+
+        EventManager.subscribe(
             'ws/chat_message',
             'chat_service',
             ({ error, action, data }) => {
@@ -47,6 +63,20 @@ export default class Services {
         if (!Services.promises[pKey]) {
             const newP = {}
             Services.socket.send('list_users')
+            newP.p = new Promise((resolve, reject) => {
+                newP.resolve = resolve
+                newP.reject = reject
+            })
+            Services.promises[pKey] = newP
+        }
+        return Services.promises[pKey].p
+    }
+
+    static getGameState () {
+        const pKey = 'game_state'
+        if (!Services.promises[pKey]) {
+            const newP = {}
+            Services.socket.send('game_state')
             newP.p = new Promise((resolve, reject) => {
                 newP.resolve = resolve
                 newP.reject = reject

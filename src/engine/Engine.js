@@ -4,16 +4,22 @@ import Synth from './audio/Synth'
 import MaterialManager from './MaterialManager'
 import Resources from './Resources'
 import Station from './stages/Station'
+import { vec3 } from 'gl-matrix'
 
 export default class Engine {
 
-    camera = { offset: [0, 0], zoom: 1 }
+    camera = {
+        target: vec3.create(),
+        offset: vec3.fromValues(0, 90, 120),
+        targetFov: 50,
+        fov: 50
+    }
     players = {}
     me = null
 
     constructor (el) {
         console.log('[engine] starting...')
-        this.v = new Video(el)
+        this.v = new Video(el, this)
         this.overlay = new Overlay(el)
         this.synth = new Synth()
         Resources.load(({ done, total }) => {

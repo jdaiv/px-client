@@ -6,10 +6,12 @@ export let gl
 
 export default class Video {
 
-    constructor (el) {
+    constructor (el, engine) {
         this.base = el
         this.el = document.createElement('canvas')
         el.appendChild(this.el)
+
+        this.engine = engine
 
         gl = this.ctx = this.el.getContext('webgl', {
             antialias: false
@@ -25,7 +27,6 @@ export default class Video {
 
         this.queue = []
         console.log('[engine/video] initialised')
-
     }
 
     resize () {
@@ -73,13 +74,16 @@ export default class Video {
         //     -1000, 1000)
 
         mat4.perspective(matrix,
-            60 * Math.PI / 180,
+            this.engine.camera.fov * Math.PI / 180,
             this.width / this.height,
             0.1, 1000)
 
         // mat4.translate(matrixV, matrixV, [this.width / 4, this.height / 4, -10])
-        mat4.translate(matrixV, matrixV, [0, -16, -80])
-        mat4.rotate(matrixV, matrixV, t / 800, [0, 1, 0])
+        // mat4.translate(matrixV, matrixV, [0, 64, this.engine.camera.distance])
+        let cameraPos = vec3.add(vec3.create(),
+            this.engine.camera.offset,
+            this.engine.camera.target)
+        mat4.lookAt(matrixV, cameraPos, this.engine.camera.target, [0, 1, 0])
         // mat4.rotate(matrixV, matrixV, 0.4, [1, 0, 0])
         mat4.mul(matrix, matrix, matrixV)
 
