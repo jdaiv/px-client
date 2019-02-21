@@ -9,6 +9,6 @@ export default (config, env, helpers) => {
         new CopyWebpackPlugin([
             { context: `${__dirname}/resources`, from: '**/*.*', to: 'resources/' }
         ],
-        { ignore: ['*.ase'] })
+        { ignore: ['*.ase', '*.aseprite'] })
     )
 }
