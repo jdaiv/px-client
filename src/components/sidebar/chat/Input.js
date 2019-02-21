@@ -12,7 +12,7 @@ export default class Input extends Component {
         evt.preventDefault()
         const message = evt.target.elements.message.value
         if (message.length > 0) {
-            Services.rooms.send(this.props.target, message)
+            Services.send(message)
             evt.target.reset()
         }
     }

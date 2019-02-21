@@ -16,7 +16,7 @@ class UserList extends Component {
     @observable users = ['Loading...']
 
     componentDidMount() {
-        Services.rooms.getUserList(this.props.id).then((list) => {
+        Services.getUserList(this.props.id).then((list) => {
             this.users.replace(list)
         })
     }
@@ -30,33 +30,27 @@ class UserList extends Component {
     }
 }
 
-@inject('rooms')
+@inject('ui')
 @inject('auth')
 @observer
 export default class Chat extends Component {
-    render({ rooms, auth }) {
-        const room = rooms.activeRoom
-        if (!room) {
-            return
-        }
+    render({ ui, auth }) {
         const options = [<Link activeClassName={style.active} href="/chat" class="button">chat</Link>]
         options.push(<Link activeClassName={style.active} href="/chat/users" class="button">user list</Link>)
         return (
-            (!room) ? <div /> : (
-                <div class={style.chat}>
-                    <h2>room: {room.name}</h2>
-                    <div class={style.options}>
-                        {options.length > 1 ? options : null}
-                    </div>
-                    <Router>
-                        <div path="/chat" class={style.container}>
-                            <Log log={room.log} />
-                            <Input target={room.id} />
-                        </div>
-                        <UserList id={room.id} path="/chat/users" />
-                    </Router>
+            <div class={style.chat}>
+                {/* <h2>room: {room.name}</h2> */}
+                <div class={style.options}>
+                    {options.length > 1 ? options : null}
                 </div>
-            )
+                <Router>
+                    <div path="/chat" class={style.container}>
+                        <Log log={ui.log} />
+                        <Input />
+                    </div>
+                    <UserList path="/chat/users" />
+                </Router>
+            </div>
         )
     }
 }
