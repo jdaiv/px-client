@@ -33,7 +33,9 @@ export default class SocketService {
             console.log('ws opened', wsUrl)
             this.retries = 0
             EventManager.publish('ws_debug', null)
-            this.send('ping', null, true)
+            this.pingInterval = setInterval(() => {
+                this.send('ping', null, true)
+            }, 1000)
         }
 
         this.ws.onmessage = (evt) => {
@@ -55,6 +57,7 @@ export default class SocketService {
             EventManager.publish('ws_debug', null)
             EventManager.publish('ws_status', false)
             setTimeout(this.open.bind(this), RETRY_WAIT)
+            clearInterval(this.pingInterval)
         }
     }
 
@@ -83,7 +86,7 @@ export default class SocketService {
             (!this.ws || this.ws.readyState != 1 || !this.store.ready)) {
             this.queue.push([action, data])
         } else {
-            console.log(`sending ${action}:`, data)
+            // console.log(`sending ${action}:`, data)
             EventManager.publish('ws_debug', data)
             this.ws.send(JSON.stringify({
                 action,

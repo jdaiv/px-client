@@ -103,6 +103,7 @@ const RESOURCES = {
         outline_vs: 'shaders/outline.vs',
         outline_fs: 'shaders/outline.fs',
 
+        model_cube: 'models/cube.obj',
         model_arcadecab: 'models/arcadecab.obj',
     }
 }
