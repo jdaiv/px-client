@@ -12,6 +12,7 @@ export default class SocketService {
 
         this.retries = 0
         this.queue = []
+        this.destroyed = false
 
         EventManager.subscribe('auth_update', 'ws_auth', (data) => {
             if (data === true) this.auth()
@@ -23,6 +24,7 @@ export default class SocketService {
     }
 
     open (manual) {
+        if (this.destroyed) return
         if (typeof window === 'undefined') return
         if (this.retries >= MAX_RETRIES && !manual) throw new Error('Max retries hit')
         // if we're currently connecting or connecting, don't attempt
@@ -56,7 +58,7 @@ export default class SocketService {
             this.store.ready = false
             EventManager.publish('ws_debug', null)
             EventManager.publish('ws_status', false)
-            setTimeout(this.open.bind(this), RETRY_WAIT)
+            if (!this.destroyed) setTimeout(this.open.bind(this), RETRY_WAIT)
             clearInterval(this.pingInterval)
         }
     }
@@ -65,6 +67,11 @@ export default class SocketService {
         this.store.ready = false
         this.store.authenticated = false
         this.ws.close()
+    }
+
+    destroy () {
+        this.destroyed = true
+        this.close()
     }
 
     auth () {

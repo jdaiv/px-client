@@ -17,8 +17,13 @@ const socketStore = new SocketStore()
 const authStore = new AuthStore()
 const uiStore = new UIStore()
 
+if (typeof window !== 'undefined') {
+    if (window.services) window.services.destroy()
+}
 Services.init(socketStore, authStore, uiStore)
-if (typeof window !== 'undefined') window.services = Services
+if (typeof window !== 'undefined') {
+    window.services = Services
+}
 
 @observer
 export default class App extends Component{

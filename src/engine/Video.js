@@ -3,7 +3,7 @@ import { mat4, vec3 } from 'gl-matrix'
 import Resources from './Resources'
 // import { toRadian } from 'gl-matrix/src/gl-matrix/common'
 
-const SCALE = 1
+const SCALE = 2
 const INIT_QUEUE_SIZE = 16
 
 export let gl
@@ -219,6 +219,7 @@ export class GLTexture {
 export class GLMesh {
 
     constructor (rawMesh) {
+        this.raw = rawMesh
         this.setVerts(rawMesh.verts)
         this.setUVs(rawMesh.uvs)
         if (rawMesh.normals) this.setNormals(rawMesh.normals)

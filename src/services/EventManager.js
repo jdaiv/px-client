@@ -4,6 +4,10 @@ export default class EventManager {
         EventManager.subscribers = {}
     }
 
+    static clear () {
+        EventManager.subscribers = {}
+    }
+
     static subscribe (type, id, func) {
         if (EventManager.subscribers[type] == null) {
             EventManager.subscribers[type] = {}

@@ -52,6 +52,11 @@ export default class Services {
             })
     }
 
+    static destroy () {
+        EventManager.clear()
+        Services.socket.destroy()
+    }
+
     static send (msg) {
         Services.socket.send('chat_message', {
             content: msg
