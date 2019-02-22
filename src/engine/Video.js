@@ -1,6 +1,10 @@
-import MaterialManager from './MaterialManager'
+import MaterialManager from './Materials'
 import { mat4, vec3 } from 'gl-matrix'
+import Resources from './Resources'
 // import { toRadian } from 'gl-matrix/src/gl-matrix/common'
+
+const SCALE = 1
+const INIT_QUEUE_SIZE = 16
 
 export let gl
 
@@ -25,19 +29,59 @@ export default class Video {
         this.resize()
         window.addEventListener('resize', this.resize)
 
-        this.queue = []
+        this.queue = new Map()
         console.log('[engine/video] initialised')
+    }
+
+    initQueue () {
+        for (let key in MaterialManager.materials) {
+            let map = new Map()
+            this.queue.set(key, map)
+            for (let mKey in Resources.models) {
+                let array = new Array(INIT_QUEUE_SIZE)
+                for (let i = 0; i < INIT_QUEUE_SIZE; i++) {
+                    array[i] = {
+                        texture: 'test',
+                        position: [0, 0, 0],
+                        scale: null,
+                        frame: null
+                    }
+                }
+                map.set(mKey, {
+                    count: 0,
+                    array
+                })
+            }
+        }
+    }
+
+    sortQueue () {
+        this.queue.forEach(q => {
+            q.forEach(mq => {
+                mq.array.sort((a, b) => {
+                    if (a.texture < b.texture) return -1
+                    if (a.texture > b.texture) return 1
+                    return 0
+                })
+            })
+        })
+    }
+
+    clearQueue () {
+        this.queue.forEach(q => {
+            q.forEach(mq => mq.count = 0)
+        })
     }
 
     resize () {
         console.log('[engine/video] resizing')
         setTimeout(() => {
             const box = this.base.getBoundingClientRect()
-            this.width = this.el.width = Math.floor(box.width / 2)
-            this.height = this.el.height = Math.floor(box.height / 2)
+            this.width = this.el.width = Math.floor(box.width / SCALE)
+            this.height = this.el.height = Math.floor(box.height / SCALE)
             // this prevents weird half pixel scaling
-            this.el.style.width = this.width * 2 + 'px'
-            this.el.style.height = this.height * 2 + 'px'
+            this.el.style.width = this.width * SCALE + 'px'
+            this.el.style.height = this.height * SCALE + 'px'
             gl.viewport(0, 0, this.width, this.height)
             if (this.fbo) this.fbo.resize(this.width, this.height)
         })
@@ -54,8 +98,24 @@ export default class Video {
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
     }
 
-    draw (obj) {
-        obj.draw(this.data)
+    drawMesh (name, { position, scale }, material, texture) {
+        const q = this.queue.get(material).get(name)
+        if (q.array.length == q.count) q.array.push({})
+        const qObj = q.array[q.count++]
+        qObj.texture = texture
+        qObj.position = position
+        qObj.scale = scale
+        qObj.frame = null
+    }
+
+    drawSprite (name, { position, scale }, material, frame) {
+        const q = this.queue.get(material).get('quad')
+        if (q.array.length == q.count) q.array.push({})
+        const qObj = q.array[q.count++]
+        qObj.texture = name
+        qObj.position = position
+        qObj.scale = scale
+        qObj.frame = frame
     }
 
     run (t, f) {
@@ -69,34 +129,67 @@ export default class Video {
         let matrix = mat4.create()
         let matrixV = mat4.create()
         mat4.identity(matrixV)
-        // mat4.ortho(matrix,
-        //     0, this.width / 2, 0, this.height / 2,
-        //     -1000, 1000)
 
         mat4.perspective(matrix,
             this.engine.camera.fov * Math.PI / 180,
             this.width / this.height,
             0.1, 1000)
 
-        // mat4.translate(matrixV, matrixV, [this.width / 4, this.height / 4, -10])
-        // mat4.translate(matrixV, matrixV, [0, 64, this.engine.camera.distance])
         let cameraPos = vec3.add(vec3.create(),
             this.engine.camera.offset,
             this.engine.camera.target)
         mat4.lookAt(matrixV, cameraPos, this.engine.camera.target, [0, 1, 0])
-        // mat4.rotate(matrixV, matrixV, 0.4, [1, 0, 0])
         mat4.mul(matrix, matrix, matrixV)
 
         this.data = {
-            t,
+            time: t,
             width: this.width,
             height: this.height,
-            matrix
+            vpMatrix: matrix
         }
 
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE) {
-            this.clear()
+
+            this.clearQueue()
             f()
+            this.sortQueue()
+            this.clear()
+
+            this.queue.forEach((q, matKey) => {
+                const material = MaterialManager.materials[matKey]
+
+                material.use()
+                material.setGlobalUniforms(this.data)
+                material.preDraw()
+
+                q.forEach((mq, modelKey) => {
+                    material.bindMesh(Resources.models[modelKey].mesh)
+                    let lastTexKey = null, image = null
+                    for (let i = 0; i < mq.count; i++) {
+                        const o = mq.array[i]
+                        if (lastTexKey != o.texture) {
+                            image = Resources.images[o.texture]
+                            material.setTexture(image.tex.tex)
+                            lastTexKey = o.texture
+                        }
+                        let matrix = mat4.create()
+                        mat4.identity(matrix)
+                        mat4.translate(matrix, matrix, o.position)
+                        if (o.scale == 's') mat4.scale(matrix, matrix, [image.width / 16, image.height / 16, 1])
+                        else if (o.scale) mat4.scale(matrix, matrix, o.scale)
+                        let spriteData = [0, 0]
+                        if (o.frame != null) {
+                            spriteData[0] = image.frames
+                            spriteData[1] = o.frame
+                        }
+                        material.setMeshUniforms(matrix, spriteData)
+                        material.draw()
+                    }
+                })
+
+                material.postDraw()
+                material.end()
+            })
         }
 
         gl.bindRenderbuffer(gl.RENDERBUFFER, null)
@@ -123,18 +216,12 @@ export class GLTexture {
 
 }
 
-export class GLObject3D {
+export class GLMesh {
 
-    constructor (material, cull = 1) {
-        this.material = material
-        this.verts = []
-        this.normals = []
-        this.uvs = []
-        this.texture = null
-        this.position = vec3.create()
-        this.rotation = vec3.create()
-        this.scale = [1, 1, 1]
-        this.cull = cull
+    constructor (rawMesh) {
+        this.setVerts(rawMesh.verts)
+        this.setUVs(rawMesh.uvs)
+        if (rawMesh.normals) this.setNormals(rawMesh.normals)
     }
 
     setVerts (verts) {
@@ -161,105 +248,10 @@ export class GLObject3D {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.uvs), gl.STATIC_DRAW)
     }
 
-    setTexture (tex) {
-        this.texture = tex
-    }
-
     destroy () {
         if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
         if (this.normalBuffer) gl.deleteBuffer(this.normalBuffer)
         if (this.uvsBuffers) gl.deleteBuffer(this.uvsBuffers)
-    }
-
-    draw (data) {
-
-        this.material.use()
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
-        this.material.attributes.aVertexPosition.set(3)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer)
-        this.material.attributes.aVertexNormal.set(3, gl.FLOAT, true)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
-        this.material.attributes.aTextureCoord.set(2)
-
-        if (this.texture) {
-            gl.activeTexture(gl.TEXTURE0)
-            gl.bindTexture(gl.TEXTURE_2D, this.texture.tex)
-        }
-
-        let matrix = mat4.create()
-        mat4.identity(matrix)
-        mat4.scale(matrix, matrix, this.scale)
-        mat4.translate(matrix, matrix, this.position)
-
-        this.material.setUniforms(data)
-        this.material.uniforms.uM_Matrix.set(matrix)
-
-        if (this.cull == 0) gl.disable(gl.CULL_FACE)
-        if (this.cull == -1) gl.cullFace(gl.FRONT)
-        // if (this.cull == -1) gl.frontFace(gl.CW)
-        gl.drawArrays(gl.TRIANGLES, 0, this.verts.length / 3)
-        if (this.cull == 0) gl.enable(gl.CULL_FACE)
-        if (this.cull == -1) gl.cullFace(gl.BACK)
-        // if (this.cull == -1) gl.frontFace(gl.CCW)
-
-        this.material.end()
-    }
-
-}
-
-class GLObject2D {
-
-    constructor (material) {
-        this.material = material
-        this.verts = []
-        this.uvs = []
-        this.texture = null
-    }
-
-    setVerts (verts, mode) {
-        this.verts = verts
-        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
-        this.vertBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.verts), gl.STATIC_DRAW)
-        this.mode = mode || 2
-    }
-
-    setUVs (uvs) {
-        this.uvs = uvs
-        if (this.uvsBuffer) gl.deleteBuffer(this.uvsBuffers)
-        this.uvsBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.uvs), gl.STATIC_DRAW)
-    }
-
-    setTexture (tex) {
-        this.texture = tex
-    }
-
-    destroy () {
-        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
-        if (this.uvsBuffers) gl.deleteBuffer(this.uvsBuffers)
-    }
-
-    draw (data) {
-
-        this.material.use()
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
-        this.material.attributes.aVertexPosition.set(this.mode)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
-        this.material.attributes.aTextureCoord.set(2)
-
-        if (this.texture) {
-            gl.activeTexture(gl.TEXTURE0)
-            gl.bindTexture(gl.TEXTURE_2D, this.texture.tex)
-        }
-
-        this.material.setUniforms(data)
-
-        gl.drawArrays(gl.TRIANGLES, 0, this.verts.length / 2)
-
-        this.material.end()
     }
 
 }
@@ -270,24 +262,25 @@ class GLFBO {
         this.texture = gl.createTexture()
         this.buffer = gl.createFramebuffer()
         this.renderBuffer = gl.createRenderbuffer()
-        this.renderObject = new GLObject2D(MaterialManager.materials.defaultPost)
-        this.renderObject.setTexture({ tex: this.texture })
-        this.renderObject.setVerts([
-            -1, -1,
-            1, 1,
-            -1, 1,
-            -1, -1,
-            1, -1,
-            1, 1,
-        ])
-        this.renderObject.setUVs([
-            0, 0,
-            1, 1,
-            0, 1,
-            0, 0,
-            1, 0,
-            1, 1,
-        ])
+
+        this.mesh = new GLMesh({
+            verts: [
+                -1, -1, 0,
+                1, 1, 0,
+                -1, 1, 0,
+                -1, -1, 0,
+                1, -1, 0,
+                1, 1, 0,
+            ],
+            uvs: [
+                0, 0,
+                1, 1,
+                0, 1,
+                0, 0,
+                1, 0,
+                1, 1,
+            ]
+        })
     }
 
     resize (w, h) {
@@ -314,7 +307,16 @@ class GLFBO {
     }
 
     render (data) {
-        this.renderObject.draw(data)
+        const material = MaterialManager.materials.post
+
+        material.use()
+        material.setGlobalUniforms(data)
+        material.setTexture(this.texture)
+        material.bindMesh(this.mesh)
+        material.preDraw()
+        material.draw()
+        material.postDraw()
+        material.end()
     }
 
 }

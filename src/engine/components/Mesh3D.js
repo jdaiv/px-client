@@ -1,8 +1,7 @@
 import { vec3 } from 'gl-matrix'
 
 import Component from '../Component'
-import { GLObject3D } from '../Video'
-import MaterialManager from '../MaterialManager'
+import MaterialManager from '../Materials'
 
 export default class Mesh3D extends Component {
 
@@ -11,21 +10,21 @@ export default class Mesh3D extends Component {
         this.volume = volume
         this.offset = vec3.set(vec3.create(), x, y, z)
         this.frame = 0
-        this.object = new GLObject3D(MaterialManager.materials.default)
-        this.object.setVerts(volume.verts)
+        // this.object = new GLObject3D(MaterialManager.materials.default)
+        // this.object.setVerts(volume.verts)
     }
 
     draw (dt) {
-        this.object.position = vec3.add(vec3.create(), this.offset, this.parent.transform.position)
-        this.object.material = MaterialManager.materials.default
-        this.parent.engine.v.draw(this.object)
-        this.object.material = MaterialManager.materials.outline
-        this.parent.engine.v.draw(this.object)
+        // this.object.position = vec3.add(vec3.create(), this.offset, this.parent.transform.position)
+        // this.object.material = MaterialManager.materials.default
+        // this.parent.engine.v.draw(this.object)
+        // this.object.material = MaterialManager.materials.outline
+        // this.parent.engine.v.draw(this.object)
     }
 
     remove () {
         super.remove()
-        this.object.destroy()
+        // this.object.destroy()
     }
 
 }

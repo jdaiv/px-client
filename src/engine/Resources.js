@@ -1,4 +1,5 @@
-import { GLTexture } from './Video'
+import { GLTexture, GLMesh } from './Video'
+import Util from './Util'
 
 const PATH = '/resources/'
 
@@ -25,7 +26,7 @@ const RESOURCES = {
             frames: 7,
             dim: {
                 w: 64,
-                h: 32
+                h: 64
             }
         },
         door: {
@@ -94,20 +95,23 @@ const RESOURCES = {
         },
     },
     TEXTS: {
-        default_post_vs: 'shaders/default_post_vs.glsl',
-        default_post_fs: 'shaders/default_post_fs.glsl',
-        default_vs: 'shaders/default_vs.glsl',
-        default_fs: 'shaders/default_fs.glsl',
-        default_sprite_vs: 'shaders/default_sprite_vs.glsl',
-        default_sprite_fs: 'shaders/default_sprite_fs.glsl',
+        post_vs: 'shaders/post.vs',
+        post_fs: 'shaders/post.fs',
+        textured_vs: 'shaders/textured.vs',
+        textured_fs: 'shaders/textured.fs',
         outline_vs: 'shaders/outline.vs',
         outline_fs: 'shaders/outline.fs',
 
+        model_quad: 'models/quad.obj',
         model_cube: 'models/cube.obj',
         model_arcadecab: 'models/arcadecab.obj',
+    },
+    MODELS: {
+        quad: 'model_quad',
+        cube: 'model_cube',
+        arcadecab: 'model_arcadecab',
     }
 }
-
 
 export default class Resources {
 
@@ -115,6 +119,7 @@ export default class Resources {
         Resources.images = {}
         Resources.imagesSrc = {}
         Resources.texts = {}
+        Resources.models = {}
         return new Promise((resolve, reject) => {
             let promises = []
 
@@ -147,7 +152,17 @@ export default class Resources {
 
             updateCallback(stats)
 
-            Promise.all(promises).then(() => resolve())
+            Promise.all(promises).then(() => {
+                for (let key in RESOURCES.MODELS) {
+                    console.log(`[engine/resources] reading model ${key}`)
+                    const rawMesh = Util.readObj(Resources.texts[RESOURCES.MODELS[key]])
+                    Resources.models[key] = {
+                        raw: rawMesh,
+                        mesh: new GLMesh(rawMesh)
+                    }
+                }
+                resolve()
+            })
         })
     }
 

@@ -2,7 +2,6 @@ import { vec3 } from 'gl-matrix'
 
 import Entity from '../Entity'
 import Sprite3D from '../components/Sprite3D'
-import Resources from '../Resources'
 import Services from '../../services'
 
 const SPEED = 60
@@ -11,13 +10,10 @@ export default class Player extends Entity {
 
     velocity = vec3.create()
 
-    constructor (engine, name, id, owner) {
-        super(engine, name)
-
-        this.body = this.addComponent('body', new Sprite3D(Resources.images.poses))
+    init () {
+        this.body = this.addComponent('body', new Sprite3D('poses'))
         this.body.frame = 0
-        this.face = this.addComponent('face', new Sprite3D(
-            Resources.images.faces, 0, 0, 0.5))
+        this.face = this.addComponent('face', new Sprite3D('faces', 0, 0, 0.5))
         this.face.frame = 4
         this.faceTimer = 0
 
@@ -73,15 +69,15 @@ export default class Player extends Entity {
         switch (Math.round(this.animState)) {
         case 3:
             this.body.frame = 3
-            this.face.offset[1] = 8
+            this.face.offset[1] = 16
             break
         case 1:
             this.body.frame = 1
-            this.face.offset[1] = 7
+            this.face.offset[1] = 15
             break
         default:
             this.body.frame = 0
-            this.face.offset[1] = 8
+            this.face.offset[1] = 16
         }
     }
 

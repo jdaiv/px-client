@@ -1,7 +1,7 @@
 import Video from './Video'
 import Overlay from './Overlay'
 import Synth from './audio/Synth'
-import MaterialManager from './MaterialManager'
+import MaterialManager from './Materials'
 import Resources from './Resources'
 import Station from './stages/Station'
 import { vec3 } from 'gl-matrix'
@@ -26,6 +26,7 @@ export default class Engine {
             console.log(`[engine/resources] loaded ${done}/${total}`)
         }).then(() => {
             MaterialManager.load()
+            this.v.initQueue()
             this.activeStage = new Station(this)
             this.start()
         })

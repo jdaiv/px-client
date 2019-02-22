@@ -49,7 +49,8 @@ export default class Entity {
     }
 
     addComponent (name, c) {
-        c.init(this, this.engine)
+        c.parent = this
+        c.engine = this.engine
         this.components.set(name, c)
         this.componentsInfo.set(name, {
             c,
