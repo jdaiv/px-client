@@ -77,6 +77,14 @@ const RESOURCES = {
                 h: 16
             }
         },
+        loadingSign: {
+            src: 'loading.png',
+            frames: 1,
+            dim: {
+                w: 128,
+                h: 16
+            }
+        },
         grid: {
             src: 'grid.png',
             frames: 1,

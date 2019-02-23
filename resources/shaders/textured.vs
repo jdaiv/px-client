@@ -17,7 +17,7 @@ void main() {
     gl_Position = uVP_Matrix * uM_Matrix * aVertexPosition;
 
     float frames = max(1.0, uSpriteData.x);
-    if (frames > 1.0) {
+    if (frames >= 1.5) {
         float frameOffset = 1.0 / frames;
         float currentFrame = uSpriteData.y;
         vTextureCoord = vec2(

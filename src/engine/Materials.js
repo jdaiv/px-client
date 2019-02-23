@@ -14,6 +14,19 @@ const MATERIALS = {
         screenSize: false,
         time: true,
     },
+    sprite: {
+        vs: 'textured_vs',
+        fs: 'textured_fs',
+        transform: true,
+        cull: 0,
+
+        textured: true,
+        normals: true,
+        spriteData: true,
+
+        screenSize: false,
+        time: true,
+    },
     outline: {
         vs: 'outline_vs',
         fs: 'outline_fs',

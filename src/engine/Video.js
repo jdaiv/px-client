@@ -1,5 +1,5 @@
 import MaterialManager from './Materials'
-import { mat4, vec3 } from 'gl-matrix'
+import { mat4, vec3, quat } from 'gl-matrix'
 import Resources from './Resources'
 // import { toRadian } from 'gl-matrix/src/gl-matrix/common'
 
@@ -43,6 +43,7 @@ export default class Video {
                     array[i] = {
                         texture: 'test',
                         position: [0, 0, 0],
+                        rotation: [0, 0, 0],
                         scale: null,
                         frame: null
                     }
@@ -98,22 +99,24 @@ export default class Video {
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
     }
 
-    drawMesh (name, { position, scale }, material, texture) {
+    drawMesh (name, { position, rotation, scale }, material, texture) {
         const q = this.queue.get(material).get(name)
         if (q.array.length == q.count) q.array.push({})
         const qObj = q.array[q.count++]
         qObj.texture = texture
         qObj.position = position
+        qObj.rotation = rotation
         qObj.scale = scale
         qObj.frame = null
     }
 
-    drawSprite (name, { position, scale }, material, frame) {
+    drawSprite (name, { position, rotation, scale }, material, frame) {
         const q = this.queue.get(material).get('quad')
         if (q.array.length == q.count) q.array.push({})
         const qObj = q.array[q.count++]
         qObj.texture = name
         qObj.position = position
+        qObj.rotation = rotation
         qObj.scale = scale
         qObj.frame = frame
     }
@@ -173,10 +176,12 @@ export default class Video {
                             lastTexKey = o.texture
                         }
                         let matrix = mat4.create()
-                        mat4.identity(matrix)
-                        mat4.translate(matrix, matrix, o.position)
-                        if (o.scale == 's') mat4.scale(matrix, matrix, [image.width / 16, image.height / 16, 1])
-                        else if (o.scale) mat4.scale(matrix, matrix, o.scale)
+                        let _quat = quat.create()
+                        let _scale = o.scale == 's' ? [image.width / 16, image.height / 16, 1] : (
+                            o.scale ? o.scale : [1, 1, 1]
+                        )
+                        if (o.rotation) quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
+                        mat4.fromRotationTranslationScale(matrix, _quat, o.position, _scale)
                         let spriteData = [0, 0]
                         if (o.frame != null) {
                             spriteData[0] = image.frames
@@ -190,6 +195,7 @@ export default class Video {
                 material.postDraw()
                 material.end()
             })
+
         }
 
         gl.bindRenderbuffer(gl.RENDERBUFFER, null)
