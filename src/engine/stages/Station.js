@@ -51,15 +51,13 @@ export default class Station extends Stage {
             this.engine.camera.offset = [0, 0, 200]
         } else {
             this.engine.camera.target = [0, 0, 0]
-            for (let id in this.data.zone.entities) {
-                const p = this.data.zone.entities[id]
+            for (let id in this.data.zone.players) {
+                const p = this.data.zone.players[id]
                 if (p.id == this.data.player.id) {
                     this.engine.camera.target = [p.x * 16, 16, p.y * 16]
                 }
             }
-            // this.engine.camera.offset = [0, 120, 240]
             this.engine.camera.offset = [0, 60, 120]
-            // this.engine.camera.fov = 50 + Math.sin(this.loadingRot / 200) * 20
         }
     }
 
@@ -74,20 +72,21 @@ export default class Station extends Stage {
             }, 'sprite', 0)
         } else {
             this.map.forEach((p, i) => {
-                // const transform = {
-                //     ...p,
-                //     scale: [0.8, 0.8, 0.8],
-                //     rotation: [0, this.loadingRot + i * 20, this.loadingRot + i * 20]
-                // }
                 const transform = p
                 this.engine.v.drawMesh('cube', transform, 'textured', p.type == 'grass' ? p.type : 'grid')
-                // this.engine.v.drawMesh('cube', transform, 'outline', 'grid')
             })
+            for (let id in this.data.zone.players) {
+                const p = this.data.zone.players[id]
+                const x = p.x * 16
+                const y = p.y * 16
+                this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
+                this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 4)
+            }
             for (let id in this.data.zone.entities) {
                 const p = this.data.zone.entities[id]
                 const x = p.x * 16
                 const y = p.y * 16
-                this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
+                this.engine.v.drawMesh('sign', { position: [x, 0, y] }, 'textured', 'sign')
             }
         }
     }

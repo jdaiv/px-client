@@ -109,6 +109,14 @@ const RESOURCES = {
                 h: 64
             }
         },
+        sign: {
+            src: 'sign.png',
+            frames: 1,
+            dim: {
+                w: 16,
+                h: 16
+            }
+        },
     },
     TEXTS: {
         post_vs: 'shaders/post.vs',
@@ -123,11 +131,13 @@ const RESOURCES = {
         model_quad: 'models/quad.obj',
         model_cube: 'models/cube.obj',
         model_arcadecab: 'models/arcadecab.obj',
+        model_sign: 'models/sign.obj',
     },
     MODELS: {
         quad: 'model_quad',
         cube: 'model_cube',
         arcadecab: 'model_arcadecab',
+        sign: 'model_sign',
     }
 }
 

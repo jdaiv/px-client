@@ -3,7 +3,6 @@ import { mat4, vec3, quat } from 'gl-matrix'
 import Resources from './Resources'
 import { autorun } from 'mobx'
 import Services from '../services'
-import { OverlayPoint } from './Overlay';
 
 let SCALE = 4
 const INIT_QUEUE_SIZE = 16
@@ -177,7 +176,7 @@ export default class Video {
         this.sortQueue()
         this.clear()
 
-        this.engine.overlay.clear()
+        this.engine.overlay.matrix = matrix
 
         this.queue.forEach((q, matKey) => {
             const material = MaterialManager.materials[matKey]
@@ -211,15 +210,8 @@ export default class Video {
                     material.setMeshUniforms(matrix, spriteData)
                     material.draw()
 
-                    // let _pos = vec3.copy(vec3.create(), o.position)
-                    // _pos = vec3.transformMat4(_pos, _pos, this.data.vpMatrix)
-                    // _pos = vec3.mul(_pos, o.position, matrix)
-                    // _pos = vec3.transformMat4(_pos, _pos, inverse)
-                    // _pos[0] = _pos[0] * this.width * 0.25 * SCALE
-                    // _pos[1] = _pos[1] * -this.height * 0.25 * SCALE
-                    // console.log(_pos)
-
-                    // this.engine.overlay.points.set(modelKey + i, new OverlayPoint(_pos, modelKey))
+                    let _pos = vec3.copy(vec3.create(), o.position)
+                    this.engine.overlay.add(modelKey + i, _pos, modelKey)
                 }
             })
 
