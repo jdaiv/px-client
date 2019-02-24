@@ -86,6 +86,7 @@ export default class Station extends Stage {
                 const p = this.data.zone.entities[id]
                 const x = p.x * 16
                 const y = p.y * 16
+                this.engine.v.drawMesh('sign', { position: [x, 0, y] }, 'outline', 'sign')
                 this.engine.v.drawMesh('sign', { position: [x, 0, y] }, 'textured', 'sign')
             }
         }
