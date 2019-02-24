@@ -210,8 +210,8 @@ export default class Video {
                     material.setMeshUniforms(matrix, spriteData)
                     material.draw()
 
-                    let _pos = vec3.copy(vec3.create(), o.position)
-                    this.engine.overlay.add(modelKey + i, _pos, modelKey)
+                    // let _pos = vec3.copy(vec3.create(), o.position)
+                    // this.engine.overlay.add(modelKey + i, _pos, modelKey)
                 }
             })
 
