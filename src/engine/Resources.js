@@ -93,6 +93,14 @@ const RESOURCES = {
                 h: 16
             }
         },
+        grass: {
+            src: 'grass.png',
+            frames: 1,
+            dim: {
+                w: 16,
+                h: 16
+            }
+        },
         arcadecab: {
             src: 'arcadecab.png',
             frames: 1,
@@ -104,7 +112,9 @@ const RESOURCES = {
     },
     TEXTS: {
         post_vs: 'shaders/post.vs',
-        post_fs: 'shaders/post.fs',
+        post_bloom_fs: 'shaders/post_bloom.fs',
+        post_wobble_fs: 'shaders/post_wobble.fs',
+        post_rainbows_fs: 'shaders/post_rainbows.fs',
         textured_vs: 'shaders/textured.vs',
         textured_fs: 'shaders/textured.fs',
         outline_vs: 'shaders/outline.vs',

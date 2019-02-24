@@ -25,13 +25,19 @@ export default class Station extends Stage {
                 this.data = data
                 this.loading = false
                 this.map.length = 0
-                data.Map.forEach((t, i) => {
+                data.zone.map.forEach((t, i) => {
                     this.map.push({
+                        type: t.type,
                         position: [
-                            Math.floor(i % data.Width) * tileSize,
-                            -tileSize / 2 + (t.Type == 'grass' ? 1 : 0),
-                            Math.floor(i / data.Width) * tileSize,
-                        ]
+                            Math.floor(i % data.zone.width) * tileSize,
+                            -tileSize / 2,
+                            Math.floor(i / data.zone.height) * tileSize,
+                        ],
+                        // rotation: [
+                        //     0,
+                        //     Math.floor(Math.random() * 4) * 90,
+                        //     0,
+                        // ]
                     })
                 })
             })
@@ -39,13 +45,21 @@ export default class Station extends Stage {
 
     tick (dt) {
         super.tick(dt)
+        this.loadingRot += dt * 100
         if (this.loading) {
-            this.loadingRot += dt * 100
             this.engine.camera.target = [0, 0, 0]
-            this.engine.camera.offset = [0, 0, 300]
+            this.engine.camera.offset = [0, 0, 200]
         } else {
             this.engine.camera.target = [0, 0, 0]
-            this.engine.camera.offset = [0, 120, 360]
+            for (let id in this.data.zone.entities) {
+                const p = this.data.zone.entities[id]
+                if (p.id == this.data.player.id) {
+                    this.engine.camera.target = [p.x * 16, 16, p.y * 16]
+                }
+            }
+            // this.engine.camera.offset = [0, 120, 240]
+            this.engine.camera.offset = [0, 60, 120]
+            // this.engine.camera.fov = 50 + Math.sin(this.loadingRot / 200) * 20
         }
     }
 
@@ -54,18 +68,25 @@ export default class Station extends Stage {
 
         if (this.loading) {
             this.engine.v.drawSprite('loadingSign', {
-                position: [0, 0, 0],
+                position: [0, Math.sin(this.loadingRot / 1000) * 4, 0],
                 rotation: [0, this.loadingRot, 0],
                 scale: 's'
             }, 'sprite', 0)
         } else {
-            this.map.forEach((p) => {
-                this.engine.v.drawMesh('cube', p, 'textured', 'grid')
+            this.map.forEach((p, i) => {
+                // const transform = {
+                //     ...p,
+                //     scale: [0.8, 0.8, 0.8],
+                //     rotation: [0, this.loadingRot + i * 20, this.loadingRot + i * 20]
+                // }
+                const transform = p
+                this.engine.v.drawMesh('cube', transform, 'textured', p.type == 'grass' ? p.type : 'grid')
+                // this.engine.v.drawMesh('cube', transform, 'outline', 'grid')
             })
-            for (let id in this.data.Players) {
-                const p = this.data.Players[id]
-                const x = p.X * 16
-                const y = p.Y * 16
+            for (let id in this.data.zone.entities) {
+                const p = this.data.zone.entities[id]
+                const x = p.x * 16
+                const y = p.y * 16
                 this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
             }
         }

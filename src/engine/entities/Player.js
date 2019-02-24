@@ -1,7 +1,6 @@
 import { vec3 } from 'gl-matrix'
 
 import Entity from '../Entity'
-import Sprite3D from '../components/Sprite3D'
 import Services from '../../services'
 
 export default class Player extends Entity {

@@ -12,15 +12,15 @@ class OverlayMessage {
     }
 }
 
-class OverlayPoint {
+export class OverlayPoint {
 
-    title = ''
     titleOffset = vec3.create()
     messages = []
     messageOffset = vec3.create()
 
-    constructor (owner) {
-        this.owner = owner
+    constructor (position, title = '') {
+        this.position = position
+        this.title = title
     }
 
     addMessage (content) {
@@ -31,8 +31,8 @@ class OverlayPoint {
         ctx.save()
 
         ctx.translate(
-            Math.round(this.owner.position[0] + this.owner.position[2]) * 2,
-            Math.round(-this.owner.position[1] + this.owner.position[2]) * 2
+            Math.round(this.position[0]) * 2,
+            Math.round(this.position[1]) * 2
         )
 
         if (this.title) {

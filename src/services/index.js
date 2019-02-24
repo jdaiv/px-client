@@ -8,6 +8,7 @@ export default class Services {
         Services.promises = []
         EventManager.init()
 
+        Services.ui = uiStore
         Services.auth = new AuthService(authStore)
         Services.socket = new SocketService(socketStore, Services.auth)
 

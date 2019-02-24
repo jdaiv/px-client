@@ -1,9 +1,11 @@
 import MaterialManager from './Materials'
 import { mat4, vec3, quat } from 'gl-matrix'
 import Resources from './Resources'
-// import { toRadian } from 'gl-matrix/src/gl-matrix/common'
+import { autorun } from 'mobx'
+import Services from '../services'
+import { OverlayPoint } from './Overlay';
 
-const SCALE = 2
+let SCALE = 4
 const INIT_QUEUE_SIZE = 16
 
 export let gl
@@ -25,9 +27,21 @@ export default class Video {
         gl.enable(gl.BLEND)
         gl.enable(gl.CULL_FACE)
 
+        this.fboReady = false
+        this.postStack = [
+            // 'post_rainbows',
+            // 'post_wobble',
+            'post_bloom',
+        ]
+
         this.resize = this.resize.bind(this)
         this.resize()
         window.addEventListener('resize', this.resize)
+
+        autorun(() => {
+            SCALE = Services.ui.quality
+            this.resize()
+        }, { delay: 250 })
 
         this.queue = new Map()
         console.log('[engine/video] initialised')
@@ -84,7 +98,9 @@ export default class Video {
             this.el.style.width = this.width * SCALE + 'px'
             this.el.style.height = this.height * SCALE + 'px'
             gl.viewport(0, 0, this.width, this.height)
-            if (this.fbo) this.fbo.resize(this.width, this.height)
+            if (this.fboReady) {
+                this.fbos.forEach(fbo => fbo.resize(this.width, this.height))
+            }
         })
     }
 
@@ -122,12 +138,17 @@ export default class Video {
     }
 
     run (t, f) {
-        if (!this.fbo) {
+        if (!this.fboReady) {
             console.log('[engine/video] creating framebuffer')
-            this.fbo = new GLFBO()
-            this.fbo.resize(this.width, this.height)
+            this.fbos = []
+            this.fbos = this.postStack.map((mat) => {
+                let fbo = new GLFBO(mat)
+                fbo.resize(this.width, this.height)
+                return fbo
+            })
+            this.fboReady = true
         }
-        this.fbo.bind()
+        this.fbos[0].bind()
 
         let matrix = mat4.create()
         let matrixV = mat4.create()
@@ -151,59 +172,72 @@ export default class Video {
             vpMatrix: matrix
         }
 
-        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE) {
+        this.clearQueue()
+        f()
+        this.sortQueue()
+        this.clear()
 
-            this.clearQueue()
-            f()
-            this.sortQueue()
-            this.clear()
+        this.engine.overlay.clear()
 
-            this.queue.forEach((q, matKey) => {
-                const material = MaterialManager.materials[matKey]
+        this.queue.forEach((q, matKey) => {
+            const material = MaterialManager.materials[matKey]
 
-                material.use()
-                material.setGlobalUniforms(this.data)
-                material.preDraw()
+            material.use()
+            material.setGlobalUniforms(this.data)
+            material.preDraw()
 
-                q.forEach((mq, modelKey) => {
-                    material.bindMesh(Resources.models[modelKey].mesh)
-                    let lastTexKey = null, image = null
-                    for (let i = 0; i < mq.count; i++) {
-                        const o = mq.array[i]
-                        if (lastTexKey != o.texture) {
-                            image = Resources.images[o.texture]
-                            material.setTexture(image.tex.tex)
-                            lastTexKey = o.texture
-                        }
-                        let matrix = mat4.create()
-                        let _quat = quat.create()
-                        let _scale = o.scale == 's' ? [image.width / 16, image.height / 16, 1] : (
-                            o.scale ? o.scale : [1, 1, 1]
-                        )
-                        if (o.rotation) quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
-                        mat4.fromRotationTranslationScale(matrix, _quat, o.position, _scale)
-                        let spriteData = [0, 0]
-                        if (o.frame != null) {
-                            spriteData[0] = image.frames
-                            spriteData[1] = o.frame
-                        }
-                        material.setMeshUniforms(matrix, spriteData)
-                        material.draw()
+            q.forEach((mq, modelKey) => {
+                material.bindMesh(Resources.models[modelKey].mesh)
+                let lastTexKey = null, image = null
+                for (let i = 0; i < mq.count; i++) {
+                    const o = mq.array[i]
+                    if (lastTexKey != o.texture) {
+                        image = Resources.images[o.texture]
+                        material.setTexture(image.tex.tex)
+                        lastTexKey = o.texture
                     }
-                })
+                    let matrix = mat4.create()
+                    let _quat = quat.create()
+                    let _scale = o.scale == 's' ? [image.width / 16, image.height / 16, 1] : (
+                        o.scale ? o.scale : [1, 1, 1]
+                    )
+                    if (o.rotation) quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
+                    mat4.fromRotationTranslationScale(matrix, _quat, o.position, _scale)
+                    let spriteData = [0, 0]
+                    if (o.frame != null) {
+                        spriteData[0] = image.frames
+                        spriteData[1] = o.frame
+                    }
+                    material.setMeshUniforms(matrix, spriteData)
+                    material.draw()
 
-                material.postDraw()
-                material.end()
+                    // let _pos = vec3.copy(vec3.create(), o.position)
+                    // _pos = vec3.transformMat4(_pos, _pos, this.data.vpMatrix)
+                    // _pos = vec3.mul(_pos, o.position, matrix)
+                    // _pos = vec3.transformMat4(_pos, _pos, inverse)
+                    // _pos[0] = _pos[0] * this.width * 0.25 * SCALE
+                    // _pos[1] = _pos[1] * -this.height * 0.25 * SCALE
+                    // console.log(_pos)
+
+                    // this.engine.overlay.points.set(modelKey + i, new OverlayPoint(_pos, modelKey))
+                }
             })
 
-        }
+            material.postDraw()
+            material.end()
+        })
 
-        gl.bindRenderbuffer(gl.RENDERBUFFER, null)
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-
-        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE) {
-            this.fbo.render(this.data)
-        }
+        this.fbos.forEach((fbo, i) => {
+            if (i >= this.fbos.length - 1) {
+                gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+            } else {
+                this.fbos[i + 1].bind()
+            }
+            // got to remember to clear buffer before drawing
+            this.clear()
+            fbo.render(this.data)
+        })
     }
 
 }
@@ -265,7 +299,8 @@ export class GLMesh {
 
 class GLFBO {
 
-    constructor () {
+    constructor (material) {
+        this.material = material
         this.texture = gl.createTexture()
         this.buffer = gl.createFramebuffer()
         this.renderBuffer = gl.createRenderbuffer()
@@ -314,7 +349,7 @@ class GLFBO {
     }
 
     render (data) {
-        const material = MaterialManager.materials.post
+        const material = MaterialManager.materials[this.material]
 
         material.use()
         material.setGlobalUniforms(data)

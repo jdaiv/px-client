@@ -38,8 +38,6 @@ export class Transform {
 export default class Entity {
 
     constructor (name) {
-        this.components = new Map()
-        this.componentsInfo = new Map()
         this.name = name
 
         this.active = true
@@ -48,42 +46,17 @@ export default class Entity {
         this.transform = new Transform()
     }
 
-    addComponent (name, c) {
-        c.parent = this
-        c.engine = this.engine
-        this.components.set(name, c)
-        this.componentsInfo.set(name, {
-            c,
-            canTick: typeof c.tick === 'function',
-            canDraw: typeof c.draw === 'function'
-        })
-        return c
-    }
-
-    removeComponent (name) {
-        this.components[name].remove()
-        this.components.delete(name)
-        this.componentsInfo.delete(name)
-    }
-
     tick (dt) {
         if (!this.active) return
-        this.componentsInfo.forEach(cI => {
-            if (cI.canTick) cI.c.tick(dt)
-        })
     }
 
     draw (dt) {
         if (!this.active) return
-        this.componentsInfo.forEach(cI => {
-            if (cI.canDraw) cI.c.draw(dt)
-        })
     }
 
     destroy () {
         this.active = false
         this.destroyed = true
-        this.components.forEach(c => c.remove())
     }
 
 }

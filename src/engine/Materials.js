@@ -39,9 +39,31 @@ const MATERIALS = {
         screenSize: false,
         time: false,
     },
-    post: {
+    post_bloom: {
         vs: 'post_vs',
-        fs: 'post_fs',
+        fs: 'post_bloom_fs',
+        transform: false,
+
+        textured: true,
+        normals: false,
+
+        screenSize: true,
+        time: true,
+    },
+    post_rainbows: {
+        vs: 'post_vs',
+        fs: 'post_rainbows_fs',
+        transform: false,
+
+        textured: true,
+        normals: false,
+
+        screenSize: true,
+        time: true,
+    },
+    post_wobble: {
+        vs: 'post_vs',
+        fs: 'post_wobble_fs',
         transform: false,
 
         textured: true,

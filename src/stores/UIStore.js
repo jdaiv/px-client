@@ -1,6 +1,8 @@
 import { observable, action } from 'mobx'
 
 export default class UIStore {
+    @observable quality = 2
+
     @observable processing = false
 
     @observable.shallow log = []
