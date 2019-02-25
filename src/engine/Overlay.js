@@ -42,8 +42,8 @@ export default class Overlay {
         console.log('[engine/overlay] destroyed')
     }
 
-    add (id, position, text) {
-        this.points.set(id, { position, text })
+    add (id, position, text, callback) {
+        this.points.set(id, { position, text, callback })
     }
 
     remove (id) {
@@ -57,6 +57,20 @@ export default class Overlay {
         el.style.position = 'absolute'
         this.el.appendChild(el)
         return el
+    }
+
+    createTitle (el) {
+        const p = document.createElement('p')
+        el.appendChild(p)
+        return p
+    }
+
+    createButton (el, callback) {
+        const btn = document.createElement('button')
+        btn.textContent = 'use'
+        btn.onclick = callback
+        el.appendChild(btn)
+        return btn
     }
 
     run (t) {
@@ -75,16 +89,19 @@ export default class Overlay {
                 cP.position = p.position
                 return
             }
+            const el = this.createElement()
             this.currentPoints.set(id, {
                 ...p,
                 dirty: true,
-                el: this.createElement()
+                el,
+                title: this.createTitle(el)
             })
+            if (typeof p.callback === 'function') this.createButton(el, p.callback)
         })
 
         this.currentPoints.forEach((p, id) => {
             if (p.dirty) {
-                p.el.textContent = p.text
+                p.title.textContent = p.text
                 p.dirty = false
             }
             let _pos = vec3.copy(vec3.create(), p.position)

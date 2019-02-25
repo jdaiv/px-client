@@ -1,6 +1,7 @@
 import Stage from '../Stage'
 import Player from '../entities/Player'
 import EventManager from '../../services/EventManager'
+import Services from '../../services'
 
 const tileSize = 16
 
@@ -81,13 +82,21 @@ export default class Station extends Stage {
                 this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
                 this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 4)
             }
-            for (let id in this.data.zone.entities) {
-                const p = this.data.zone.entities[id]
+            this.data.zone.entities.forEach(p => {
                 const x = p.x * 16
                 const y = p.y * 16
-                this.engine.v.drawMesh('sign', { position: [x, 0, y] }, 'outline', 'sign')
-                this.engine.v.drawMesh('sign', { position: [x, 0, y] }, 'textured', 'sign')
-            }
+                const position = [x, 0, y]
+                this.engine.v.drawMesh('sign', { position }, 'outline', 'sign')
+                this.engine.v.drawMesh('sign', { position }, 'textured', 'sign')
+                this.engine.overlay.add('ent' + p.id, position, p.name, () => {
+                    Services.socket.send('game_action', {
+                        type: 'use',
+                        params: {
+                            id: parseInt(p.id, 10)
+                        }
+                    })
+                })
+            })
         }
     }
 
