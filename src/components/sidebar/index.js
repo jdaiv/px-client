@@ -6,6 +6,7 @@ import { observable } from 'mobx'
 
 import SettingsForm from './SettingsForm'
 import AccountSettingsForm from './AccountSettingsForm'
+import Player from './player'
 import Chat from './chat'
 import Auth from './Auth'
 
@@ -35,6 +36,7 @@ export default class Sidebar extends Component {
                 <div class={style.sidebar}>
                     <div class={style.inner}>
                         <nav class={style.tabs}>
+                            <Link activeClassName={style.active} href="/player">player</Link>
                             <Link activeClassName={style.active} href="/chat">chat</Link>
                             <Link activeClassName={style.active} href="/account">account</Link>
                             <Link activeClassName={style.active} href="/settings">settings</Link>
@@ -43,6 +45,7 @@ export default class Sidebar extends Component {
                         <div class={style.content} /* style={{ display: this.active ? 'block' : 'none' }} */>
                             <Router>
                                 <Redirect default to="/chat" />
+                                <Player path="/player" />
                                 <Chat path="/chat/:option?" />
                                 <AccountSettingsForm path="/account" />
                                 <SettingsForm path="/settings" />
@@ -57,10 +60,7 @@ export default class Sidebar extends Component {
             <div class={style.sidebar}>
                 <div class={style.inner}>
                     <div class={style.content}>
-                        <Router>
-                            <Redirect default to="/login" />
-                            <Auth path="/login" />
-                        </Router>
+                        <Auth />
                     </div>
                 </div>
             </div>

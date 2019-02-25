@@ -1,6 +1,5 @@
 import Stage from '../Stage'
 import Player from '../entities/Player'
-import Services from '../../services'
 import EventManager from '../../services/EventManager'
 
 const tileSize = 16
