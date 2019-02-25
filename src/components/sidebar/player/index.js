@@ -47,7 +47,7 @@ class Section extends Component {
 
     render({ title, items }) {
         return (<div>
-            <p><button class={style.toggle} onClick={this.toggle}>[{ this.open ? '-' : '+' }]</button> { title }</p>
+            <p><button class={style.toggle} onClick={this.toggle}>[{ this.open ? '-' : '+' }] { title }</button></p>
             { this.open ? items : null }
         </div>)
     }
