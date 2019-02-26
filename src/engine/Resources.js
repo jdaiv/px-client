@@ -5,6 +5,10 @@ const PATH = '/resources/'
 
 const RESOURCES = {
     IMAGES: {
+        error: {
+            src: 'error.png',
+            frames: 1,
+        },
         test: {
             src: 'test.png',
             frames: 1,

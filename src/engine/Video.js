@@ -115,6 +115,13 @@ export default class Video {
     }
 
     drawMesh (name, { position, rotation, scale }, material, texture) {
+        if (!Resources.images[texture]) {
+            texture = 'error'
+        }
+        if (!Resources.models[name]) {
+            name = 'error'
+            material = 'error'
+        }
         const q = this.queue.get(material).get(name)
         if (q.array.length == q.count) q.array.push({})
         const qObj = q.array[q.count++]
@@ -126,6 +133,7 @@ export default class Video {
     }
 
     drawSprite (name, { position, rotation, scale }, material, frame) {
+        if (!Resources.images[name]) name = 'error'
         const q = this.queue.get(material).get('quad')
         if (q.array.length == q.count) q.array.push({})
         const qObj = q.array[q.count++]

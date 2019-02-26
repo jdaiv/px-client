@@ -93,8 +93,8 @@ export default class Station extends Stage {
                     usePosition[1] = 8
                     break
                 case 'door':
-                    usePosition[1] = 14
-                    position[1] = 14
+                    usePosition[1] = 12
+                    position[1] = 12
                     this.engine.v.drawSprite('door', { position, scale: 's' }, 'sprite')
                     break
                 default:
