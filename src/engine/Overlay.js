@@ -1,8 +1,6 @@
 import { vec3 } from 'gl-matrix'
 
-const MESSAGE_LIFETIME = 4
-const FONT_SIZE = 10
-const PADDING = 3
+import './overlayStyle'
 
 export default class Overlay {
 
@@ -47,16 +45,17 @@ export default class Overlay {
     }
 
     remove (id) {
-        this.el.removeChild(this.currentPoints.get(id).el)
+        this.el.removeChild(this.currentPoints.get(id).container)
         this.currentPoints.delete(id)
     }
 
     createElement () {
-        const el = document.createElement('div')
-        el.style.color = 'white'
-        el.style.position = 'absolute'
-        this.el.appendChild(el)
-        return el
+        const container = document.createElement('div')
+        container.className = 'point'
+        const inner = document.createElement('div')
+        container.appendChild(inner)
+        this.el.appendChild(container)
+        return { container, inner }
     }
 
     createTitle (el) {
@@ -67,6 +66,7 @@ export default class Overlay {
 
     createButton (el, callback) {
         const btn = document.createElement('button')
+        btn.className = 'useBtn'
         btn.textContent = 'use'
         btn.onclick = callback
         el.appendChild(btn)
@@ -89,14 +89,15 @@ export default class Overlay {
                 cP.position = p.position
                 return
             }
-            const el = this.createElement()
+            const { container, inner } = this.createElement()
             this.currentPoints.set(id, {
                 ...p,
                 dirty: true,
-                el,
-                title: this.createTitle(el)
+                container,
+                inner,
+                title: this.createTitle(inner)
             })
-            if (typeof p.callback === 'function') this.createButton(el, p.callback)
+            if (typeof p.callback === 'function') this.createButton(inner, p.callback)
         })
         this.points.clear()
 
@@ -109,8 +110,8 @@ export default class Overlay {
             _pos = vec3.transformMat4(_pos, _pos, this.matrix)
             _pos[0] = _pos[0] * this.width * 0.5 + this.width_2
             _pos[1] = _pos[1] * -this.height * 0.5 + this.height_2
-            p.el.style.left = _pos[0] + 'px'
-            p.el.style.top = _pos[1] + 'px'
+            p.container.style.left = _pos[0] + 'px'
+            p.container.style.top = _pos[1] + 'px'
         })
 
     }

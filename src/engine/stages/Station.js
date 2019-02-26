@@ -85,18 +85,24 @@ export default class Station extends Stage {
                 const x = p.x * 16
                 const y = p.y * 16
                 const position = [x, 0, y]
+                const usePosition = [x, 0, y]
                 switch (p.type) {
                 case 'sign':
                     this.engine.v.drawMesh('sign', { position }, 'outline', 'sign')
                     this.engine.v.drawMesh('sign', { position }, 'textured', 'sign')
+                    usePosition[1] = 8
                     break
-
+                case 'door':
+                    usePosition[1] = 14
+                    position[1] = 14
+                    this.engine.v.drawSprite('door', { position, scale: 's' }, 'sprite')
+                    break
                 default:
                     this.engine.v.drawMesh('error', { position }, 'error')
                     break
                 }
                 if (p.usable && Math.abs(player.x - p.x) <= 1 && Math.abs(player.y - p.y) <= 1) {
-                    this.engine.overlay.add('ent' + p.id, position, p.name, () => {
+                    this.engine.overlay.add('ent' + p.id, usePosition, p.name, () => {
                         Services.socket.send('game_action', {
                             type: 'use',
                             params: {
