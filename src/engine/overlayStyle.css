@@ -6,7 +6,7 @@
 .point > div {
     position: relative;
     left: -50%;
-    top: -2rem;
+    top: -3rem;
 
     background: rgba(0, 0, 0, 0.5);
     padding: 0.5rem;
@@ -19,8 +19,19 @@
 }
 
 .useBtn {
+    font: inherit;
     outline: 0;
     border: 0;
     margin: 0.25rem;
+    padding: 0.5rem;
     width: calc(100% - 0.5rem);
+    background: black;
+    color: #0f0;
+    line-height: 1;
+    border: 1px solid #0f0;
+    cursor: pointer;
+}
+
+.useBtn:hover {
+    background: #040;
 }

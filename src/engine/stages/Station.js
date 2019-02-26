@@ -65,7 +65,7 @@ export default class Station extends Stage {
         if (this.loading) {
             this.engine.v.drawSprite('loadingSign', {
                 position: [0, Math.sin(this.loadingRot / 1000) * 4, 0],
-                rotation: [0, this.loadingRot, 0],
+                rotation: [0, this.loadingRot, Math.sin(this.loadingRot / 80) * 8],
                 scale: 's'
             }, 'sprite', 0)
         } else {
