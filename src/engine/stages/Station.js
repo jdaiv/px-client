@@ -31,7 +31,7 @@ export default class Station extends Stage {
                         position: [
                             Math.floor(i % data.zone.width) * tileSize,
                             -tileSize / 2,
-                            Math.floor(i / data.zone.height) * tileSize,
+                            Math.floor(i / data.zone.width) * tileSize,
                         ],
                         // rotation: [
                         //     0,
@@ -73,7 +73,7 @@ export default class Station extends Stage {
         } else {
             this.map.forEach((p, i) => {
                 const transform = p
-                this.engine.v.drawMesh('cube', transform, 'textured', p.type == 'grass' ? p.type : 'grid')
+                this.engine.v.drawMesh('cube', transform, 'textured', p.type != 'default' ? p.type : 'grid')
             })
             for (let id in this.data.zone.players) {
                 const p = this.data.zone.players[id]

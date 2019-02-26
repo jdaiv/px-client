@@ -75,8 +75,8 @@ export default class Overlay {
 
     run (t) {
 
-        [...this.currentPoints.keys()].filter(
-            (p, id) => this.points.has(id)
+        Array.from(this.currentPoints.keys()).filter(
+            (id) => !this.points.has(id)
         ).forEach(id => this.remove(id))
 
         this.points.forEach((p, id) => {
@@ -98,6 +98,7 @@ export default class Overlay {
             })
             if (typeof p.callback === 'function') this.createButton(el, p.callback)
         })
+        this.points.clear()
 
         this.currentPoints.forEach((p, id) => {
             if (p.dirty) {

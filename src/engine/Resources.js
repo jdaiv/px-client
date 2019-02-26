@@ -8,114 +8,62 @@ const RESOURCES = {
         test: {
             src: 'test.png',
             frames: 1,
-            dim: {
-                w: 64,
-                h: 64
-            }
         },
         faces: {
             src: 'faces.png',
             frames: 5,
-            dim: {
-                w: 16,
-                h: 16
-            }
         },
         poses: {
             src: 'poses.png',
             frames: 7,
-            dim: {
-                w: 64,
-                h: 64
-            }
         },
         door: {
             src: 'station-door.png',
             frames: 1,
-            dim: {
-                w: 20,
-                h: 26
-            }
         },
         seat: {
             src: 'station-seat.png',
             frames: 1,
-            dim: {
-                w: 32,
-                h: 18
-            }
         },
         posters: {
             src: 'station-posters.png',
             frames: 1,
-            dim: {
-                w: 24,
-                h: 8
-            }
         },
         bin: {
             src: 'bin.png',
             frames: 1,
-            dim: {
-                w: 12,
-                h: 12
-            }
         },
         fence: {
             src: 'station-fence.png',
             frames: 1,
-            dim: {
-                w: 256,
-                h: 21
-            }
         },
         trainSign: {
             src: 'train-sign.png',
             frames: 1,
-            dim: {
-                w: 64,
-                h: 16
-            }
         },
         loadingSign: {
             src: 'loading.png',
             frames: 1,
-            dim: {
-                w: 128,
-                h: 16
-            }
         },
         grid: {
             src: 'grid.png',
             frames: 1,
-            dim: {
-                w: 16,
-                h: 16
-            }
         },
         grass: {
             src: 'grass.png',
             frames: 1,
-            dim: {
-                w: 16,
-                h: 16
-            }
+        },
+        water: {
+            src: 'water.png',
+            frames: 1,
         },
         arcadecab: {
             src: 'arcadecab.png',
             frames: 1,
-            dim: {
-                w: 64,
-                h: 64
-            }
         },
         sign: {
             src: 'sign.png',
             frames: 1,
-            dim: {
-                w: 16,
-                h: 16
-            }
         },
     },
     TEXTS: {
