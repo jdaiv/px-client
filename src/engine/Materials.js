@@ -2,6 +2,18 @@ import Resources from './Resources'
 import { gl } from './Video'
 
 const MATERIALS = {
+    error: {
+        vs: 'error_vs',
+        fs: 'error_fs',
+        transform: true,
+
+        textured: false,
+        normals: false,
+        spriteData: false,
+
+        screenSize: false,
+        time: true,
+    },
     textured: {
         vs: 'textured_vs',
         fs: 'textured_fs',

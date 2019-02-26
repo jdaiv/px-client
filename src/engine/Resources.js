@@ -127,13 +127,17 @@ const RESOURCES = {
         textured_fs: 'shaders/textured.fs',
         outline_vs: 'shaders/outline.vs',
         outline_fs: 'shaders/outline.fs',
+        error_vs: 'shaders/error.vs',
+        error_fs: 'shaders/error.fs',
 
         model_quad: 'models/quad.obj',
         model_cube: 'models/cube.obj',
         model_arcadecab: 'models/arcadecab.obj',
         model_sign: 'models/sign.obj',
+        model_error: 'models/error.obj',
     },
     MODELS: {
+        error: 'model_error',
         quad: 'model_quad',
         cube: 'model_cube',
         arcadecab: 'model_arcadecab',

@@ -80,22 +80,32 @@ export default class Station extends Stage {
                 const x = p.x * 16
                 const y = p.y * 16
                 this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
-                this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 4)
+                this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 1)
             }
             this.data.zone.entities.forEach(p => {
                 const x = p.x * 16
                 const y = p.y * 16
                 const position = [x, 0, y]
-                this.engine.v.drawMesh('sign', { position }, 'outline', 'sign')
-                this.engine.v.drawMesh('sign', { position }, 'textured', 'sign')
-                this.engine.overlay.add('ent' + p.id, position, p.name, () => {
-                    Services.socket.send('game_action', {
-                        type: 'use',
-                        params: {
-                            id: parseInt(p.id, 10)
-                        }
+                switch (p.type) {
+                case 'sign':
+                    this.engine.v.drawMesh('sign', { position }, 'outline', 'sign')
+                    this.engine.v.drawMesh('sign', { position }, 'textured', 'sign')
+                    break
+
+                default:
+                    this.engine.v.drawMesh('error', { position }, 'error')
+                    break
+                }
+                if (p.usable) {
+                    this.engine.overlay.add('ent' + p.id, position, p.name, () => {
+                        Services.socket.send('game_action', {
+                            type: 'use',
+                            params: {
+                                id: parseInt(p.id, 10)
+                            }
+                        })
                     })
-                })
+                }
             })
         }
     }
