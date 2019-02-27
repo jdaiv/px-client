@@ -2,6 +2,7 @@ import Stage from '../Stage'
 import Player from '../entities/Player'
 import EventManager from '../../services/EventManager'
 import Services from '../../services'
+import { vec3 } from 'gl-matrix';
 
 const tileSize = 16
 
@@ -10,6 +11,7 @@ export default class Station extends Stage {
     data = null
     loading = true
     loadingRot = 0
+    particles = []
 
     constructor (engine) {
         super(engine)
@@ -43,6 +45,8 @@ export default class Station extends Stage {
             })
     }
 
+    particleTimer = 0
+
     tick (dt) {
         super.tick(dt)
         this.loadingRot += dt * 100
@@ -57,6 +61,31 @@ export default class Station extends Stage {
             }
             this.engine.camera.offset = [0, 60, 120]
         }
+        this.particleTimer += dt * 10
+        if (this.particleTimer > 1) {
+            this.particleTimer = 0
+            this.particles.push({
+                position: [0, 0, 0],
+                rotation: [0, 0, 0],
+                positionV: [Math.random() * 10 - 5, Math.random() * 200 + 50, Math.random() * 10 - 5],
+                rotationV: [Math.random() * 100, Math.random() * 100, Math.random() * 100],
+                active: true
+            })
+        }
+
+        this.particles.forEach(p => {
+            p.positionV[1] -= 200 * dt
+            vec3.scaleAndAdd(p.position, p.position, p.positionV, dt)
+            vec3.scaleAndAdd(p.rotation, p.rotation, p.rotationV, dt)
+            if (p.position[1] < 0) {
+                p.position[1] = 0
+                vec3.multiply(p.positionV, p.positionV, [0.9, -0.9, 0.9])
+                // p.positionV[1] *= -0.9
+            }
+            if (p.position[1] < 5 && vec3.length(p.positionV) < 10) {
+                // p.active = false
+            }
+        })
     }
 
     draw (dt) {
@@ -69,6 +98,9 @@ export default class Station extends Stage {
                 scale: 's'
             }, 'sprite', 0)
         } else {
+            this.particles.forEach(p => {
+                if (p.active) this.engine.v.drawMesh('error', p, 'error', 'gid')
+            })
             this.map.forEach((p, i) => {
                 const transform = p
                 this.engine.v.drawMesh('cube', transform, 'textured', p.type != 'default' ? p.type : 'grid')
