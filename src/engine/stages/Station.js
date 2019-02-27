@@ -76,18 +76,21 @@ export default class Station extends Stage {
                 let pos = this.playerPositions.get(id)
                 if (pos) {
                     pos.target[0] = p.x * tileSize
-                    pos.target[1] = p.y * tileSize
+                    pos.target[2] = p.y * tileSize
                 } else {
                     pos = {
-                        current: vec2.fromValues(p.x * tileSize, p.y * tileSize),
-                        target: vec2.fromValues(p.x * tileSize, p.y * tileSize)
+                        current: vec3.fromValues(p.x * tileSize, 0, p.y * tileSize),
+                        target: vec3.fromValues(p.x * tileSize, 0, p.y * tileSize)
                     }
                     this.playerPositions.set(id, pos)
                 }
-                vec2.lerp(pos.current, pos.current, pos.target, dt * 20)
+                vec3.lerp(pos.current, pos.current, pos.target, dt * 20)
                 if (this.data.player.id == id) {
-                    this.engine.camera.target = [pos.current[0], 16, pos.current[1]]
+                    this.engine.camera.target = [pos.current[0], 16, pos.current[2]]
                 }
+
+                const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
+                this.engine.overlay.add('ent' + p.id, nameTagPos, p.name)
             }
 
             this.playerPositions
@@ -129,12 +132,12 @@ export default class Station extends Stage {
                 const p = this.playerPositions.get(id)
                 if (!p) continue
                 const x = p.current[0]
-                const y = p.current[1]
-                if (vec2.distance(p.current, p.target) > 1) {
-                    this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 1)
+                const y = p.current[2]
+                if (vec3.distance(p.current, p.target) > 1) {
+                    this.engine.v.drawSprite('poses', { position: p.current, scale: 's' }, 'sprite', 1)
                     this.engine.v.drawSprite('faces', { position: [x, 15, y + 0.5], scale: 's' }, 'sprite', 1)
                 } else {
-                    this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
+                    this.engine.v.drawSprite('poses', { position: p.current, scale: 's' }, 'sprite', 0)
                     this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 1)
                 }
             }

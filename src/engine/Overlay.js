@@ -111,7 +111,7 @@ export default class Overlay {
             _pos[0] = _pos[0] * this.width * 0.5 + this.width_2
             _pos[1] = _pos[1] * -this.height * 0.5 + this.height_2
             p.target = _pos
-            p.container.style.zIndex = Math.floor(_pos[1])
+            p.container.style.zIndex = Math.floor(p.position[1])
         })
 
         this.currentPoints.forEach(p => {
@@ -125,7 +125,7 @@ export default class Overlay {
         })
 
         this.currentPoints.forEach(p => {
-            vec3.lerp(p.actual, p.actual, p.target, dt * 10)
+            vec3.lerp(p.actual, p.actual, p.target, dt * 20)
             p.container.style.left = p.actual[0] + 'px'
             p.container.style.top = p.actual[1] + 'px'
         })
