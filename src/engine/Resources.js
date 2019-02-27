@@ -69,6 +69,10 @@ const RESOURCES = {
             src: 'sign.png',
             frames: 1,
         },
+        itemBag: {
+            src: 'item-bag.png',
+            frames: 1,
+        },
     },
     TEXTS: {
         post_vs: 'shaders/post.vs',

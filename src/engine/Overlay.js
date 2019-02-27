@@ -40,8 +40,8 @@ export default class Overlay {
         console.log('[engine/overlay] destroyed')
     }
 
-    add (id, position, text, callback) {
-        this.points.set(id, { position, text, callback })
+    add (id, position, text, callback, btnText = 'use') {
+        this.points.set(id, { position, text, callback, btnText })
     }
 
     remove (id) {
@@ -64,16 +64,16 @@ export default class Overlay {
         return p
     }
 
-    createButton (el, callback) {
+    createButton (el, callback, label) {
         const btn = document.createElement('button')
         btn.className = 'useBtn'
-        btn.textContent = 'use'
+        btn.textContent = label
         btn.onclick = callback
         el.appendChild(btn)
         return btn
     }
 
-    run (t) {
+    run (dt) {
 
         Array.from(this.currentPoints.keys()).filter(
             (id) => !this.points.has(id)
@@ -90,6 +90,7 @@ export default class Overlay {
                 return
             }
             const { container, inner } = this.createElement()
+            if (typeof p.callback === 'function') this.createButton(inner, p.callback, p.btnText)
             this.currentPoints.set(id, {
                 ...p,
                 dirty: true,
@@ -97,11 +98,10 @@ export default class Overlay {
                 inner,
                 title: this.createTitle(inner)
             })
-            if (typeof p.callback === 'function') this.createButton(inner, p.callback)
         })
         this.points.clear()
 
-        this.currentPoints.forEach((p, id) => {
+        this.currentPoints.forEach(p => {
             if (p.dirty) {
                 p.title.textContent = p.text
                 p.dirty = false
@@ -110,10 +110,38 @@ export default class Overlay {
             _pos = vec3.transformMat4(_pos, _pos, this.matrix)
             _pos[0] = _pos[0] * this.width * 0.5 + this.width_2
             _pos[1] = _pos[1] * -this.height * 0.5 + this.height_2
-            p.container.style.left = _pos[0] + 'px'
-            p.container.style.top = _pos[1] + 'px'
+            p.target = _pos
+            p.container.style.zIndex = Math.floor(_pos[1])
+        })
+
+        this.currentPoints.forEach(p => {
+            const rect = p.container.getBoundingClientRect()
+
+            p.rect = rect
+            p.target[0] -= rect.width / 2
+            p.target[1] -= rect.height / 2
+
+            if (!p.actual) p.actual = vec3.clone(p.target)
+        })
+
+        this.currentPoints.forEach(p => {
+            vec3.lerp(p.actual, p.actual, p.target, dt * 10)
+            p.container.style.left = p.actual[0] + 'px'
+            p.container.style.top = p.actual[1] + 'px'
         })
 
     }
 
+}
+
+function rectCenter(r) {
+    return vec3.fromValues(
+        r.left + r.width / 2,
+        r.top + r.height / 2,
+        0)
+}
+
+function rectOverlap(a, b) {
+    return (a.left <= b.right && a.right >= b.left &&
+        a.top <= b.bottom && a.bottom >= b.top )
 }

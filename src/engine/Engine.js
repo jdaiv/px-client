@@ -63,7 +63,7 @@ export default class Engine {
             this.activeStage.tick(this.dt)
             this.activeStage.lateTick(this.dt)
             this.v.run(this.time, () => this.activeStage.draw(this.dt))
-            this.overlay.run()
+            this.overlay.run(this.dt)
             this.synth.tick(this.dt)
         }
     }

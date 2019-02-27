@@ -109,7 +109,7 @@ export default class Station extends Stage {
                                 id: parseInt(p.id, 10)
                             }
                         })
-                    })
+                    }, p.useText)
                 }
             })
         }
