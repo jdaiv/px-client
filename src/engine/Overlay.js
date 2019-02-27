@@ -40,8 +40,8 @@ export default class Overlay {
         console.log('[engine/overlay] destroyed')
     }
 
-    add (id, position, text, callback, btnText = 'use') {
-        this.points.set(id, { position, text, callback, btnText })
+    add (id, position, text, callback, btnText) {
+        this.points.set(id, { position, text, callback, btnText, usable: typeof callback === 'function' })
     }
 
     remove (id) {
@@ -52,10 +52,8 @@ export default class Overlay {
     createElement () {
         const container = document.createElement('div')
         container.className = 'point'
-        const inner = document.createElement('div')
-        container.appendChild(inner)
         this.el.appendChild(container)
-        return { container, inner }
+        return container
     }
 
     createTitle (el) {
@@ -64,10 +62,9 @@ export default class Overlay {
         return p
     }
 
-    createButton (el, callback, label) {
+    createButton (el, callback) {
         const btn = document.createElement('button')
         btn.className = 'useBtn'
-        btn.textContent = label
         btn.onclick = callback
         el.appendChild(btn)
         return btn
@@ -89,21 +86,24 @@ export default class Overlay {
                 cP.position = p.position
                 return
             }
-            const { container, inner } = this.createElement()
-            if (typeof p.callback === 'function') this.createButton(inner, p.callback, p.btnText)
+            const container = this.createElement()
+            let inner
+            if (p.usable)
+                inner = this.createButton(container, p.callback)
+            else
+                inner = this.createTitle(container)
             this.currentPoints.set(id, {
                 ...p,
                 dirty: true,
                 container,
-                inner,
-                title: this.createTitle(inner)
+                inner
             })
         })
         this.points.clear()
 
         this.currentPoints.forEach(p => {
             if (p.dirty) {
-                p.title.textContent = p.text
+                p.inner.innerHTML = p.usable ? `<em>${p.btnText}</em> ${p.text}` : p.text
                 p.dirty = false
             }
             let _pos = vec3.copy(vec3.create(), p.position)
@@ -132,16 +132,4 @@ export default class Overlay {
 
     }
 
-}
-
-function rectCenter(r) {
-    return vec3.fromValues(
-        r.left + r.width / 2,
-        r.top + r.height / 2,
-        0)
-}
-
-function rectOverlap(a, b) {
-    return (a.left <= b.right && a.right >= b.left &&
-        a.top <= b.bottom && a.bottom >= b.top )
 }
