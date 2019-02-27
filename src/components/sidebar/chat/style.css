@@ -10,7 +10,7 @@
 	border-radius: 0.5rem;
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 0 1 300px;
 }
 
 .chat h2 {
@@ -29,12 +29,12 @@
     text-align: center;
 }
 
-a.active {
+.active {
     background: #0e0;
     color: #000;
 }
 
-a.active:hover {
+.active:hover {
     background: #0e0;
 }
 

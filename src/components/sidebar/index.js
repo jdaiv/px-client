@@ -37,20 +37,20 @@ export default class Sidebar extends Component {
                     <div class={style.inner}>
                         <nav class={style.tabs}>
                             <Link activeClassName={style.active} href="/player">player</Link>
-                            <Link activeClassName={style.active} href="/chat">chat</Link>
                             <Link activeClassName={style.active} href="/account">account</Link>
                             <Link activeClassName={style.active} href="/settings">settings</Link>
                         </nav>
                         <hr class={style.hr} />
                         <div class={style.content} /* style={{ display: this.active ? 'block' : 'none' }} */>
                             <Router>
-                                <Redirect default to="/chat" />
+                                <Redirect default to="/player" />
                                 <Player path="/player" />
-                                <Chat path="/chat/:option?" />
                                 <AccountSettingsForm path="/account" />
                                 <SettingsForm path="/settings" />
                             </Router>
                         </div>
+                        <hr class={style.hr} />
+                        <Chat />
                     </div>
                 </div>
             )

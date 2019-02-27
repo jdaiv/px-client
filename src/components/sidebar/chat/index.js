@@ -1,6 +1,4 @@
 import { h, Component } from 'preact'
-import { Router } from 'preact-router'
-import { Link } from 'preact-router/match'
 import { inject, observer } from 'mobx-preact'
 import { observable } from 'mobx'
 
@@ -34,22 +32,28 @@ class UserList extends Component {
 @inject('auth')
 @observer
 export default class Chat extends Component {
+    @observable usersOpen = false
+
+    showUsers = () => { this.usersOpen = true }
+    closeUsers = () => { this.usersOpen = false }
+
     render({ ui, auth }) {
-        const options = [<Link activeClassName={style.active} href="/chat" class="button">chat</Link>]
-        options.push(<Link activeClassName={style.active} href="/chat/users" class="button">user list</Link>)
+        const options = [<button href="/chat" class={(!this.usersOpen ? style.active : '') + ' button'} onClick={this.closeUsers}>chat</button>]
+        options.push(<button href="/chat/users" class={(this.usersOpen ? style.active : '') + ' button'} onClick={this.showUsers}>user list</button>)
+
+        let inner = !this.usersOpen ? (
+            <div class={style.container}>
+                <Log log={ui.log} />
+                <Input />
+            </div>
+        ) : <UserList />
         return (
             <div class={style.chat}>
                 {/* <h2>room: {room.name}</h2> */}
                 <div class={style.options}>
                     {options.length > 1 ? options : null}
                 </div>
-                <Router>
-                    <div path="/chat" class={style.container}>
-                        <Log log={ui.log} />
-                        <Input />
-                    </div>
-                    <UserList path="/chat/users" />
-                </Router>
+                {inner}
             </div>
         )
     }
