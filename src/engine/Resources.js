@@ -73,6 +73,10 @@ const RESOURCES = {
             src: 'item-bag.png',
             frames: 1,
         },
+        dummy: {
+            src: 'dummy.png',
+            frames: 1,
+        },
     },
     TEXTS: {
         post_vs: 'shaders/post.vs',
@@ -91,6 +95,7 @@ const RESOURCES = {
         model_arcadecab: 'models/arcadecab.obj',
         model_sign: 'models/sign.obj',
         model_error: 'models/error.obj',
+        dummy: 'models/dummy.obj',
     },
     MODELS: {
         error: 'model_error',
@@ -98,6 +103,7 @@ const RESOURCES = {
         cube: 'model_cube',
         arcadecab: 'model_arcadecab',
         sign: 'model_sign',
+        dummy: 'dummy',
     }
 }
 

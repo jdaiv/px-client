@@ -2,15 +2,23 @@ import Stage from '../Stage'
 import Player from '../entities/Player'
 import EventManager from '../../services/EventManager'
 import Services from '../../services'
-import { vec3 } from 'gl-matrix';
+import { vec3, vec2 } from 'gl-matrix'
 
 const tileSize = 16
+
+function rand (range) {
+    return Math.random() * range * 2 - range
+}
+function randN (range) {
+    return Math.random() * range
+}
 
 export default class Station extends Stage {
 
     data = null
     loading = true
     loadingRot = 0
+    particles = []
 
     constructor (engine) {
         super(engine)
@@ -19,6 +27,7 @@ export default class Station extends Stage {
 
         this.data = {}
         this.map = []
+        this.playerPositions = new Map()
         EventManager.subscribe(
             'ws/game_state',
             'game',
@@ -33,14 +42,24 @@ export default class Station extends Stage {
                             Math.floor(i % data.zone.width) * tileSize,
                             -tileSize / 2,
                             Math.floor(i / data.zone.width) * tileSize,
-                        ],
-                        // rotation: [
-                        //     0,
-                        //     Math.floor(Math.random() * 4) * 90,
-                        //     0,
-                        // ]
+                        ]
                     })
                 })
+            })
+        EventManager.subscribe(
+            'ws/play_effect',
+            'game',
+            ({ data }) => {
+                for (let i = 0; i < 20; i++) {
+                    this.particles.push({
+                        position: vec3.fromValues(data.x * tileSize, 8, data.y * tileSize),
+                        rotation: vec3.fromValues(rand(180), rand(180), rand(180)),
+                        positionV: vec3.fromValues(rand(20), randN(100) + 50, rand(20)),
+                        rotationV: vec3.fromValues(rand(180), rand(180), rand(180)),
+                        scale: vec3.fromValues(0.25, 0.25, 0.25),
+                        active: true
+                    })
+                }
             })
     }
 
@@ -52,38 +71,41 @@ export default class Station extends Stage {
             this.engine.camera.offset = [0, 0, 200]
         } else {
             this.engine.camera.target = [0, 0, 0]
-            const player = this.data.zone.players[this.data.player.id]
-            if (player) {
-                this.engine.camera.target = [player.x * 16, 16, player.y * 16]
+            for (let id in this.data.zone.players) {
+                const p = this.data.zone.players[id]
+                let pos = this.playerPositions.get(id)
+                if (pos) {
+                    pos.target[0] = p.x * tileSize
+                    pos.target[1] = p.y * tileSize
+                } else {
+                    pos = {
+                        current: vec2.fromValues(p.x * tileSize, p.y * tileSize),
+                        target: vec2.fromValues(p.x * tileSize, p.y * tileSize)
+                    }
+                    this.playerPositions.set(id, pos)
+                }
+                vec2.lerp(pos.current, pos.current, pos.target, dt * 20)
+                if (this.data.player.id == id) {
+                    this.engine.camera.target = [pos.current[0], 16, pos.current[1]]
+                }
             }
+
+            this.playerPositions
             this.engine.camera.offset = [0, 60, 120]
         }
 
-        // this.particleTimer += dt * 100
-        // if (this.particleTimer > 1) {
-        //     this.particleTimer = 0
-        //     this.particles.push({
-        //         position: [0, 0, 0],
-        //         rotation: [0, 0, 0],
-        //         positionV: [Math.random() * 10 - 5, Math.random() * 200 + 50, Math.random() * 10 - 5],
-        //         rotationV: [Math.random() * 100, Math.random() * 100, Math.random() * 100],
-        //         active: true
-        //     })
-        // }
-
-        // this.particles.forEach(p => {
-        //     p.positionV[1] -= 200 * dt
-        //     vec3.scaleAndAdd(p.position, p.position, p.positionV, dt)
-        //     vec3.scaleAndAdd(p.rotation, p.rotation, p.rotationV, dt)
-        //     if (p.position[1] < 0) {
-        //         p.position[1] = 0
-        //         vec3.multiply(p.positionV, p.positionV, [0.9, -0.9, 0.9])
-        //         // p.positionV[1] *= -0.9
-        //     }
-        //     if (p.position[1] < 5 && vec3.length(p.positionV) < 10) {
-        //         // p.active = false
-        //     }
-        // })
+        this.particles.forEach(p => {
+            p.positionV[1] -= 200 * dt
+            vec3.scaleAndAdd(p.position, p.position, p.positionV, dt)
+            vec3.scaleAndAdd(p.rotation, p.rotation, p.rotationV, dt)
+            if (p.position[1] < 0) {
+                p.position[1] = 0
+                vec3.multiply(p.positionV, p.positionV, [0.5, -0.5, 0.5])
+            }
+            if (p.position[1] < 5 && vec3.length(p.positionV) < 10) {
+                p.active = false
+            }
+        })
     }
 
     draw (dt) {
@@ -96,16 +118,25 @@ export default class Station extends Stage {
                 scale: 's'
             }, 'sprite', 0)
         } else {
+            this.particles.forEach((p, i) => {
+                if (p.active) this.engine.v.drawMesh('error', p, 'error', 'missing')
+            })
             this.map.forEach((p, i) => {
                 const transform = p
                 this.engine.v.drawMesh('cube', transform, 'textured', p.type != 'default' ? p.type : 'grid')
             })
             for (let id in this.data.zone.players) {
-                const p = this.data.zone.players[id]
-                const x = p.x * 16
-                const y = p.y * 16
-                this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
-                this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 1)
+                const p = this.playerPositions.get(id)
+                if (!p) continue
+                const x = p.current[0]
+                const y = p.current[1]
+                if (vec2.distance(p.current, p.target) > 1) {
+                    this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 1)
+                    this.engine.v.drawSprite('faces', { position: [x, 15, y + 0.5], scale: 's' }, 'sprite', 1)
+                } else {
+                    this.engine.v.drawSprite('poses', { position: [x, 0, y], scale: 's' }, 'sprite', 0)
+                    this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 1)
+                }
             }
             const player = this.data.zone.players[this.data.player.id]
             this.data.zone.entities.forEach(p => {
@@ -115,9 +146,15 @@ export default class Station extends Stage {
                 const usePosition = [x, 0, y]
                 switch (p.type) {
                 case 'sign':
-                    this.engine.v.drawMesh('sign', { position }, 'outline', 'sign')
-                    this.engine.v.drawMesh('sign', { position }, 'textured', 'sign')
+                case 'dummy':
+                    this.engine.v.drawMesh(p.type, { position }, 'outline', p.type)
+                    this.engine.v.drawMesh(p.type, { position }, 'textured', p.type)
                     usePosition[1] = 8
+                    break
+                case 'item_bag':
+                    // usePosition[1] = 8
+                    position[1] = 4
+                    this.engine.v.drawSprite('itemBag', { position, scale: [0.5, 0.5, 0.5] }, 'sprite')
                     break
                 case 'door':
                     usePosition[1] = 12
