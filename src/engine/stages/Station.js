@@ -20,7 +20,7 @@ export default class Station extends Stage {
     loadingRot = 0
     particles = []
 
-    shake = vec2.create()
+    shake = vec3.create()
     zero = vec3.create()
 
     constructor (engine) {
@@ -66,7 +66,7 @@ export default class Station extends Stage {
                     }
                 } else if (data.type == 'screen_shake') {
                     this.shake[0] += data.x
-                    this.shake[1] += data.y
+                    this.shake[2] += data.y
                 }
             })
     }
@@ -102,12 +102,15 @@ export default class Station extends Stage {
             }
 
             this.playerPositions
-            vec2.lerp(this.shake, this.shake, this.zero, dt * 10)
+            vec3.lerp(this.shake, this.shake, this.zero, dt * 10)
 
-            let shake = vec2.normalize(vec2.create(), [rand(2), rand(2)])
-            vec2.multiply(shake, shake, this.shake)
+            let shake = vec3.normalize(vec3.create(), [rand(2), rand(2), rand(2)])
+            vec3.multiply(shake, shake, this.shake)
+            shake[1] = 1
 
-            this.engine.camera.offset = [0 + shake[0], 60, 120 + shake[1]]
+            this.engine.camera.offset = [0, 60, 120]
+            vec3.scaleAndAdd(this.engine.camera.offset, this.engine.camera.offset, shake, 1)
+            vec3.scaleAndAdd(this.engine.camera.target, this.engine.camera.target, shake, 0.1)
         }
 
         this.particles.forEach(p => {
