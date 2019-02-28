@@ -20,6 +20,9 @@ export default class Station extends Stage {
     loadingRot = 0
     particles = []
 
+    shake = vec2.create()
+    zero = vec3.create()
+
     constructor (engine) {
         super(engine)
 
@@ -50,15 +53,20 @@ export default class Station extends Stage {
             'ws/play_effect',
             'game',
             ({ data }) => {
-                for (let i = 0; i < 20; i++) {
-                    this.particles.push({
-                        position: vec3.fromValues(data.x * tileSize, 8, data.y * tileSize),
-                        rotation: vec3.fromValues(rand(180), rand(180), rand(180)),
-                        positionV: vec3.fromValues(rand(20), randN(100) + 50, rand(20)),
-                        rotationV: vec3.fromValues(rand(180), rand(180), rand(180)),
-                        scale: vec3.fromValues(0.25, 0.25, 0.25),
-                        active: true
-                    })
+                if (data.type == 'wood_ex') {
+                    for (let i = 0; i < 20; i++) {
+                        this.particles.push({
+                            position: vec3.fromValues(data.x * tileSize, 8, data.y * tileSize),
+                            rotation: vec3.fromValues(rand(180), rand(180), rand(180)),
+                            positionV: vec3.fromValues(rand(20), randN(100) + 50, rand(20)),
+                            rotationV: vec3.fromValues(rand(180), rand(180), rand(180)),
+                            scale: vec3.fromValues(0.25, 0.25, 0.25),
+                            active: true
+                        })
+                    }
+                } else if (data.type == 'screen_shake') {
+                    this.shake[0] += data.x
+                    this.shake[1] += data.y
                 }
             })
     }
@@ -94,7 +102,12 @@ export default class Station extends Stage {
             }
 
             this.playerPositions
-            this.engine.camera.offset = [0, 60, 120]
+            vec2.lerp(this.shake, this.shake, this.zero, dt * 10)
+
+            let shake = vec2.normalize(vec2.create(), [rand(2), rand(2)])
+            vec2.multiply(shake, shake, this.shake)
+
+            this.engine.camera.offset = [0 + shake[0], 60, 120 + shake[1]]
         }
 
         this.particles.forEach(p => {
