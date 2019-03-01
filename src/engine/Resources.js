@@ -19,7 +19,7 @@ const RESOURCES = {
         },
         poses: {
             src: 'poses.png',
-            frames: 7,
+            frames: 8,
         },
         door: {
             src: 'station-door.png',

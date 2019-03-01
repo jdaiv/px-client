@@ -195,6 +195,25 @@ export default class Station extends Stage {
                     }, p.useText)
                 }
             })
+
+            for (let id in this.data.zone.items) {
+                const p = this.data.zone.items[id]
+                const x = p.x * 16
+                const y = p.y * 16
+                const position = [x, 4, y]
+                const usePosition = [x, 4, y]
+                this.engine.v.drawSprite('itemBag', { position, scale: [0.5, 0.5, 0.5] }, 'sprite')
+                if (Math.abs(player.x - p.x) <= 1 && Math.abs(player.y - p.y) <= 1) {
+                    this.engine.overlay.add('item' + id, usePosition, p.name, () => {
+                        Services.socket.send('game_action', {
+                            type: 'take_item',
+                            params: {
+                                id: parseInt(p.id, 10)
+                            }
+                        })
+                    }, 'take')
+                }
+            }
         }
     }
 

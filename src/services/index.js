@@ -15,6 +15,13 @@ export default class Services {
         Services.socket.open()
 
         EventManager.subscribe(
+            'ws/game_state',
+            'service',
+            ({ error, action, data }) => {
+                if (error === 0) Services.ui.gameState = data
+            })
+
+        EventManager.subscribe(
             'ws/list_users',
             'chat_service',
             ({ error, action, data }) => {

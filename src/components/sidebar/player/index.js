@@ -13,17 +13,23 @@ export default class Player extends Component {
         let bag = []
         let skills = []
 
-        equipped.push(<Gear item={{ name: 'gear', quality: 1 }} />)
-        equipped.push(<Gear item={{ name: 'gear', quality: 2 }} />)
-        equipped.push(<Gear item={{ name: 'gear', quality: 3 }} />)
+        const gs = ui.gameState
 
-        bag.push(<Gear item={{ name: 'gear', quality: 4, qty: 3 }} />)
-        bag.push(<Gear item={{ name: 'gear', quality: 5 }} />)
-        bag.push(<Gear item={{ name: 'gear', quality: 6 }} />)
+        if (gs.player) {
+            for (let key in gs.player.slots) {
+                equipped.push(<Gear item={{ ...gs.player.slots[key], key }} />)
+            }
+        }
 
-        skills.push(<Gear item={{ name: 'fightin\'', qty: 3 }} />)
-        skills.push(<Gear item={{ name: 'defendin\'', qty: 3 }} />)
-        skills.push(<Gear item={{ name: 'thinkin\'', qty: 3 }} />)
+        if (gs.player) {
+            for (let key in gs.player.inventory) {
+                bag.push(<Gear item={{ ...gs.player.inventory[key] }} />)
+            }
+        }
+
+        // skills.push(<Gear item={{ name: 'fightin\'', qty: 3 }} />)
+        // skills.push(<Gear item={{ name: 'defendin\'', qty: 3 }} />)
+        // skills.push(<Gear item={{ name: 'thinkin\'', qty: 3 }} />)
 
         return (
             <div>
@@ -63,10 +69,14 @@ class Gear extends Component {
         }
         let qty = ''
         if (item.qty) {
-            qty = `(${item.qty})`
+            qty = `(${item.qty}) `
         }
         return (
-            <p class={classes.join(' ')}>{ qty } { item.name }</p>
+            <p class={classes.join(' ')}>
+                { item.key ? `${item.key}: ` : '' }
+                { qty }
+                { item.name ? `${item.name}` : 'empty' }
+            </p>
         )
     }
 }
