@@ -11,6 +11,37 @@
 
 .invItem {
     margin: 0.25rem 1rem;
+    display: flex;
+    width: calc(100% - 2rem);
+    justify-content: stretch;
+}
+
+.invItem > p {
+    margin: 0;
+    flex: 1;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.invAction {
+	font: inherit;
+    flex: 0;
+    margin: 0rem;
+    margin-left: 0.25rem;
+	color: #0f0;
+	background: #010;
+	border: 1px solid #0f0;
+	font-size: 0.75rem;
+	line-height: 1;
+	padding: 3px;
+	cursor: pointer;
+	text-decoration: none;
+	white-space: nowrap;
+    height: 100%;
+}
+
+.invAction:hover {
+    background: #040;
 }
 
 .quality1 {

@@ -17,6 +17,11 @@
 	overflow-y: auto;
 	flex: 1;
 	display: flex;
+	width: 100%;
+}
+
+.content > div {
+	width: 100%;
 }
 
 .tabs {

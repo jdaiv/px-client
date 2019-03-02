@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-preact'
 import { observable } from 'mobx'
 
 import style from './style'
+import Services from '../../../services';
 
 @inject('ui')
 @inject('auth')
@@ -17,13 +18,13 @@ export default class Player extends Component {
 
         if (gs.player) {
             for (let key in gs.player.slots) {
-                equipped.push(<Gear item={{ ...gs.player.slots[key], key }} />)
+                equipped.push(<Gear item={{ ...gs.player.slots[key], key, equipped: true }} />)
             }
         }
 
         if (gs.player) {
             for (let key in gs.player.inventory) {
-                bag.push(<Gear item={{ ...gs.player.inventory[key] }} />)
+                bag.push(<Gear item={{ ...gs.player.inventory[key], bag: true }} />)
             }
         }
 
@@ -62,8 +63,41 @@ class Section extends Component {
 
 @inject('ui')
 class Gear extends Component {
+    equip = () => {
+        Services.socket.send('game_action', {
+            type: 'equip_item',
+            params: {
+                id: this.props.item.id
+            }
+        })
+    }
+    unequip = () => {
+        Services.socket.send('game_action', {
+            type: 'unequip_item',
+            params: {
+                slot: this.props.item.key
+            }
+        })
+    }
+    drop = () => {
+        Services.socket.send('game_action', {
+            type: 'drop_item',
+            params: {
+                id: this.props.item.id
+            }
+        })
+    }
+    use = () => {
+        Services.socket.send('game_action', {
+            type: 'use_item',
+            params: {
+                id: this.props.item.id
+            }
+        })
+    }
+
     render({ ui, item }) {
-        let classes = [style.invItem]
+        let classes = []
         if (!isNaN(item.quality) && item.quality >= 1 && item.quality <= 6) {
             classes.push(style['quality' + Math.floor(item.quality)])
         }
@@ -71,12 +105,23 @@ class Gear extends Component {
         if (item.qty) {
             qty = `(${item.qty}) `
         }
-        return (
+        let actions = []
+        if (item.equipped && item.type != 'empty') {
+            actions.push(<button class={style.invAction} onClick={this.unequip}>unequip</button>)
+        } else if (item.bag) {
+            actions.push(<button class={style.invAction} onClick={this.equip}>equip</button>)
+            actions.push(<button class={style.invAction} onClick={this.drop}>drop</button>)
+        }
+        if (Array.isArray(item.specials) && item.specials.includes('consumable')) {
+            actions.push(<button class={style.invAction} onClick={this.use}>use</button>)
+        }
+        return (<div class={style.invItem}>
             <p class={classes.join(' ')}>
                 { item.key ? `${item.key}: ` : '' }
                 { qty }
                 { item.name ? `${item.name}` : 'empty' }
             </p>
-        )
+            {actions}
+        </div>)
     }
 }

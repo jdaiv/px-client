@@ -145,16 +145,18 @@ export default class Station extends Stage {
                 this.engine.v.drawMesh('cube', transform, 'textured', p.type != 'default' ? p.type : 'grid')
             })
             for (let id in this.data.zone.players) {
+                const _p = this.data.zone.players[id]
                 const p = this.playerPositions.get(id)
                 if (!p) continue
                 const x = p.current[0]
                 const y = p.current[2]
+                const hasSunglasses = _p.slots.head && _p.slots.head.type != 'empty'
                 if (vec3.distance(p.current, p.target) > 1) {
                     this.engine.v.drawSprite('poses', { position: p.current, scale: 's' }, 'sprite', 1)
-                    this.engine.v.drawSprite('faces', { position: [x, 15, y + 0.5], scale: 's' }, 'sprite', 1)
+                    this.engine.v.drawSprite('faces', { position: [x, 15, y + 0.5], scale: 's' }, 'sprite', hasSunglasses ? 4 : 1)
                 } else {
                     this.engine.v.drawSprite('poses', { position: p.current, scale: 's' }, 'sprite', 0)
-                    this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', 1)
+                    this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], scale: 's' }, 'sprite', hasSunglasses ? 4 : 1)
                 }
             }
             const player = this.data.zone.players[this.data.player.id]
