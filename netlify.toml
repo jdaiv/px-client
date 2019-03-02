@@ -2,8 +2,8 @@
 ID = 'px-frontend'
 
 [build]
-publish = 'build/'
-command = 'preact build --no-prerender'
+publish = 'build'
+command = 'preact build --no-prerender --service-worker=false'
 
 [[redirects]]
   from = "/*"
