@@ -62,6 +62,7 @@ class Section extends Component {
 }
 
 @inject('ui')
+@observer
 class Gear extends Component {
     equip = () => {
         Services.socket.send('game_action', {
@@ -96,15 +97,35 @@ class Gear extends Component {
         })
     }
 
+    @observable statsVisible = false
+
+    showStats = () => {
+        this.statsVisible = true
+    }
+
+    hideStats = () => {
+        this.statsVisible = false
+    }
+
     render({ ui, item }) {
         let classes = []
         if (!isNaN(item.quality) && item.quality >= 1 && item.quality <= 6) {
             classes.push(style['quality' + Math.floor(item.quality)])
         }
+
+        let hasStats = item.stats && this.statsVisible
+        let stats = [<li>quality: { item.quality }</li>]
+        if (hasStats) {
+            for (let stat in item.stats) {
+                stats.push(<li>{ stat }: { item.stats[stat] }</li>)
+            }
+        }
+
         let qty = ''
         if (item.qty) {
             qty = `(${item.qty}) `
         }
+
         let actions = []
         if (item.equipped && item.type != 'empty') {
             actions.push(<button class={style.invAction} onClick={this.unequip}>unequip</button>)
@@ -115,7 +136,8 @@ class Gear extends Component {
         if (Array.isArray(item.specials) && item.specials.includes('consumable')) {
             actions.push(<button class={style.invAction} onClick={this.use}>use</button>)
         }
-        return (<div class={style.invItem}>
+        return (<div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
+            { hasStats ? <ul class={style.stats}>{ stats }</ul> : null }
             <p>
                 { item.key ? `${item.key}: ` : '' }
                 { qty }
