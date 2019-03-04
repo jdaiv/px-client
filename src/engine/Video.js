@@ -33,6 +33,7 @@ export default class Video {
             'post_bloom',
         ]
 
+        this.hitTestData = new Uint8Array(4)
         this.hitTestCallbacks = new Map()
 
         this.resize = this.resize.bind(this)
@@ -94,7 +95,6 @@ export default class Video {
             if (this.fboReady) {
                 this.fbos.forEach(fbo => fbo.resize(this.width, this.height))
             }
-            this.hitTestData = new Uint8Array(this.width * this.height * 4)
         }, 50)
     }
 
@@ -205,9 +205,9 @@ export default class Video {
                 q.forEach((mq, modelKey) => {
                     htMat.bindMesh(Resources.models[modelKey].mesh)
                     let color = [255, 255, 255, 255]
+                    let nullColor = [0, 0, 0, 255]
                     for (let i = 0; i < mq.count; i++) {
                         const o = mq.array[i]
-                        if (!o.mouseData) continue
                         const image = Resources.images[o.texture]
                         htMat.setTexture(image.tex.tex)
                         let matrix = mat4.create()
@@ -220,8 +220,9 @@ export default class Video {
                             spriteData[0] = image.frames
                             spriteData[1] = o.frame
                         }
-                        htMat.setMeshUniforms(matrix, spriteData, color)
+                        htMat.setMeshUniforms(matrix, spriteData, o.mouseData ? color : nullColor)
                         htMat.draw()
+                        if (!o.mouseData) continue
 
                         this.hitTestCallbacks.set(color.join(','), o.mouseData)
 
@@ -240,9 +241,8 @@ export default class Video {
             htMat.postDraw()
             htMat.end()
 
-            gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
-            const offset = this.hitTestData.length - (this.mouseY * this.width * 4) + this.mouseX * 4
-            const key = this.hitTestData.slice(offset, offset + 4).map(x => Math.floor(x / 5) * 5).join(',')
+            gl.readPixels(this.mouseX, this.height - this.mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
+            const key = this.hitTestData.map(x => Math.floor(x / 5) * 5).join(',')
             const cb = this.hitTestCallbacks.get(key)
             if (cb) {
                 cb.callback()
