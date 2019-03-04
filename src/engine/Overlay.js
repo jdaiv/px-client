@@ -41,12 +41,29 @@ export default class Overlay {
     }
 
     add (id, position, text, callback, btnText) {
-        this.points.set(id, { position, text, callback, btnText, usable: typeof callback === 'function' })
+        if (!this.points.has(id)) {
+            this.points.set(id, { position: vec3.clone(position), text, callback, btnText, usable: typeof callback === 'function' })
+        } else {
+            const p = this.points.get(id)
+            vec3.copy(p.position, position)
+            p.text = text
+            p.callback = callback
+            p.btnText = btnText
+            p.usable = typeof callback === 'function'
+            p.active = true
+        }
+    }
+
+    addDamage (position, amt, effect) {
+        const _p = position.join(',')
+        if (!this.damagePoints.has(_p)) this.damagePoints.set(_p, [])
+        this.damagePoints.get(_p).push({ amt, effect, timer: 0 })
     }
 
     remove (id) {
-        this.el.removeChild(this.currentPoints.get(id).container)
-        this.currentPoints.delete(id)
+        // this.el.removeChild(this.currentPoints.get(id).container)
+        // this.currentPoints.delete(id)
+        this.currentPoints.get(id).container.style.display = 'none'
     }
 
     createElement () {
@@ -70,12 +87,13 @@ export default class Overlay {
         return btn
     }
 
-    run (dt) {
-
+    prunePoints () {
         Array.from(this.currentPoints.keys()).filter(
             (id) => !this.points.has(id)
         ).forEach(id => this.remove(id))
+    }
 
+    createNewPoints () {
         this.points.forEach((p, id) => {
             if (this.currentPoints.has(id)) {
                 let cP = this.currentPoints.get(id)
@@ -83,6 +101,7 @@ export default class Overlay {
                     cP.text = p.text
                     cP.dirty = true
                 }
+                cP.container.style.display = 'block'
                 cP.position = p.position
                 return
             }
@@ -98,14 +117,12 @@ export default class Overlay {
                 container,
                 inner
             })
+            p.active = false
         })
-        this.points.clear()
+    }
 
-        this.currentPoints.forEach(p => {
-            if (p.dirty) {
-                p.inner.innerHTML = p.usable ? `<em>${p.btnText}</em> ${p.text}` : p.text
-                p.dirty = false
-            }
+    updatePointPositions (points, dt) {
+        points.forEach(p => {
             let _pos = vec3.copy(vec3.create(), p.position)
             _pos = vec3.transformMat4(_pos, _pos, this.matrix)
             _pos[0] = _pos[0] * this.width * 0.5 + this.width_2
@@ -114,7 +131,7 @@ export default class Overlay {
             p.container.style.zIndex = Math.floor(p.position[1])
         })
 
-        this.currentPoints.forEach(p => {
+        points.forEach(p => {
             const rect = p.container.getBoundingClientRect()
 
             p.rect = rect
@@ -124,12 +141,23 @@ export default class Overlay {
             if (!p.actual) p.actual = vec3.clone(p.target)
         })
 
-        this.currentPoints.forEach(p => {
+        points.forEach(p => {
             vec3.lerp(p.actual, p.actual, p.target, dt * 20)
             p.container.style.left = p.actual[0] + 'px'
             p.container.style.top = p.actual[1] + 'px'
         })
+    }
 
+    run (dt) {
+        this.prunePoints()
+        this.createNewPoints()
+        this.currentPoints.forEach(p => {
+            if (p.dirty) {
+                p.inner.innerHTML = p.usable ? `<em>${p.btnText}</em> ${p.text}` : p.text
+                p.dirty = false
+            }
+        })
+        this.updatePointPositions(this.currentPoints, dt)
     }
 
 }

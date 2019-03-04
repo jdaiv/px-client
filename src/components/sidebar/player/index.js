@@ -3,7 +3,7 @@ import { inject, observer } from 'mobx-preact'
 import { observable } from 'mobx'
 
 import style from './style'
-import Services from '../../../services';
+import Services from '../../../services'
 
 @inject('ui')
 @inject('auth')
@@ -116,10 +116,10 @@ class Gear extends Component {
             actions.push(<button class={style.invAction} onClick={this.use}>use</button>)
         }
         return (<div class={style.invItem}>
-            <p class={classes.join(' ')}>
+            <p>
                 { item.key ? `${item.key}: ` : '' }
                 { qty }
-                { item.name ? `${item.name}` : 'empty' }
+                <span class={classes.join(' ')}>{ item.name ? `${item.name}` : 'empty' }</span>
             </p>
             {actions}
         </div>)

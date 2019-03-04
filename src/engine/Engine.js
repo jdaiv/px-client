@@ -4,16 +4,11 @@ import Synth from './audio/Synth'
 import MaterialManager from './Materials'
 import Resources from './Resources'
 import Station from './stages/Station'
-import { vec3 } from 'gl-matrix'
+import Camera from './Camera'
 
 export default class Engine {
 
-    camera = {
-        target: vec3.create(),
-        offset: vec3.fromValues(0, 90, 120),
-        targetFov: 50,
-        fov: 50
-    }
+    camera = new Camera()
     players = {}
     me = null
 
@@ -62,7 +57,7 @@ export default class Engine {
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
             this.activeStage.lateTick(this.dt)
-            this.v.run(this.time, () => this.activeStage.draw(this.dt))
+            this.v.run(this.dt, this.time, () => this.activeStage.draw(this.dt))
             this.overlay.run(this.dt)
             this.synth.tick(this.dt)
         }

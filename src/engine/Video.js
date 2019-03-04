@@ -55,9 +55,10 @@ export default class Video {
                 for (let i = 0; i < INIT_QUEUE_SIZE; i++) {
                     array[i] = {
                         texture: 'test',
-                        position: [0, 0, 0],
-                        rotation: [0, 0, 0],
-                        scale: null,
+                        position: vec3.create(),
+                        rotation: vec3.create(),
+                        scale: vec3.fromValues(1, 1, 1),
+                        sprite: false,
                         frame: null
                     }
                 }
@@ -123,28 +124,37 @@ export default class Video {
             material = 'error'
         }
         const q = this.queue.get(material).get(name)
-        if (q.array.length == q.count) q.array.push({})
+        if (q.array.length == q.count) q.array.push({
+            position: vec3.create(),
+            rotation: vec3.create(),
+            scale: vec3.create()
+        })
         const qObj = q.array[q.count++]
         qObj.texture = texture
-        qObj.position = position
-        qObj.rotation = rotation
-        qObj.scale = scale
+        vec3.copy(qObj.position, position)
+        vec3.copy(qObj.rotation, rotation)
+        vec3.copy(qObj.scale, scale)
+        qObj.sprite = false
         qObj.frame = null
     }
 
-    drawSprite (name, { position, rotation, scale }, material, frame) {
+    drawSprite (name, { position, rotation }, material, frame) {
         if (!Resources.images[name]) name = 'error'
         const q = this.queue.get(material).get('quad')
-        if (q.array.length == q.count) q.array.push({})
+        if (q.array.length == q.count) q.array.push({
+            position: vec3.create(),
+            rotation: vec3.create(),
+            scale: vec3.create()
+        })
         const qObj = q.array[q.count++]
         qObj.texture = name
-        qObj.position = position
-        qObj.rotation = rotation
-        qObj.scale = scale
+        vec3.copy(qObj.position, position)
+        vec3.copy(qObj.rotation, rotation)
+        qObj.sprite = true
         qObj.frame = frame
     }
 
-    run (t, f) {
+    run (dt, t, f) {
         if (!this.fboReady) {
             console.log('[engine/video] creating framebuffer')
             this.fbos = []
@@ -157,19 +167,21 @@ export default class Video {
         }
         this.fbos[0].bind()
 
+        const camera = this.engine.camera.calculate(dt)
+
         let matrix = mat4.create()
         let matrixV = mat4.create()
         mat4.identity(matrixV)
 
         mat4.perspective(matrix,
-            this.engine.camera.fov * Math.PI / 180,
+            camera.fov * Math.PI / 180,
             this.width / this.height,
             0.1, 1000)
 
         let cameraPos = vec3.add(vec3.create(),
-            this.engine.camera.offset,
-            this.engine.camera.target)
-        mat4.lookAt(matrixV, cameraPos, this.engine.camera.target, [0, 1, 0])
+            camera.offset,
+            camera.target)
+        mat4.lookAt(matrixV, cameraPos, camera.target, [0, 1, 0])
         mat4.mul(matrix, matrix, matrixV)
 
         this.data = {
@@ -205,10 +217,8 @@ export default class Video {
                     }
                     let matrix = mat4.create()
                     let _quat = quat.create()
-                    let _scale = o.scale == 's' ? [image.width / 16, image.height / 16, 1] : (
-                        o.scale ? o.scale : [1, 1, 1]
-                    )
-                    if (o.rotation) quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
+                    let _scale = o.sprite ? image.spriteScale : o.scale
+                    quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
                     mat4.fromRotationTranslationScale(matrix, _quat, o.position, _scale)
                     let spriteData = [0, 0]
                     if (o.frame != null) {
@@ -217,9 +227,6 @@ export default class Video {
                     }
                     material.setMeshUniforms(matrix, spriteData)
                     material.draw()
-
-                    // let _pos = vec3.copy(vec3.create(), o.position)
-                    // this.engine.overlay.add(modelKey + i, _pos, modelKey)
                 }
             })
 

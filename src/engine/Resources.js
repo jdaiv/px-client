@@ -1,5 +1,6 @@
 import { GLTexture, GLMesh } from './Video'
 import Util from './Util'
+import { vec3 } from 'gl-matrix';
 
 const PATH = '/resources/'
 
@@ -166,12 +167,14 @@ export default class Resources {
             // what if this image fails to load?
             img.onload = () => {
                 const data = RESOURCES.IMAGES[name]
+                const width = data.frames > 1 ? img.width / data.frames : img.width
                 Resources.images[name] = {
                     ...data,
                     el: img,
                     tex: new GLTexture(img),
-                    width: data.frames > 1 ? img.width / data.frames : img.width,
-                    height: img.height
+                    width,
+                    height: img.height,
+                    spriteScale: vec3.fromValues(width / 16, img.height / 16, 1)
                 }
                 resolve()
             }
