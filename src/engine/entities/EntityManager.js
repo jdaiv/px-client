@@ -70,6 +70,8 @@ export default class EntityManager {
             case 'door':
                 pos[1] = 12
                 break
+            default:
+                pos[1] = 0
             }
             if (e.usable && Math.abs(player.x - e.x) <= 1 && Math.abs(player.y - e.y) <= 1) {
                 this.engine.overlay.add('ent' + e.id, pos, e.name, () => {
