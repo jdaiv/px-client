@@ -61,9 +61,8 @@ export default class Overlay {
     }
 
     remove (id) {
-        // this.el.removeChild(this.currentPoints.get(id).container)
-        // this.currentPoints.delete(id)
-        this.currentPoints.get(id).container.style.display = 'none'
+        this.el.removeChild(this.currentPoints.get(id).container)
+        this.currentPoints.delete(id)
     }
 
     createElement () {
@@ -101,8 +100,9 @@ export default class Overlay {
                     cP.text = p.text
                     cP.dirty = true
                 }
-                cP.container.style.display = 'block'
+                cP.container.style.display = p.active ? 'block' : 'none'
                 cP.position = p.position
+                p.active = false
                 return
             }
             const container = this.createElement()
@@ -149,7 +149,7 @@ export default class Overlay {
     }
 
     run (dt) {
-        this.prunePoints()
+        // this.prunePoints()
         this.createNewPoints()
         this.currentPoints.forEach(p => {
             if (p.dirty) {
