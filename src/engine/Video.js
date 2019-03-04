@@ -33,9 +33,14 @@ export default class Video {
             'post_bloom',
         ]
 
+        this.hitTestCallbacks = new Map()
+
         this.resize = this.resize.bind(this)
         this.resize()
         window.addEventListener('resize', this.resize)
+        this.el.addEventListener('mousemove', this.mouseMove.bind(this))
+        this.el.addEventListener('mouseenter', () => { this.mouseActive = true })
+        this.el.addEventListener('mouseleave', () => { this.mouseActive = false })
 
         autorun(() => {
             SCALE = Services.ui.quality
@@ -89,7 +94,8 @@ export default class Video {
             if (this.fboReady) {
                 this.fbos.forEach(fbo => fbo.resize(this.width, this.height))
             }
-        })
+            this.hitTestData = new Uint8Array(this.width * this.height * 4)
+        }, 50)
     }
 
     destroy () {
@@ -103,7 +109,7 @@ export default class Video {
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
     }
 
-    drawMesh (name, { position, rotation, scale }, material, texture) {
+    drawMesh (name, { position, rotation, scale }, material, texture, mouseData = null) {
         if (!Resources.images[texture]) {
             texture = 'error'
         }
@@ -124,9 +130,10 @@ export default class Video {
         vec3.copy(qObj.scale, scale)
         qObj.sprite = false
         qObj.frame = null
+        qObj.mouseData = mouseData
     }
 
-    drawSprite (name, { position, rotation }, material, frame) {
+    drawSprite (name, { position, rotation }, material, frame, mouseData = null) {
         if (!Resources.images[name]) name = 'error'
         const q = this.queue.get(material).get('quad')
         if (q.array.length == q.count) q.array.push({
@@ -140,6 +147,7 @@ export default class Video {
         vec3.copy(qObj.rotation, rotation)
         qObj.sprite = true
         qObj.frame = frame
+        qObj.mouseData = mouseData
     }
 
     run (dt, t, f) {
@@ -153,7 +161,6 @@ export default class Video {
             })
             this.fboReady = true
         }
-        this.fbos[0].bind()
 
         const camera = this.engine.camera.calculate(dt)
 
@@ -172,6 +179,8 @@ export default class Video {
         mat4.lookAt(matrixV, cameraPos, camera.target, [0, 1, 0])
         mat4.mul(matrix, matrix, matrixV)
 
+        this.engine.overlay.matrix = matrix
+
         this.data = {
             time: t,
             width: this.width,
@@ -181,41 +190,100 @@ export default class Video {
 
         this.clearQueue()
         f()
-        this.clear()
 
-        this.engine.overlay.matrix = matrix
+        this.fbos[0].bind()
 
-        this.queue.forEach((q, matKey) => {
-            const material = MaterialManager.materials[matKey]
+        if (window.debugHitTest || this.mouseActive) {
+            this.clear()
 
-            material.use()
-            material.setGlobalUniforms(this.data)
-            material.preDraw()
+            const htMat = MaterialManager.materials.hitTest
 
-            q.forEach((mq, modelKey) => {
-                material.bindMesh(Resources.models[modelKey].mesh)
-                for (let i = 0; i < mq.count; i++) {
-                    const o = mq.array[i]
-                    const image = Resources.images[o.texture]
-                    material.setTexture(image.tex.tex)
-                    let matrix = mat4.create()
-                    let _quat = quat.create()
-                    let _scale = o.sprite ? image.spriteScale : o.scale
-                    quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
-                    mat4.fromRotationTranslationScale(matrix, _quat, o.position, _scale)
-                    let spriteData = [0, 0]
-                    if (o.frame != null) {
-                        spriteData[0] = image.frames
-                        spriteData[1] = o.frame
+            htMat.use()
+            htMat.setGlobalUniforms(this.data)
+            htMat.preDraw()
+            this.queue.forEach((q, matKey) => {
+                q.forEach((mq, modelKey) => {
+                    htMat.bindMesh(Resources.models[modelKey].mesh)
+                    let color = [255, 255, 255, 255]
+                    for (let i = 0; i < mq.count; i++) {
+                        const o = mq.array[i]
+                        if (!o.mouseData) continue
+                        const image = Resources.images[o.texture]
+                        htMat.setTexture(image.tex.tex)
+                        let matrix = mat4.create()
+                        let _quat = quat.create()
+                        let _scale = o.sprite ? image.spriteScale : o.scale
+                        quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
+                        mat4.fromRotationTranslationScale(matrix, _quat, o.position, _scale)
+                        let spriteData = [0, 0]
+                        if (o.frame != null) {
+                            spriteData[0] = image.frames
+                            spriteData[1] = o.frame
+                        }
+                        htMat.setMeshUniforms(matrix, spriteData, color)
+                        htMat.draw()
+
+                        this.hitTestCallbacks.set(color.join(','), o.mouseData)
+
+                        color[0] -= 25
+                        if (color[0] < 0) {
+                            color[0] = 255
+                            color[1] -= 25
+                        }
+                        if (color[1] < 0) {
+                            color[1] = 255
+                            color[2] -= 25
+                        }
                     }
-                    material.setMeshUniforms(matrix, spriteData)
-                    material.draw()
-                }
+                })
             })
+            htMat.postDraw()
+            htMat.end()
 
-            material.postDraw()
-            material.end()
-        })
+            gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
+            const offset = this.hitTestData.length - (this.mouseY * this.width * 4) + this.mouseX * 4
+            const key = this.hitTestData.slice(offset, offset + 4).map(x => Math.floor(x / 5) * 5).join(',')
+            const cb = this.hitTestCallbacks.get(key)
+            if (cb) {
+                cb.callback()
+            }
+        }
+
+        if (!window.debugHitTest) {
+            this.clear()
+
+            this.queue.forEach((q, matKey) => {
+                const material = MaterialManager.materials[matKey]
+
+                material.use()
+                material.setGlobalUniforms(this.data)
+                material.preDraw()
+
+                q.forEach((mq, modelKey) => {
+                    material.bindMesh(Resources.models[modelKey].mesh)
+                    for (let i = 0; i < mq.count; i++) {
+                        const o = mq.array[i]
+                        const image = Resources.images[o.texture]
+                        material.setTexture(image.tex.tex)
+                        let matrix = mat4.create()
+                        let _quat = quat.create()
+                        let _scale = o.sprite ? image.spriteScale : o.scale
+                        quat.fromEuler(_quat, o.rotation[0], o.rotation[1], o.rotation[2])
+                        mat4.fromRotationTranslationScale(matrix, _quat, o.position, _scale)
+                        let spriteData = [0, 0]
+                        if (o.frame != null) {
+                            spriteData[0] = image.frames
+                            spriteData[1] = o.frame
+                        }
+                        material.setMeshUniforms(matrix, spriteData)
+                        material.draw()
+                    }
+                })
+
+                material.postDraw()
+                material.end()
+            })
+        }
 
         this.fbos.forEach((fbo, i) => {
             if (i >= this.fbos.length - 1) {
@@ -228,6 +296,11 @@ export default class Video {
             this.clear()
             fbo.render(this.data)
         })
+    }
+
+    mouseMove (evt) {
+        this.mouseX = Math.floor(evt.offsetX / SCALE)
+        this.mouseY = Math.floor(evt.offsetY / SCALE)
     }
 
 }

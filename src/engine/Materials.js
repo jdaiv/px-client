@@ -14,6 +14,19 @@ const MATERIALS = {
         screenSize: false,
         time: true,
     },
+    hitTest: {
+        vs: 'textured_vs',
+        fs: 'hittest_fs',
+        transform: true,
+
+        textured: true,
+        normals: true,
+        spriteData: true,
+        color: true,
+
+        screenSize: false,
+        time: true,
+    },
     textured: {
         vs: 'textured_vs',
         fs: 'textured_fs',
@@ -47,6 +60,17 @@ const MATERIALS = {
 
         textured: true,
         normals: true,
+
+        screenSize: false,
+        time: false,
+    },
+    post_none: {
+        vs: 'post_vs',
+        fs: 'post_none_fs',
+        transform: false,
+
+        textured: true,
+        normals: false,
 
         screenSize: false,
         time: false,
@@ -128,6 +152,10 @@ class Material {
             this.spriteDataLoc = gl.getUniformLocation(prog, 'uSpriteData')
         }
 
+        if (settings.color) {
+            this.colorLoc = gl.getUniformLocation(prog, 'uColor')
+        }
+
         if (settings.time)
             this.timeLoc = gl.getUniformLocation(prog, 'uTime')
 
@@ -162,11 +190,13 @@ class Material {
             gl.uniform2f(this.screenSizeLoc, data.width, data.height)
     }
 
-    setMeshUniforms (mMatrix, spriteData) {
+    setMeshUniforms (mMatrix, spriteData, color) {
         if (this.settings.transform)
             gl.uniformMatrix4fv(this.mMatLoc, false, mMatrix)
         if (this.settings.spriteData)
             gl.uniform2fv(this.spriteDataLoc, spriteData)
+        if (this.settings.color)
+            gl.uniform4fv(this.colorLoc, color)
     }
 
     setTexture (tex) {

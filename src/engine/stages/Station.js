@@ -56,6 +56,7 @@ export default class Station extends Stage {
             this.engine.camera.setOffset([0, 60, 120])
         }
 
+        this.tiles.tick(dt)
         this.entityManager.tick(dt)
 
         this.particles.forEach(p => {

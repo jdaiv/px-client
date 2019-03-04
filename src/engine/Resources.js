@@ -1,6 +1,6 @@
 import { GLTexture, GLMesh } from './Video'
 import Util from './Util'
-import { vec3 } from 'gl-matrix';
+import { vec3 } from 'gl-matrix'
 
 const PATH = '/resources/'
 
@@ -85,11 +85,13 @@ const RESOURCES = {
     },
     TEXTS: {
         post_vs: 'shaders/post.vs',
+        post_none_fs: 'shaders/post_none.fs',
         post_bloom_fs: 'shaders/post_bloom.fs',
         post_wobble_fs: 'shaders/post_wobble.fs',
         post_rainbows_fs: 'shaders/post_rainbows.fs',
         textured_vs: 'shaders/textured.vs',
         textured_fs: 'shaders/textured.fs',
+        hittest_fs: 'shaders/hittest.fs',
         outline_vs: 'shaders/outline.vs',
         outline_fs: 'shaders/outline.fs',
         error_vs: 'shaders/error.vs',
