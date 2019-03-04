@@ -70,18 +70,6 @@ export default class Video {
         }
     }
 
-    sortQueue () {
-        this.queue.forEach(q => {
-            q.forEach(mq => {
-                mq.array.sort((a, b) => {
-                    if (a.texture < b.texture) return -1
-                    if (a.texture > b.texture) return 1
-                    return 0
-                })
-            })
-        })
-    }
-
     clearQueue () {
         this.queue.forEach(q => {
             q.forEach(mq => mq.count = 0)
@@ -193,7 +181,6 @@ export default class Video {
 
         this.clearQueue()
         f()
-        this.sortQueue()
         this.clear()
 
         this.engine.overlay.matrix = matrix
@@ -207,14 +194,10 @@ export default class Video {
 
             q.forEach((mq, modelKey) => {
                 material.bindMesh(Resources.models[modelKey].mesh)
-                let lastTexKey = null, image = null
                 for (let i = 0; i < mq.count; i++) {
                     const o = mq.array[i]
-                    if (lastTexKey != o.texture) {
-                        image = Resources.images[o.texture]
-                        material.setTexture(image.tex.tex)
-                        lastTexKey = o.texture
-                    }
+                    const image = Resources.images[o.texture]
+                    material.setTexture(image.tex.tex)
                     let matrix = mat4.create()
                     let _quat = quat.create()
                     let _scale = o.sprite ? image.spriteScale : o.scale
