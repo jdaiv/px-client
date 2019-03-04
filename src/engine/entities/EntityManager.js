@@ -73,15 +73,27 @@ export default class EntityManager {
             default:
                 pos[1] = 0
             }
+
+            let useText = e.useText
+            let slot = 'empty'
+            // if (this.engine.ui && this.engine.ui.activeUseSlot != 'empty') {
+            //     const item = this.activePlayer.slots[this.engine.ui.activeUseSlot]
+            //     if (item && item.type != 'empty') {
+            //         slot = this.engine.ui.activeUseSlot
+            //         useText = `use ${item.name} with`
+            //     }
+            // }
+
             if (e.usable && Math.abs(player.x - e.x) <= 1 && Math.abs(player.y - e.y) <= 1) {
                 this.engine.overlay.add('ent' + e.id, pos, e.name, () => {
                     Services.socket.send('game_action', {
                         type: 'use',
                         params: {
-                            id: e.id
+                            id: e.id,
+                            slot
                         }
                     })
-                }, e.useText)
+                }, useText)
             }
         })
 

@@ -12,8 +12,9 @@ export default class Engine {
     players = {}
     me = null
 
-    constructor (el) {
+    constructor (el, ui) {
         console.log('[engine] starting...')
+        this.ui = ui
         this.v = new Video(el, this)
         this.overlay = new Overlay(el)
         this.synth = new Synth()

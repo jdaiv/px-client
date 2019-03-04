@@ -7,6 +7,7 @@ import favicon from '../assets/favicon.png'
 import Header from './header'
 import Sidebar from './sidebar'
 import ContentPortal from './content_portal'
+import ActionBar from './action_bar'
 
 import AuthStore from '../stores/AuthStore'
 import SocketStore from '../stores/SocketStore'
@@ -44,7 +45,10 @@ export default class App extends Component{
                     <Header />
                     <div class="container">
                         <Sidebar />
-                        <ContentPortal />
+                        <div class="gameArea">
+                            <ContentPortal />
+                            <ActionBar />
+                        </div>
                     </div>
                 </Provider>
             </div>

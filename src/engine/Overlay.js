@@ -100,6 +100,10 @@ export default class Overlay {
                     cP.text = p.text
                     cP.dirty = true
                 }
+                if (cP.btnText != p.btnText) {
+                    cP.btnText = p.btnText
+                    cP.dirty = true
+                }
                 cP.container.style.display = p.active ? 'block' : 'none'
                 cP.position = p.position
                 p.active = false

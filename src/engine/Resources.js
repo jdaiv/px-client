@@ -78,6 +78,10 @@ const RESOURCES = {
             src: 'dummy.png',
             frames: 1,
         },
+        blob: {
+            src: 'blob.png',
+            frames: 2,
+        },
     },
     TEXTS: {
         post_vs: 'shaders/post.vs',

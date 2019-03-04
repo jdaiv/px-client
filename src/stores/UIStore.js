@@ -7,6 +7,7 @@ export default class UIStore {
 
     @observable.shallow log = []
     @observable.shallow gameState = {}
+    @observable activeUseSlot = 'empty'
 
     @action.bound
     addEntry ({ from, content, notice, ...data }) {
