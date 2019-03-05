@@ -13,10 +13,11 @@ export default class EntityManager {
         this.players = new Map()
         this.playerPositions = new Map()
         this.items = new Map()
+        this.npcs = new Map()
         this.activePlayer = null
     }
 
-    set (activePlayer, players, ents, items) {
+    set (activePlayer, players, ents, items, npcs) {
         this.activePlayer = activePlayer
         this.players.clear()
         this.entities.clear()
@@ -29,6 +30,9 @@ export default class EntityManager {
         })
         for (let id in items) {
             this.items.set(id, items[id])
+        }
+        for (let id in npcs) {
+            this.npcs.set(id, npcs[id])
         }
     }
 
@@ -116,6 +120,7 @@ export default class EntityManager {
 
     draw () {
         this.drawPlayers()
+        this.drawNPCs()
         this.drawEntities()
         this.drawItems()
     }
@@ -135,6 +140,15 @@ export default class EntityManager {
                 this.engine.v.drawSprite('poses', { position: pos.current, rotation }, 'sprite', 0)
                 this.engine.v.drawSprite('faces', { position: [x, 16, y + 0.5], rotation }, 'sprite', hasSunglasses ? 4 : 1)
             }
+        })
+    }
+
+    drawNPCs () {
+        const rotation = ZERO
+        this.npcs.forEach((p, id) => {
+            this.engine.v.drawSprite('blob',
+                { position: [p.x * TILE_SIZE, 0, p.y * TILE_SIZE], rotation },
+                'sprite', Math.floor(this.engine.time / 1000) % 2)
         })
     }
 

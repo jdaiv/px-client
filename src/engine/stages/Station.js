@@ -39,7 +39,8 @@ export default class Station extends Stage {
                 this.entityManager.set(data.player,
                     data.zone.players,
                     data.zone.entities,
-                    data.zone.items)
+                    data.zone.items,
+                    data.zone.npcs)
                 // this.debug = true
             })
         EventManager.subscribe('ws/play_effect', 'game', ({ data }) => {this.effects.handleEffect(data)})
