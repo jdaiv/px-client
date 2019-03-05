@@ -39,7 +39,7 @@ export default class Tiles {
         this.tiles.forEach((p, i) => {
             this.engine.v.drawMesh('cube', p, 'textured', p.type != 'default' ? p.type : 'grid', {
                 callback: () => {
-                    p.hover = true
+                    // p.hover = true
                 }
             })
         })
