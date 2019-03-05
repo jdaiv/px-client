@@ -32,13 +32,26 @@ export default class Player extends Component {
         // skills.push(<Gear item={{ name: 'defendin\'', qty: 3 }} />)
         // skills.push(<Gear item={{ name: 'thinkin\'', qty: 3 }} />)
 
+        let combatInfo = []
+        if (gs.zone && gs.zone.combatInfo) {
+            const ci = gs.zone.combatInfo
+            combatInfo.push(<p>in combat: {ci.inCombat.toString()}</p>)
+            combatInfo.push(<p>turn: {ci.turn}</p>)
+            combatInfo.push(<p>current: {ci.current}</p>)
+            combatInfo.push(<p>combatants: {JSON.stringify(ci.combatants)}</p>)
+        }
+
         return (
             <div>
-                <h2>{ auth.username }</h2>
+                <h2>player: { auth.username }</h2>
                 <p>level 0 player</p>
                 <Section title="equipped" items={equipped} />
                 <Section title="bag" items={bag} />
                 <Section title="skills" items={skills} />
+                <h2>combat info</h2>
+                <p>HP: { gs.player ? gs.player.hp : -99 }</p>
+                <p>AP: { gs.player ? gs.player.ap : 0 }</p>
+                { combatInfo }
             </div>
         )
     }
