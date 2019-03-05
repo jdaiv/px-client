@@ -22,6 +22,7 @@ export default class EntityManager {
         this.players.clear()
         this.entities.clear()
         this.items.clear()
+        this.npcs.clear()
         for (let id in players) {
             this.players.set(id, players[id])
         }
@@ -56,6 +57,10 @@ export default class EntityManager {
 
             const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
             this.engine.overlay.add('player' + p.id, nameTagPos, p.name)
+        })
+
+        this.npcs.forEach((n, id) => {
+            this.engine.overlay.add('npc' + n.id, vec3.fromValues(n.x * TILE_SIZE, 12, n.y * TILE_SIZE), n.name)
         })
 
         const player = this.activePlayer
