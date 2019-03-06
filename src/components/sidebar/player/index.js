@@ -10,6 +10,7 @@ import Services from '../../../services'
 @observer
 export default class Player extends Component {
     render({ ui, auth }) {
+        let stats = []
         let equipped = []
         let bag = []
         let skills = []
@@ -17,12 +18,13 @@ export default class Player extends Component {
         const gs = ui.gameState
 
         if (gs.player) {
+            for (let key in gs.player.stats) {
+                if (gs.player.stats[key] > 0)
+                    stats.push(<p class={style.invItem}>{key}: {gs.player.stats[key]}</p>)
+            }
             for (let key in gs.player.slots) {
                 equipped.push(<Gear item={{ ...gs.player.slots[key], key, equipped: true }} />)
             }
-        }
-
-        if (gs.player) {
             for (let key in gs.player.inventory) {
                 bag.push(<Gear item={{ ...gs.player.inventory[key], bag: true }} />)
             }
@@ -45,6 +47,7 @@ export default class Player extends Component {
             <div>
                 <h2>player: { auth.username }</h2>
                 <p>level 0 player</p>
+                <Section title="stats" items={stats} />
                 <Section title="equipped" items={equipped} />
                 <Section title="bag" items={bag} />
                 <Section title="skills" items={skills} />
