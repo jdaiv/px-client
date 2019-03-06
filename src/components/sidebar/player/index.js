@@ -10,6 +10,7 @@ import Services from '../../../services'
 @observer
 export default class Player extends Component {
     render({ ui, auth }) {
+        let health = []
         let stats = []
         let equipped = []
         let bag = []
@@ -18,6 +19,10 @@ export default class Player extends Component {
         const gs = ui.gameState
 
         if (gs.player) {
+            health = [
+                <p class={style.invItem}>HP: {gs.player.hp} / {gs.player.maxHP}</p>,
+                <p class={style.invItem}>AP: {gs.player.ap} / {gs.player.maxAP}</p>
+            ]
             for (let key in gs.player.stats) {
                 if (gs.player.stats[key] > 0)
                     stats.push(<p class={style.invItem}>{key}: {gs.player.stats[key]}</p>)
@@ -35,25 +40,27 @@ export default class Player extends Component {
         // skills.push(<Gear item={{ name: 'thinkin\'', qty: 3 }} />)
 
         let combatInfo = []
-        if (gs.zone && gs.zone.combatInfo) {
+        if (gs.zone && gs.zone.combatInfo && gs.zone.combatInfo.inCombat) {
             const ci = gs.zone.combatInfo
-            combatInfo.push(<p>in combat: {ci.inCombat.toString()}</p>)
-            combatInfo.push(<p>turn: {ci.turn}</p>)
-            combatInfo.push(<p>current: {ci.current}</p>)
-            combatInfo.push(<p>combatants: {JSON.stringify(ci.combatants)}</p>)
+            combatInfo.push(<h2>combat!</h2>)
+            combatInfo.push(<p class={style.invItem}>in combat: {ci.inCombat.toString()}</p>)
+            combatInfo.push(<p class={style.invItem}>turn: {ci.turn}</p>)
+            combatInfo.push(<p class={style.invItem}>combatants:</p>)
+            ci.combatants.forEach((c, i) => {
+                const actor = c.isPlayer ?  gs.zone.players[c.id] : gs.zone.npcs[c.id]
+                combatInfo.push(<p class={style.invItem}>({i == ci.current ? '+' : ' '}) {actor.name}</p>)
+            })
         }
 
         return (
             <div>
                 <h2>player: { auth.username }</h2>
                 <p>level 0 player</p>
+                { health }
                 <Section title="stats" items={stats} />
                 <Section title="equipped" items={equipped} />
                 <Section title="bag" items={bag} />
                 <Section title="skills" items={skills} />
-                <h2>combat info</h2>
-                <p>HP: { gs.player ? gs.player.hp : -99 }</p>
-                <p>AP: { gs.player ? gs.player.ap : 0 }</p>
                 { combatInfo }
             </div>
         )
