@@ -8,7 +8,9 @@ export default class Overlay {
         this.base = el
         this.el = document.createElement('div')
         el.appendChild(this.el)
-        this.el.style.position = 'relative'
+        this.el.style.position = 'absolute'
+        this.el.style.top = '0px'
+        this.el.style.left = '0px'
         this.el.style.pointerEvents = 'none'
 
         this.resize = this.resize.bind(this)
