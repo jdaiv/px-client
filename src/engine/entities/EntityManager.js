@@ -179,6 +179,9 @@ export default class EntityManager {
                 transform.position[1] = 12
                 this.engine.v.drawSprite('door', transform, 'sprite')
                 break
+            case 'corpse':
+                this.engine.v.drawSprite('poses', transform, 'sprite', 7)
+                break
             default:
                 this.engine.v.drawMesh('error', transform, 'error')
                 break
