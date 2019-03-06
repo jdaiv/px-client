@@ -58,7 +58,7 @@ export default class Player extends Component {
                 <p>level 0 player</p>
                 { health }
                 <Section title="stats" items={stats} />
-                <Section title="equipped" items={equipped} />
+                <Section title="equipped" items={equipped} open="true" />
                 <Section title="bag" items={bag} />
                 <Section title="skills" items={skills} />
                 { combatInfo }
@@ -73,6 +73,10 @@ class Section extends Component {
 
     toggle = () => {
         this.open = !this.open
+    }
+
+    componentWillMount() {
+        this.open = this.props.open
     }
 
     render({ title, items }) {
@@ -136,11 +140,17 @@ class Gear extends Component {
             classes.push(style['quality' + Math.floor(item.quality)])
         }
 
-        let hasStats = item.stats && this.statsVisible
-        let stats = [<li>quality: { item.quality }</li>]
-        if (hasStats) {
+        let stats = [<li>quality: { item.quality }</li>, <li>value: { item.price || '0' }g</li>]
+        if (item.stats && Object.keys(item.stats).length > 0) {
+            stats.push(<li><em>- stats -</em></li>)
             for (let stat in item.stats) {
-                stats.push(<li>{ stat }: { item.stats[stat] }</li>)
+                stats.push(<li>&nbsp;&nbsp;{ stat }: { item.stats[stat] }</li>)
+            }
+        }
+        if (item.specials && Object.keys(item.specials).length > 0) {
+            stats.push(<li><em>- special -</em></li>)
+            for (let s in item.specials) {
+                stats.push(<li>&nbsp;&nbsp;{ item.specials[s] }</li>)
             }
         }
 
@@ -160,7 +170,7 @@ class Gear extends Component {
             actions.push(<button class={style.invAction} onClick={this.use}>use</button>)
         }
         return (<div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
-            { hasStats ? <ul class={style.stats}>{ stats }</ul> : null }
+            { item.type != 'empty' && this.statsVisible ? <ul class={style.stats}>{ stats }</ul> : null }
             <p>
                 { item.key ? `${item.key}: ` : '' }
                 { qty }
