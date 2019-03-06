@@ -26,24 +26,8 @@ const RESOURCES = {
             src: 'station-door.png',
             frames: 1,
         },
-        seat: {
-            src: 'station-seat.png',
-            frames: 1,
-        },
-        posters: {
-            src: 'station-posters.png',
-            frames: 1,
-        },
         bin: {
             src: 'bin.png',
-            frames: 1,
-        },
-        fence: {
-            src: 'station-fence.png',
-            frames: 1,
-        },
-        trainSign: {
-            src: 'train-sign.png',
             frames: 1,
         },
         loadingSign: {
