@@ -245,7 +245,7 @@ export default class Overlay {
 
 class Nametag extends Component {
     click = () => {
-        if (this.props.player.id != 'hostile') return
+        if (this.props.player.alignment != 'hostile') return
         Services.socket.send('game_action', {
             type: 'attack',
             params: {
