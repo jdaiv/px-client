@@ -64,7 +64,7 @@ const RESOURCES = {
         },
         blob: {
             src: 'blob.png',
-            frames: 2,
+            frames: 3,
         },
     },
     TEXTS: {

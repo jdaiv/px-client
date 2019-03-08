@@ -117,7 +117,15 @@ export default class EntityManager {
                 this.engine.v.drawSprite('door', transform, 'sprite')
                 break
             case 'corpse':
-                this.engine.v.drawSprite('poses', transform, 'sprite', 7)
+                switch (e.strings.type) {
+                case 'player':
+                    this.engine.v.drawSprite('poses', transform, 'sprite', 7)
+                    break
+                case 'blob':
+                    this.engine.v.drawSprite('blob', transform, 'sprite', 2)
+                    break
+                }
+
                 break
             default:
                 this.engine.v.drawMesh('error', transform, 'error')

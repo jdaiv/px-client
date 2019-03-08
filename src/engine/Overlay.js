@@ -129,6 +129,9 @@ export default class Overlay {
             case 'door':
                 offset = 12
                 break
+            case 'corpse':
+                offset = 4
+                break
             default:
                 offset = 0
             }
@@ -192,10 +195,10 @@ export default class Overlay {
                 const type = id.slice(0, 1)
                 switch (type) {
                 case 'p':
-                    render(<Nametag player={p.player} />, c, c.firstChild)
+                    render(<Nametag player={p.player} me={this.player} />, c, c.firstChild)
                     break
                 case 'n':
-                    render(<Nametag player={p.npc} />, c, c.firstChild)
+                    render(<Nametag player={p.npc} me={this.player} />, c, c.firstChild)
                     break
                 case 'e':
                     render(<Entity entity={p.entity} player={this.player} />, c, c.firstChild)
@@ -241,13 +244,24 @@ export default class Overlay {
 }
 
 class Nametag extends Component {
+    click = () => {
+        if (this.props.player.id != 'hostile') return
+        Services.socket.send('game_action', {
+            type: 'attack',
+            params: {
+                id: this.props.player.id
+            }
+        })
+    }
+
     render ({ player }) {
         return (
             <div class="pointInner">
-                <p>
+                <button class="useBtn" onClick={this.click}>
+                    { player.alignment == 'hostile' ? <em>attack<br /></em> : '' }
                     { player.name } - L0<br />
                     HP { player.hp } / { player.maxHP }
-                </p>
+                </button>
             </div>
         )
     }
