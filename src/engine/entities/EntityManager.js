@@ -56,71 +56,24 @@ export default class EntityManager {
             }
 
             const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
-            this.engine.overlay.add('player' + p.id, nameTagPos, p.name)
+            this.engine.overlay.setPlayerPos( p.id, nameTagPos)
         })
 
-        this.npcs.forEach((n, id) => {
-            this.engine.overlay.add('npc' + n.id, vec3.fromValues(n.x * TILE_SIZE, 12, n.y * TILE_SIZE), n.name)
-        })
-
-        const player = this.activePlayer
-        if (!player) return
-
-        let pos = vec3.create()
-
-        this.entities.forEach((e, id) => {
-            pos[0] = e.x * TILE_SIZE
-            pos[2] = e.y * TILE_SIZE
-            switch (e.type) {
-            case 'sign':
-            case 'dummy':
-                pos[1] = 8
-                break
-            case 'door':
-                pos[1] = 12
-                break
-            default:
-                pos[1] = 0
-            }
-
-            let useText = e.useText
-            let slot = 'empty'
-            // if (this.engine.ui && this.engine.ui.activeUseSlot != 'empty') {
-            //     const item = this.activePlayer.slots[this.engine.ui.activeUseSlot]
-            //     if (item && item.type != 'empty') {
-            //         slot = this.engine.ui.activeUseSlot
-            //         useText = `use ${item.name} with`
-            //     }
-            // }
-
-            if (e.usable && Math.abs(player.x - e.x) <= 1 && Math.abs(player.y - e.y) <= 1) {
-                this.engine.overlay.add('ent' + e.id, pos, e.name, () => {
-                    Services.socket.send('game_action', {
-                        type: 'use',
-                        params: {
-                            id: e.id,
-                            slot
-                        }
-                    })
-                }, useText)
-            }
-        })
-
-        pos[1] = 0
-        this.items.forEach((i, id) => {
-            pos[0] = i.x * TILE_SIZE
-            pos[2] = i.y * TILE_SIZE
-            if (Math.abs(player.x - i.x) <= 1 && Math.abs(player.y - i.y) <= 1) {
-                this.engine.overlay.add('item' + i.id, pos, i.name, () => {
-                    Services.socket.send('game_action', {
-                        type: 'take_item',
-                        params: {
-                            id: i.id
-                        }
-                    })
-                }, 'take')
-            }
-        })
+        // pos[1] = 0
+        // this.items.forEach((i, id) => {
+        //     pos[0] = i.x * TILE_SIZE
+        //     pos[2] = i.y * TILE_SIZE
+        //     if (Math.abs(player.x - i.x) <= 1 && Math.abs(player.y - i.y) <= 1) {
+        //         this.engine.overlay.add('item' + i.id, pos, i.name, () => {
+        //             Services.socket.send('game_action', {
+        //                 type: 'take_item',
+        //                 params: {
+        //                     id: i.id
+        //                 }
+        //             })
+        //         }, 'take')
+        //     }
+        // })
     }
 
     draw () {

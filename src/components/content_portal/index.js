@@ -5,8 +5,8 @@ import Engine from '../../engine/Engine'
 
 import style from './style'
 
-@observer
 @inject('ui')
+@observer
 export default class ContentPortal extends Component {
 
     componentDidMount() {
@@ -17,7 +17,7 @@ export default class ContentPortal extends Component {
         this.engine.destroy()
     }
 
-    render({ rooms }) {
+    render({ ui }) {
         return (
             <div class={style.portal} />
         )

@@ -1,18 +1,35 @@
+.overlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    pointer-events: none;
+}
+
 .point {
     position: absolute;
     color: white;
+    user-select: none;
+}
 
+.pointInner {
     background: rgba(0, 0, 0, 0.5);
     /* padding: 0.5rem; */
     border: 1px solid #0f0;
     text-align: center;
-    user-select: none;
     pointer-events: all;
+
+    opacity: 1;
+    transition: opacity 200ms ease;
 }
 
-.point > p {
+.pointInner > p {
     margin: 0.25rem;
     display: inline-block;
+}
+
+.hide {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .useBtn {
