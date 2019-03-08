@@ -115,7 +115,7 @@ export default class Overlay {
             const key = 'p' + id
             const p = this.players[id]
             const point = this.getOrCreatePoint(key, [p.x * TILE_SIZE, 24, p.y * TILE_SIZE])
-            point.changed = this.compare(point.player, p)
+            point.changed = true
             point.player = p
         }
         this.entities.forEach(e => {
@@ -136,21 +136,21 @@ export default class Overlay {
                 offset = 0
             }
             const point = this.getOrCreatePoint(key, [e.x * TILE_SIZE, offset, e.y * TILE_SIZE])
-            point.changed = this.compare(point.entity, e)
+            point.changed = true
             point.entity = e
         })
         for (let id in this.items) {
             const key = 'i' + id
             const i = this.items[id]
             const point = this.getOrCreatePoint(key, [i.x * TILE_SIZE, 4, i.y * TILE_SIZE])
-            point.changed = this.compare(point.item, i)
+            point.changed = true
             point.item = i
         }
         for (let id in this.npcs) {
             const key = 'n' + id
             const n = this.npcs[id]
             const point = this.getOrCreatePoint(key, [n.x * TILE_SIZE, 10, n.y * TILE_SIZE])
-            point.changed = this.compare(point.npc, n)
+            point.changed = true
             point.npc = n
         }
     }
@@ -254,11 +254,15 @@ class Nametag extends Component {
         })
     }
 
-    render ({ player }) {
+    render ({ player, me }) {
+        let canAttack = false
+        if (Math.abs(player.x - me.x) <= 1 && Math.abs(player.y - me.y) <= 1) {
+            canAttack = true
+        }
         return (
             <div class="pointInner">
-                <button class="useBtn" onClick={this.click}>
-                    { player.alignment == 'hostile' ? <em>attack<br /></em> : '' }
+                <button class="useBtn" onClick={canAttack ? this.click : null}>
+                    { canAttack && player.alignment == 'hostile' ? <em>attack<br /></em> : '' }
                     { player.name } - L0<br />
                     HP { player.hp } / { player.maxHP }
                 </button>
