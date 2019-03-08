@@ -58,22 +58,6 @@ export default class EntityManager {
             const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
             this.engine.overlay.setPlayerPos( p.id, nameTagPos)
         })
-
-        // pos[1] = 0
-        // this.items.forEach((i, id) => {
-        //     pos[0] = i.x * TILE_SIZE
-        //     pos[2] = i.y * TILE_SIZE
-        //     if (Math.abs(player.x - i.x) <= 1 && Math.abs(player.y - i.y) <= 1) {
-        //         this.engine.overlay.add('item' + i.id, pos, i.name, () => {
-        //             Services.socket.send('game_action', {
-        //                 type: 'take_item',
-        //                 params: {
-        //                     id: i.id
-        //                 }
-        //             })
-        //         }, 'take')
-        //     }
-        // })
     }
 
     draw () {

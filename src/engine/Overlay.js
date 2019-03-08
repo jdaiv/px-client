@@ -245,8 +245,8 @@ class Nametag extends Component {
         return (
             <div class="pointInner">
                 <p>
-                    { player.name }<br />
-                    L0 { player.hp } / { player.maxHP }
+                    { player.name } - L0<br />
+                    HP { player.hp } / { player.maxHP }
                 </p>
             </div>
         )
