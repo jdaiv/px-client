@@ -9,6 +9,45 @@
     cursor: pointer;
 }
 
+.toggleInner {
+    margin: 0 1rem;
+}
+
+.toggleOpen {
+    margin-bottom: 0.5rem;
+}
+
+.statBar {
+    color: #0f0;
+	background: #010;
+	border: 1px solid #0f0;
+	font-family: monospace;
+	font-size: 1rem;
+	line-height: 1;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    position: relative;
+    height: 2rem;
+}
+
+.statBarInner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    background: #030;
+}
+
+.statBarLabel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: calc(0.5rem - 1px);
+    z-index: 2;
+}
+
 .quality1 {
     color: white;
 }

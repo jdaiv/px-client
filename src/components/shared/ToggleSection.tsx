@@ -17,9 +17,17 @@ export default class ToggleSection extends Component<{ title: string, open?: boo
     }
 
     public render({ title, items }) {
+
+        let children = this.props.children
+        if (children.length <= 0) {
+            children = ['empty']
+        }
+
         return (<div>
-            <p><button class={style.toggle} onClick={this.toggle}>[{ this.open ? '-' : '+' }] { title }</button></p>
-            { this.open ? this.props.children : null }
+            <p class={ this.open ? style.toggleOpen : '' }>
+                <button class={style.toggle} onClick={this.toggle}>[{ this.open ? '-' : '+' }] { title }</button>
+            </p>
+            { this.open ? <div class={style.toggleInner}>{ children }</div> : null }
         </div>)
     }
 

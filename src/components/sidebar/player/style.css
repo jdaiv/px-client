@@ -5,9 +5,9 @@
 }
 
 .invItem {
-    margin: 0.25rem 1rem;
+    margin: 0.25rem 0;
     display: flex;
-    width: calc(100% - 2rem);
+    width: 100%;
     justify-content: stretch;
     overflow: visible;
     position: relative;

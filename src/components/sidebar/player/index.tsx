@@ -8,6 +8,7 @@ import ItemLabel from '../../shared/ItemLabel'
 import ToggleSection from '../../shared/ToggleSection'
 
 import style from './style.css'
+import StatBar from '../../shared/StatBar';
 
 @inject('ui')
 @inject('auth')
@@ -24,8 +25,8 @@ export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }
 
         if (gs.player) {
             health = [
-                <p class={style.invItem}>HP: {gs.player.hp} / {gs.player.maxHP}</p>,
-                <p class={style.invItem}>AP: {gs.player.ap} / {gs.player.maxAP}</p>
+                <StatBar label="HP" min={gs.player.hp} max={gs.player.maxHP} />,
+                <StatBar label="AP" min={gs.player.ap} max={gs.player.maxAP} />
             ]
             for (const key in gs.player.stats) {
                 if (gs.player.stats[key] > 0)

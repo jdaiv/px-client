@@ -1,5 +1,10 @@
 declare const styles: {
   readonly "toggle": string;
+  readonly "toggleInner": string;
+  readonly "toggleOpen": string;
+  readonly "statBar": string;
+  readonly "statBarInner": string;
+  readonly "statBarLabel": string;
   readonly "quality1": string;
   readonly "quality2": string;
   readonly "quality3": string;
