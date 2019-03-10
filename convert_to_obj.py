@@ -2,7 +2,7 @@ import bpy
 import os
 
 bpy.ops.export_scene.obj(
-    filepath="static/resources/models/" + os.environ["MODEL_NAME"] + ".obj",
+    filepath=os.environ["MODEL_EXPORT_PATH"],
     check_existing=False,
     axis_forward='-Z',
     axis_up='Y',

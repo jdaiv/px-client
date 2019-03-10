@@ -4,6 +4,7 @@ const { execSync } = require('child_process')
 const blender = process.env.BLENDER_PATH
 const aseprite = process.env.ASEPRITE_PATH
 const modelPath = 'resources/models'
+const modelExportPath = 'static/resources/models/'
 const spritePath = 'resources/sprites'
 const spriteExportPath = 'static/resources/sprites'
 const spriteDataExportPath = 'src/config/sprites'
@@ -16,7 +17,7 @@ let modelNames = []
 models.forEach(f => {
     const name = f.split('.')[0]
     console.log(`converting model ${modelPath}/${f}`)
-    process.env.MODEL_NAME = name
+    process.env.MODEL_EXPORT_PATH = `${modelExportPath}/${name}.obj`
     execSync(`${blender} -b "${modelPath}/${f}" --python convert_to_obj.py`)
     modelNames.push(name)
 })
