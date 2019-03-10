@@ -1,98 +1,22 @@
 {
-  "private": true,
-  "name": "game-frontend",
-  "version": "0.0.0",
-  "license": "MIT",
   "scripts": {
-    "start": "if-env NODE_ENV=production && npm run -s serve || npm run -s dev",
-    "build": "preact build",
-    "serve": "preact build && preact serve",
-    "dev": "preact watch",
-    "lint": "eslint src",
-    "test": "jest"
-  },
-  "eslintConfig": {
-    "extends": "eslint-config-synacor",
-    "rules": {
-      "semi": [
-        "error",
-        "never"
-      ],
-      "indent": [
-        "warn",
-        4
-      ],
-      "comma-dangle": "off",
-      "eqeqeq": "off",
-      "brace-style": "off",
-      "arrow-body-style": "off",
-      "no-console": "off",
-      "no-case-declarations": "off",
-      "guard-for-in": "off",
-      "react/jsx-indent-props": "off"
-    },
-    "overrides": [
-      {
-        "files": [
-          "src/engine/**/*.js"
-        ],
-        "rules": {
-          "react/sort-comp": "off"
-        }
-      }
-    ]
-  },
-  "eslintIgnore": [
-    "build/*"
-  ],
-  "devDependencies": {
-    "babel-plugin-transform-decorators-legacy": "^1.3.5",
-    "eslint": "^4.9.0",
-    "eslint-config-synacor": "^2.0.2",
-    "identity-obj-proxy": "^3.0.0",
-    "if-env": "^1.0.0",
-    "jest": "^21.2.1",
-    "preact-cli": "^2.1.0",
-    "preact-render-spy": "^1.2.1"
+    "start": "node fuse",
+    "build": "node fuse dist",
+    "build_res": "node ./build_resources.js"
   },
   "dependencies": {
-    "copy-webpack-plugin": "^4.5.3",
-    "gl-matrix": "^2.8.1",
-    "js-base64": "^2.4.9",
-    "mobx": "5",
+    "@types/gl-matrix": "^2.4.5",
+    "gl-matrix": "^3.0.0",
+    "mobx": "^5.9.0",
     "mobx-preact": "^3.0.0",
-    "preact": "^8.2.6",
-    "preact-compat": "^3.17.0",
-    "preact-helmet": "^4.0.0-alpha-3",
-    "preact-router": "^2.5.7"
+    "preact": "^8.4.2",
+    "typescript": "^3.3.3333"
   },
-  "jest": {
-    "verbose": true,
-    "setupFiles": [
-      "<rootDir>/tests/__mocks__/browserMocks.js"
-    ],
-    "testRegex": "(/(__tests__|tests)/.*|(\\.|/)(test|spec))\\.jsx?$",
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "<rootDir>/tests/__mocks__/*"
-    ],
-    "testURL": "http://localhost:8081",
-    "moduleFileExtensions": [
-      "js",
-      "jsx"
-    ],
-    "moduleDirectories": [
-      "node_modules"
-    ],
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/tests/__mocks__/fileMock.js",
-      "\\.(css|less|scss)$": "identity-obj-proxy",
-      "^./style$": "identity-obj-proxy",
-      "^preact$": "<rootDir>/node_modules/preact/dist/preact.min.js",
-      "^react$": "preact-compat",
-      "^react-dom$": "preact-compat",
-      "^create-react-class$": "preact-compat/lib/create-react-class",
-      "^react-addons-css-transition-group$": "preact-css-transition-group"
-    }
+  "devDependencies": {
+    "@types/node": "^11.11.0",
+    "fuse-box": "^3.7.1",
+    "postcss-modules": "^1.4.1",
+    "terser": "^3.16.1",
+    "tslint": "^5.13.1"
   }
 }

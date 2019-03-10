@@ -1,12 +1,7 @@
-.toggle {
-    outline: 0;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    font: inherit;
-    color: inherit;
-    background: none;
-    cursor: pointer;
+.heading {
+    margin: 0rem 0 1rem 0;
+    line-height: 1.5;
+    font-size: 1.5rem;
 }
 
 .invItem {
@@ -63,28 +58,4 @@
     margin: 0;
     padding: 0;
     list-style: none;
-}
-
-.quality1 {
-    color: white;
-}
-
-.quality2 {
-    color: blue;
-}
-
-.quality3 {
-    color: limegreen;
-}
-
-.quality4 {
-    color: blueviolet;
-}
-
-.quality5 {
-    color: orange;
-}
-
-.quality6 {
-    color: red;
 }

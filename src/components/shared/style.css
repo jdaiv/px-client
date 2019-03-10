@@ -1,0 +1,34 @@
+.toggle {
+    outline: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    background: none;
+    cursor: pointer;
+}
+
+.quality1 {
+    color: white;
+}
+
+.quality2 {
+    color: blue;
+}
+
+.quality3 {
+    color: limegreen;
+}
+
+.quality4 {
+    color: blueviolet;
+}
+
+.quality5 {
+    color: orange;
+}
+
+.quality6 {
+    color: red;
+}

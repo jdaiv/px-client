@@ -1,0 +1,40 @@
+.tabs {
+	text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+	justify-content: center;
+	margin-bottom: 0.5rem;
+	width: 100%;
+}
+
+.tabs > button {
+	font: inherit;
+    flex: 1;
+    /* margin: 0.25rem; */
+	color: #0f0;
+	background: #010;
+	border: 1px solid #0f0;
+	font-size: 1rem;
+	line-height: 1;
+	padding: 7px;
+	cursor: pointer;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.tabs > button:hover {
+    background: #040;
+}
+
+.tabs > button:focus {
+    outline: 0;
+}
+
+button.active {
+    background: #0e0;
+    color: #000;
+}
+
+button.active:hover {
+    background: #0e0;
+}

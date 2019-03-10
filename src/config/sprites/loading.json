@@ -1,0 +1,19 @@
+{ "frames": {
+   "loading.ase": {
+    "frame": { "x": 0, "y": 0, "w": 128, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 32 },
+    "sourceSize": { "w": 128, "h": 32 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.9-x64",
+  "image": "static/resources/sprites/loading.png",
+  "format": "RGBA8888",
+  "size": { "w": 128, "h": 32 },
+  "scale": "1"
+ }
+}

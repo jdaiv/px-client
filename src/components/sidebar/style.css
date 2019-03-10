@@ -9,7 +9,7 @@
 	background: #000;
 	padding: 0.5rem;
 	border: 16px solid transparent;
-	border-image: url('/resources/small-display.png') 16;
+	border-image: url('/resources/sprites/small-display.png') 16;
 	height: 100%;
 }
 
@@ -22,32 +22,6 @@
 
 .content > div {
 	width: 100%;
-}
-
-.tabs {
-	text-align: center;
-    display: flex;
-    flex-wrap: wrap;
-	justify-content: center;
-}
-
-.tabs > a, .tabs > button {
-	font: inherit;
-    flex: 0;
-    /* margin: 0.25rem; */
-	color: #0f0;
-	background: #010;
-	border: 1px solid #0f0;
-	font-size: 1rem;
-	line-height: 1;
-	padding: 7px;
-	cursor: pointer;
-	text-decoration: none;
-	white-space: nowrap;
-}
-
-.tabs > a:hover, .tabs > button:hover {
-    background: #040;
 }
 
 a.active {
@@ -68,19 +42,23 @@ a.active:hover {
 	border: 0.5px solid #0f0;
 }
 
-.form p, .form h2, .chat h2, .form h3, .chat h3  {
+.form p, .form h2, .form h3 {
 	font-size: 1rem;
 	line-height: 1.1;
 	margin: 0 0 1rem 0;
 	font-weight: 400;
 }
 
-.form h2, .chat h2 {
+.form h2 {
 	text-align: center;
 	font-size: 1.5rem;
 }
 
-.form h3, .chat h3 {
+.form h2:first-child {
+	margin-top: 0;
+}
+
+.form h3 {
 	text-align: center;
 	font-size: 1.25rem;
 }
@@ -93,7 +71,7 @@ p.hint {
 	color: #090;
 }
 
-.form input, .form select, .form button {
+.form input, .form select {
     display: block;
 	width: 100%;
     margin: 0 0 1rem 0;
@@ -105,4 +83,9 @@ p.hint {
 .form input[type=text] {
     border: 0;
     outline: 0;
+}
+
+.disabled {
+	opacity: 0.5;
+	pointer-events: none;
 }

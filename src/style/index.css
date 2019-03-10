@@ -16,40 +16,13 @@ html, body {
 	box-sizing: border-box;
 }
 
-#app {
+.app {
 	margin-top: 3rem;
 	height: calc(100vh - 3rem);
 }
 
-/* provider block */
-#app > div {
+.app > div {
 	height: 100%;
-}
-
-.button {
-    color: #0f0;
-	background: #010;
-	border: 1px solid #0f0;
-	font-family: monospace;
-	font-size: 1rem;
-	line-height: 1;
-	padding: 7px;
-	cursor: pointer;
-	font-weight: 400;
-	text-decoration: none;
-}
-
-.button:hover {
-	background: #040;
-}
-
-.button:focus {
-	outline: 0;
-}
-
-.button.active {
-    background: #0f0;
-	color: #010;
 }
 
 .container {

@@ -1,0 +1,38 @@
+.button {
+    color: #0f0;
+	background: #010;
+	border: 1px solid #0f0;
+	font-family: monospace;
+	font-size: 1rem;
+	line-height: 1;
+	padding: 7px;
+	cursor: pointer;
+	font-weight: 400;
+	text-decoration: none;
+}
+
+.button:hover {
+	background: #040;
+}
+
+.button:focus {
+	outline: 0;
+}
+
+.button.active {
+    background: #0f0;
+	color: #010;
+}
+
+.button:last-child {
+	margin: 0;
+}
+
+.large {
+    display: block;
+	width: 100%;
+    margin: 0 0 1rem 0;
+    font-family: monospace;
+    padding: calc(0.5rem - 1px);
+    font-size: 1rem;
+}

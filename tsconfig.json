@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "outDir": "./public",
+    "target": "es6",
+    "lib": ["dom", "es2015", "es2016"],
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "sourceMap": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "./src/**/*.css",
+    "./src/**/*.json",
+    "./src/**/*.tsx",
+    "./src/**/*.ts"
+  ]
+}
