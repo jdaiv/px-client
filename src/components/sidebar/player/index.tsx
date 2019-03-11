@@ -51,11 +51,12 @@ export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }
             const ci = gs.zone.combatInfo
             combatInfo.push(<h2>combat!</h2>)
             combatInfo.push(<p class={style.invItem}>in combat: {ci.inCombat.toString()}</p>)
+            combatInfo.push(<p class={style.invItem}>waiting: {ci.waiting.toString()}</p>)
             combatInfo.push(<p class={style.invItem}>turn: {ci.turn}</p>)
             combatInfo.push(<p class={style.invItem}>combatants:</p>)
             ci.combatants.forEach((c, i) => {
                 const actor = c.isPlayer ?  gs.zone.players[c.id] : gs.zone.npcs[c.id]
-                combatInfo.push(<p class={style.invItem}>({i == ci.current ? '+' : ' '}) {actor.name}</p>)
+                combatInfo.push(<p class={style.invItem}>({i == ci.current ? '+' : ' '}) {actor.name} - {c.timer}</p>)
             })
         }
 

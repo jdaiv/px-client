@@ -4,6 +4,8 @@
     height: 100%;
     overflow: hidden;
     position: relative;
+    border: 1px solid #0f0;
+    margin-right: 0.5rem;
 }
 
 .portal canvas {
