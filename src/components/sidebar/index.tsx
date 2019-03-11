@@ -41,7 +41,6 @@ export default class Sidebar extends Component<{ auth?: AuthStore }> {
                             active={this.activeTab}
                             onClick={this.changeTab}
                             options={['player', 'account', 'settings']} />
-                        <hr class={style.hr} />
                         <div class={style.content}>{ inner }</div>
                         <hr class={style.hr} />
                         <Chat />

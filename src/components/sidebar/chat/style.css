@@ -78,6 +78,16 @@
     word-break: break-word;
 }
 
+.log::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: #000;
+}
+
+.log::-webkit-scrollbar-thumb {
+    background: #030;
+}
+
 .notice {
     font-style: italic;
 }

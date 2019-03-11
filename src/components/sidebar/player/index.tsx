@@ -15,6 +15,7 @@ import StatBar from '../../shared/StatBar';
 @observer
 export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }> {
     public render({ ui, auth }) {
+        let level: number
         let health = []
         const stats = []
         const equipped = []
@@ -24,6 +25,7 @@ export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }
         const gs = ui.gameState
 
         if (gs.player) {
+            level = gs.player.level
             health = [
                 <StatBar label="HP" min={gs.player.hp} max={gs.player.maxHP} />,
                 <StatBar label="AP" min={gs.player.ap} max={gs.player.maxAP} />
@@ -39,6 +41,11 @@ export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }
             for (const key in gs.player.inventory) {
                 bag.push(
                     <Gear item={{ ...gs.player.inventory[key], bag: true }} />)
+            }
+            for (const key in gs.player.skills) {
+                const s = gs.player.skills[key]
+                skills.push(
+                    <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
             }
         }
 
@@ -63,7 +70,7 @@ export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }
         return (
             <div>
                 <h2 class={style.heading}>player: { auth.username }</h2>
-                <p>level 0 player</p>
+                <p>level { level } player</p>
                 { health }
                 <ToggleSection title="stats">{ stats }</ToggleSection>
                 <ToggleSection title="equipped" open={true}>{ equipped }</ToggleSection>

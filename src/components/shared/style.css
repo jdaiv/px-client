@@ -25,27 +25,13 @@
 	font-size: 1rem;
 	line-height: 1;
     width: 100%;
-    text-align: center;
+    text-align: left;
     margin-bottom: 0.5rem;
-    position: relative;
-    height: 2rem;
+    padding: 0.5rem;
 }
 
-.statBarInner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1;
-    background: #030;
-}
-
-.statBarLabel {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: calc(0.5rem - 1px);
-    z-index: 2;
+.small {
+    font-size: 0.75rem;
 }
 
 .quality1 {
