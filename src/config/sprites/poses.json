@@ -67,7 +67,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "static/resources/sprites/poses.png",
+  "image": "src/assets/sprites/poses.png",
   "format": "RGBA8888",
   "size": { "w": 512, "h": 64 },
   "scale": "1"

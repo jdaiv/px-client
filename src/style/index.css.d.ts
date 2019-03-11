@@ -3,5 +3,5 @@ declare const styles: {
   readonly "container": string;
   readonly "gameArea": string;
 };
-export default styles;
+export = styles;
 

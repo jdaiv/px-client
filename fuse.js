@@ -1,33 +1,73 @@
-const { src, task, context, watch } = require("fuse-box/sparky");
-const { FuseBox, JSONPlugin, QuantumPlugin, CSSModulesPlugin, CSSPlugin, WebIndexPlugin } = require("fuse-box");
+const { src, task, context, watch } = require('fuse-box/sparky');
+const { FuseBox, JSONPlugin, RawPlugin, ImageBase64Plugin, QuantumPlugin,
+    CSSResourcePlugin, CSSModulesPlugin, CSSPlugin, WebIndexPlugin } = require('fuse-box');
+const fs = require('fs')
+const path = require('path')
+const { execSync } = require('child_process')
 
-const resources = "./**/*.+(obj|png|fs|vs|ico)";
+const blender = process.env.BLENDER_PATH
+const aseprite = process.env.ASEPRITE_PATH
 
-task("default", async context => {
+const modelPath = 'models'
+const spritePath = 'sprites'
+
+const baseExportPath = 'src/assets/'
+const modelExportPath = baseExportPath + modelPath
+const spriteExportPath = baseExportPath + spritePath
+const spriteDataExportPath = 'src/config/sprites'
+const dataExportFile = 'src/config/resources.ts'
+
+const modelSources = './resources/**/*.blend';
+const spriteSources = './resources/**/*.+(aseprite|ase)';
+
+const resourceSources = [modelSources, spriteSources];
+
+const resources = './**/*.+(obj|png|ico)';
+
+task('default', async context => {
     await context.clean();
-    await context.watchResources();
     await context.development();
 });
 
-task("dist", async context => {
+task('dist', async context => {
     await context.clean();
-    await context.copyResources();
     await context.dist();
+});
+
+task('resource_build', async context => {
+    await context.cleanBuilt();
+    context.makeResDirs();
+    await context.copyResources();
+});
+
+task('resource_watch', async context => {
+    context.makeResDirs();
+    await context.watchResources();
+});
+
+task('resource_clean', async context => {
+    await context.cleanBuilt();
 });
 
 context(
     class {
         getConfig() {
             return FuseBox.init({
-                homeDir: "src",
-                target: "browser@es6",
+                homeDir: 'src',
+                target: 'browser@es6',
                 hash: this.isProduction,
-                output: "public/$name.js",
+                output: 'public/$name.js',
                 plugins: [
-                    [CSSModulesPlugin(), CSSPlugin()],
+                    [CSSResourcePlugin({
+                        inline: true
+                    }), CSSModulesPlugin(), CSSPlugin()],
                     JSONPlugin(),
+                    RawPlugin(['.vs', '.fs', '.obj']),
+                    ImageBase64Plugin({
+                        useDefault: false // setting this to true actually breaks defaults?
+                    }),
                     WebIndexPlugin({
-                        template: "static/index.html"
+                        template: 'static/index.html'
                     }),
                     this.isProduction &&
                         QuantumPlugin({
@@ -39,44 +79,116 @@ context(
         }
 
         async copyResources() {
-            await src(resources, { base: './static' })
-                .dest("public/")
+            await src(resourceSources)
+                .file('*.blend', this.buildModel)
+                .file('*.ase', this.buildSprite)
+                .file('*.aseprite', this.buildSprite)
+                .completed(this.buildResourceJSON)
                 .exec();
         }
 
         async watchResources() {
-            await watch(resources,  { base: './static' })
-                .dest("public/")
+            await watch(resourceSources)
+                .file('*.blend', this.buildModel)
+                .file('*.ase', this.buildSprite)
+                .file('*.aseprite', this.buildSprite)
+                .completed(this.buildResourceJSON)
                 .exec();
         }
 
         async clean() {
-            await src("./public")
-                .clean("public/")
+            await src('./public')
+                .clean('public/')
                 .exec();
+        }
+
+        async cleanBuilt() {
+            await src('./static')
+                .clean(modelExportPath)
+                .clean(spriteExportPath)
+                .exec();
+        }
+
+        makeResDirs() {
+            try {
+                fs.mkdirSync(baseExportPath, { recursive: true })
+            } catch (e) {}
+            try {
+                fs.mkdirSync(modelExportPath)
+            } catch (e) {}
+            try {
+                fs.mkdirSync(spriteExportPath)
+            } catch (e) {}
+        }
+
+        buildModel(f) {
+            const name = f.name.split('.')[0]
+            process.env.MODEL_EXPORT_PATH = `${modelExportPath}/${name}.obj`
+            execSync(`${blender} -b "${f.filepath}" --python convert_to_obj.py`)
+        }
+
+        buildSprite(f) {
+            const name = f.name.split('.')[0]
+            execSync(`${aseprite} -b "${f.filepath}" --sheet "${spriteExportPath}/${name}.png" --data "${spriteDataExportPath}/${name}.json"`)
+        }
+
+        buildShader(f) {
+            return f.copy(`${shaderExportPath}/$name`)
+        }
+
+        buildResourceJSON(files) {
+            const getName = n => {
+                const full = path.basename(n, path.extname(n))
+                return { full, clean: full.replace(/[^A-Za-z0-9]/g, '') }
+            }
+            const modelNames = fs.readdirSync(modelExportPath).map(getName)
+            const spriteNames = fs.readdirSync(spriteExportPath).map(getName)
+
+            const imports =
+                spriteNames.map(n =>
+                    `import * as sprite${n.clean}Data from './sprites/${n.full}.json'\n` +
+                    `import sprite${n.clean} from '../assets/sprites/${n.full}.png'`)
+                .concat(
+                    modelNames.map(n => `import model${n.clean}Data from '../assets/models/${n.full}.obj'`))
+
+            const models = modelNames.map(n =>
+                `'${n.full}': model${n.clean}Data,`)
+            const sprites = spriteNames.map(n =>
+                `'${n.full}': { file: sprite${n.clean}, data: sprite${n.clean}Data },`)
+
+            fs.writeFileSync(dataExportFile, `// AUTOMATICALLY GENERATED FILE
+${imports.join('\n')}
+
+export const MODELS = {
+    ${models.join('\n    ')}
+}
+export const SPRITES = {
+    ${sprites.join('\n    ')}
+}
+`)
         }
 
         dist() {
             this.isProduction = true;
             const fuse = this.getConfig();
             fuse
-                .bundle("px")
-                .instructions(">index.tsx");
+                .bundle('px')
+                .instructions('>index.tsx');
             return fuse.run();
         }
 
         development() {
             const fuse = this.getConfig();
-            fuse.dev({ port: 8080, fallback: "index.html" });
+            fuse.dev({ port: 8080, fallback: 'index.html' });
             fuse
-                .bundle("px")
+                .bundle('px')
                 .sourceMaps({
                     inline: true,
                     project: true,
                     vendor: true
                 })
                 .hmr()
-                .instructions(">index.tsx")
+                .instructions('>index.tsx')
                 .watch();
             return fuse.run();
         }

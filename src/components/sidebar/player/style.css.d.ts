@@ -4,5 +4,5 @@ declare const styles: {
   readonly "invAction": string;
   readonly "stats": string;
 };
-export default styles;
+export = styles;
 

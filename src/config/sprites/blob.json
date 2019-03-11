@@ -27,7 +27,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "static/resources/sprites/blob.png",
+  "image": "src/assets/sprites/blob.png",
   "format": "RGBA8888",
   "size": { "w": 192, "h": 64 },
   "scale": "1"

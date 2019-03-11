@@ -9,5 +9,5 @@ declare const styles: {
   readonly "notice": string;
   readonly "message": string;
 };
-export default styles;
+export = styles;
 

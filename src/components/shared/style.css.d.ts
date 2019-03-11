@@ -12,5 +12,5 @@ declare const styles: {
   readonly "quality5": string;
   readonly "quality6": string;
 };
-export default styles;
+export = styles;
 

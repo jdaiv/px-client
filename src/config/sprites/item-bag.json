@@ -11,7 +11,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "static/resources/sprites/item-bag.png",
+  "image": "src/assets/sprites/item-bag.png",
   "format": "RGBA8888",
   "size": { "w": 16, "h": 16 },
   "scale": "1"

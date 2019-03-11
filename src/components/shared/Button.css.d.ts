@@ -3,5 +3,5 @@ declare const styles: {
   readonly "active": string;
   readonly "large": string;
 };
-export default styles;
+export = styles;
 

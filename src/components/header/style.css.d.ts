@@ -3,5 +3,5 @@ declare const styles: {
   readonly "status": string;
   readonly "auth": string;
 };
-export default styles;
+export = styles;
 

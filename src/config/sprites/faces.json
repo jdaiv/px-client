@@ -43,7 +43,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "static/resources/sprites/faces.png",
+  "image": "src/assets/sprites/faces.png",
   "format": "RGBA8888",
   "size": { "w": 80, "h": 16 },
   "scale": "1"

@@ -1,11 +1,23 @@
 import { mat4, vec2, vec4 } from 'gl-matrix'
-import Resources from './Resources'
 import { gl, GLMesh } from './Video'
+import errorFS from './shaders/error.fs'
+import errorVS from './shaders/error.vs'
+import hittestFS from './shaders/hittest.fs'
+import hittestVS from './shaders/hittest.vs'
+import outlineFS from './shaders/outline.fs'
+import outlineVS from './shaders/outline.vs'
+import postVS from './shaders/post.vs'
+import postbloomFS from './shaders/post_bloom.fs'
+import postnoneFS from './shaders/post_none.fs'
+import postrainbowsFS from './shaders/post_rainbows.fs'
+import postwobbleFS from './shaders/post_wobble.fs'
+import texturedFS from './shaders/textured.fs'
+import texturedVS from './shaders/textured.vs'
 
 const MATERIALS = {
     error: {
-        vs: 'error.vs',
-        fs: 'error.fs',
+        vs: errorVS,
+        fs: errorFS,
         transform: true,
 
         textured: false,
@@ -16,8 +28,8 @@ const MATERIALS = {
         time: true,
     },
     hitTest: {
-        vs: 'textured.vs',
-        fs: 'hittest.fs',
+        vs: texturedVS,
+        fs: hittestFS,
         transform: true,
 
         textured: true,
@@ -29,8 +41,8 @@ const MATERIALS = {
         time: true,
     },
     textured: {
-        vs: 'textured.vs',
-        fs: 'textured.fs',
+        vs: texturedVS,
+        fs: texturedFS,
         transform: true,
 
         textured: true,
@@ -41,8 +53,8 @@ const MATERIALS = {
         time: true,
     },
     sprite: {
-        vs: 'textured.vs',
-        fs: 'textured.fs',
+        vs: texturedVS,
+        fs: texturedFS,
         transform: true,
         cull: 0,
 
@@ -54,8 +66,8 @@ const MATERIALS = {
         time: true,
     },
     outline: {
-        vs: 'outline.vs',
-        fs: 'outline.fs',
+        vs: outlineVS,
+        fs: outlineFS,
         transform: true,
         cull: -1,
 
@@ -66,8 +78,8 @@ const MATERIALS = {
         time: false,
     },
     post_none: {
-        vs: 'post.vs',
-        fs: 'post_none.fs',
+        vs: postVS,
+        fs: postnoneFS,
         transform: false,
 
         textured: true,
@@ -77,8 +89,8 @@ const MATERIALS = {
         time: false,
     },
     post_bloom: {
-        vs: 'post.vs',
-        fs: 'post_bloom.fs',
+        vs: postVS,
+        fs: postbloomFS,
         transform: false,
 
         textured: true,
@@ -88,8 +100,8 @@ const MATERIALS = {
         time: true,
     },
     post_rainbows: {
-        vs: 'post.vs',
-        fs: 'post_rainbows.fs',
+        vs: postVS,
+        fs: postrainbowsFS,
         transform: false,
 
         textured: true,
@@ -99,8 +111,8 @@ const MATERIALS = {
         time: true,
     },
     post_wobble: {
-        vs: 'post.vs',
-        fs: 'post_wobble.fs',
+        vs: postVS,
+        fs: postwobbleFS,
         transform: false,
 
         textured: true,
@@ -113,12 +125,12 @@ const MATERIALS = {
 
 export class MaterialManager {
 
-    public static load(res: Resources): Map<string, Material> {
+    public static load(): Map<string, Material> {
         const map = new Map<string, Material>()
         console.log('loading materials')
         for (const key in MATERIALS) {
             console.log('reading material:', key)
-            map.set(key, new Material(res, MATERIALS[key]))
+            map.set(key, new Material(MATERIALS[key]))
         }
         return map
     }
@@ -144,12 +156,9 @@ export class Material {
     private timeLoc: WebGLUniformLocation
     private screenSizeLoc: WebGLUniformLocation
 
-    constructor(resources: Resources, settings: any) {
+    constructor(settings: any) {
         this.settings = settings
-        this.shader = new Shader(
-            resources.shaders.get(settings.vs).content,
-            resources.shaders.get(settings.fs).content
-        )
+        this.shader = new Shader(settings.vs, settings.fs)
         const prog = this.shader.program
 
         this.vertexPosLoc = gl.getAttribLocation(prog, 'aVertexPosition')

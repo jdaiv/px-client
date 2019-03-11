@@ -39,19 +39,7 @@ export default class AuthBox extends Component<{ auth?: AuthStore }> {
         return false
     }
 
-    public componentDidMount() {
-        this.loginReaction = reaction(() => this.props.auth.loggedIn, loggedIn => {
-            if (loggedIn === true) route('/room/public')
-        })
-    }
-
-    public componentWillUnmount() {
-        this.loginReaction()
-    }
-
     public render({ auth }) {
-        if (auth.loggedIn) route('/')
-
         const input = this.recovery ? (
             <input
                 style="margin-bottom: 0.25rem"

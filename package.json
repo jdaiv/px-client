@@ -2,7 +2,8 @@
   "scripts": {
     "start": "node fuse",
     "build": "node fuse dist",
-    "build_res": "node ./build_resources.js",
+    "build_res": "node fuse resource_build",
+    "watch_res": "node fuse resource_watch",
     "build_css": "tcm src",
     "watch_css": "tcm src --watch"
   },

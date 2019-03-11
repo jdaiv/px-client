@@ -5,5 +5,5 @@ declare const styles: {
   readonly "hide": string;
   readonly "useBtn": string;
 };
-export default styles;
+export = styles;
 

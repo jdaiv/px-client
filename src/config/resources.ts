@@ -1,70 +1,81 @@
-import * as spritearcadecab from './sprites/arcadecab.json'
-import * as spritebin from './sprites/bin.json'
-import * as spriteblob from './sprites/blob.json'
-import * as spritedummy from './sprites/dummy.json'
-import * as spriteemotes from './sprites/emotes.json'
-import * as spriteerror from './sprites/error.json'
-import * as spritefaces from './sprites/faces.json'
-import * as spritegrass from './sprites/grass.json'
-import * as spritegrid from './sprites/grid.json'
-import * as spriteitembag from './sprites/item-bag.json'
-import * as spriteloading from './sprites/loading.json'
-import * as spritepalette from './sprites/palette.json'
-import * as spriteposes from './sprites/poses.json'
-import * as spritesign from './sprites/sign.json'
-import * as spritesmalldisplayleft from './sprites/small-display-left.json'
-import * as spritesmalldisplayright from './sprites/small-display-right.json'
-import * as spritesmalldisplay from './sprites/small-display.json'
-import * as spritestationdoor from './sprites/station-door.json'
-import * as spritestationposters from './sprites/station-posters.json'
-import * as spritetest from './sprites/test.json'
-import * as spritewater from './sprites/water.json'
+// AUTOMATICALLY GENERATED FILE
+import * as spritearcadecabData from './sprites/arcadecab.json'
+import spritearcadecab from '../assets/sprites/arcadecab.png'
+import * as spritebinData from './sprites/bin.json'
+import spritebin from '../assets/sprites/bin.png'
+import * as spriteblobData from './sprites/blob.json'
+import spriteblob from '../assets/sprites/blob.png'
+import * as spritedummyData from './sprites/dummy.json'
+import spritedummy from '../assets/sprites/dummy.png'
+import * as spriteemotesData from './sprites/emotes.json'
+import spriteemotes from '../assets/sprites/emotes.png'
+import * as spriteerrorData from './sprites/error.json'
+import spriteerror from '../assets/sprites/error.png'
+import * as spritefacesData from './sprites/faces.json'
+import spritefaces from '../assets/sprites/faces.png'
+import * as spritegrassData from './sprites/grass.json'
+import spritegrass from '../assets/sprites/grass.png'
+import * as spritegridData from './sprites/grid.json'
+import spritegrid from '../assets/sprites/grid.png'
+import * as spriteitembagData from './sprites/item-bag.json'
+import spriteitembag from '../assets/sprites/item-bag.png'
+import * as spriteloadingData from './sprites/loading.json'
+import spriteloading from '../assets/sprites/loading.png'
+import * as spritepaletteData from './sprites/palette.json'
+import spritepalette from '../assets/sprites/palette.png'
+import * as spriteposesData from './sprites/poses.json'
+import spriteposes from '../assets/sprites/poses.png'
+import * as spritesignData from './sprites/sign.json'
+import spritesign from '../assets/sprites/sign.png'
+import * as spritesmalldisplayleftData from './sprites/small-display-left.json'
+import spritesmalldisplayleft from '../assets/sprites/small-display-left.png'
+import * as spritesmalldisplayrightData from './sprites/small-display-right.json'
+import spritesmalldisplayright from '../assets/sprites/small-display-right.png'
+import * as spritesmalldisplayData from './sprites/small-display.json'
+import spritesmalldisplay from '../assets/sprites/small-display.png'
+import * as spritestationdoorData from './sprites/station-door.json'
+import spritestationdoor from '../assets/sprites/station-door.png'
+import * as spritestationpostersData from './sprites/station-posters.json'
+import spritestationposters from '../assets/sprites/station-posters.png'
+import * as spritetestData from './sprites/test.json'
+import spritetest from '../assets/sprites/test.png'
+import * as spritewaterData from './sprites/water.json'
+import spritewater from '../assets/sprites/water.png'
+import modelarcadecabData from '../assets/models/arcadecab.obj'
+import modelcubeData from '../assets/models/cube.obj'
+import modeldummyData from '../assets/models/dummy.obj'
+import modelerrorData from '../assets/models/error.obj'
+import modelquadData from '../assets/models/quad.obj'
+import modelsignData from '../assets/models/sign.obj'
 
 export const MODELS = {
-    'arcadecab': 'resources/models/arcadecab.obj',
-    'cube': 'resources/models/cube.obj',
-    'dummy': 'resources/models/dummy.obj',
-    'error': 'resources/models/error.obj',
-    'quad': 'resources/models/quad.obj',
-    'sign': 'resources/models/sign.obj',
+    'arcadecab': modelarcadecabData,
+    'cube': modelcubeData,
+    'dummy': modeldummyData,
+    'error': modelerrorData,
+    'quad': modelquadData,
+    'sign': modelsignData,
 }
-
 export const SPRITES = {
-    'arcadecab': { file: 'resources/sprites/arcadecab.png', data: spritearcadecab },
-    'bin': { file: 'resources/sprites/bin.png', data: spritebin },
-    'blob': { file: 'resources/sprites/blob.png', data: spriteblob },
-    'dummy': { file: 'resources/sprites/dummy.png', data: spritedummy },
-    'emotes': { file: 'resources/sprites/emotes.png', data: spriteemotes },
-    'error': { file: 'resources/sprites/error.png', data: spriteerror },
-    'faces': { file: 'resources/sprites/faces.png', data: spritefaces },
-    'grass': { file: 'resources/sprites/grass.png', data: spritegrass },
-    'grid': { file: 'resources/sprites/grid.png', data: spritegrid },
-    'item-bag': { file: 'resources/sprites/item-bag.png', data: spriteitembag },
-    'loading': { file: 'resources/sprites/loading.png', data: spriteloading },
-    'palette': { file: 'resources/sprites/palette.png', data: spritepalette },
-    'poses': { file: 'resources/sprites/poses.png', data: spriteposes },
-    'sign': { file: 'resources/sprites/sign.png', data: spritesign },
-    'small-display-left': { file: 'resources/sprites/small-display-left.png', data: spritesmalldisplayleft },
-    'small-display-right': { file: 'resources/sprites/small-display-right.png', data: spritesmalldisplayright },
-    'small-display': { file: 'resources/sprites/small-display.png', data: spritesmalldisplay },
-    'station-door': { file: 'resources/sprites/station-door.png', data: spritestationdoor },
-    'station-posters': { file: 'resources/sprites/station-posters.png', data: spritestationposters },
-    'test': { file: 'resources/sprites/test.png', data: spritetest },
-    'water': { file: 'resources/sprites/water.png', data: spritewater },
-}
-
-export const SHADERS = {
-    'error.fs': 'resources/shaders/error.fs',
-    'error.vs': 'resources/shaders/error.vs',
-    'hittest.fs': 'resources/shaders/hittest.fs',
-    'hittest.vs': 'resources/shaders/hittest.vs',
-    'outline.fs': 'resources/shaders/outline.fs',
-    'outline.vs': 'resources/shaders/outline.vs',
-    'post.vs': 'resources/shaders/post.vs',
-    'post_bloom.fs': 'resources/shaders/post_bloom.fs',
-    'post_none.fs': 'resources/shaders/post_none.fs',
-    'post_rainbows.fs': 'resources/shaders/post_rainbows.fs',
-    'post_wobble.fs': 'resources/shaders/post_wobble.fs',
-    'textured.fs': 'resources/shaders/textured.fs',
-    'textured.vs': 'resources/shaders/textured.vs',
+    'arcadecab': { file: spritearcadecab, data: spritearcadecabData },
+    'bin': { file: spritebin, data: spritebinData },
+    'blob': { file: spriteblob, data: spriteblobData },
+    'dummy': { file: spritedummy, data: spritedummyData },
+    'emotes': { file: spriteemotes, data: spriteemotesData },
+    'error': { file: spriteerror, data: spriteerrorData },
+    'faces': { file: spritefaces, data: spritefacesData },
+    'grass': { file: spritegrass, data: spritegrassData },
+    'grid': { file: spritegrid, data: spritegridData },
+    'item-bag': { file: spriteitembag, data: spriteitembagData },
+    'loading': { file: spriteloading, data: spriteloadingData },
+    'palette': { file: spritepalette, data: spritepaletteData },
+    'poses': { file: spriteposes, data: spriteposesData },
+    'sign': { file: spritesign, data: spritesignData },
+    'small-display-left': { file: spritesmalldisplayleft, data: spritesmalldisplayleftData },
+    'small-display-right': { file: spritesmalldisplayright, data: spritesmalldisplayrightData },
+    'small-display': { file: spritesmalldisplay, data: spritesmalldisplayData },
+    'station-door': { file: spritestationdoor, data: spritestationdoorData },
+    'station-posters': { file: spritestationposters, data: spritestationpostersData },
+    'test': { file: spritetest, data: spritetestData },
+    'water': { file: spritewater, data: spritewaterData },
 }

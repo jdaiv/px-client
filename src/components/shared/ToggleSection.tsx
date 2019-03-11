@@ -19,7 +19,7 @@ export default class ToggleSection extends Component<{ title: string, open?: boo
     public render({ title, items }) {
 
         let children = this.props.children
-        if (children.length <= 0) {
+        if ((children as any[]).length <= 0) {
             children = ['empty']
         }
 

@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix'
-import { MODELS, SHADERS, SPRITES } from '../config/resources'
+import { MODELS, SPRITES } from '../config/resources'
 import Util from './Util'
 import { GLMesh, GLTexture } from './Video'
 
@@ -48,39 +48,18 @@ class SpriteResource {
 
 }
 
-class TextResource {
-
-    public src: string
-    public content: string
-
-    constructor(src: string, content: string) {
-        this.src = src
-        this.content = content
-    }
-
-    public static async load(src: string): Promise<TextResource> {
-        const r = await fetch(src)
-        const txt = await r.text()
-        return new TextResource(src, txt)
-    }
-
-}
-
 class ModelResource {
 
     public src: string
-    public text: TextResource
     public mesh: GLMesh
 
-    constructor(src: string, text: TextResource) {
+    constructor(src: string) {
         this.src = src
-        this.text = text
-        this.mesh = new GLMesh(Util.readObj(text.content))
+        this.mesh = new GLMesh(Util.readObj(src))
     }
 
     public static async load(src: string): Promise<ModelResource> {
-        const text = await TextResource.load(src)
-        return new ModelResource(src, text)
+        return new ModelResource(src)
     }
 
 }
@@ -89,12 +68,10 @@ export default class Resources {
 
     public sprites: Map<string, SpriteResource>
     public models: Map<string, ModelResource>
-    public shaders: Map<string, TextResource>
 
     constructor() {
         this.sprites = new Map()
         this.models = new Map()
-        this.shaders = new Map()
     }
 
     public async load(updateCallback: ((arg0: any) => void)): Promise<any> {
@@ -113,7 +90,7 @@ export default class Resources {
         for (const key in SPRITES) {
             const url = SPRITES[key].file
             const mapKey = key
-            console.log(`[engine/resources] loading sprite ${url}`)
+            console.log(`[engine/resources] loading sprite ${key}`)
             stats.total++
             promises.push(SpriteResource.load(url, SPRITES[key].data).then((res) => {
                 this.sprites.set(mapKey, res)
@@ -124,21 +101,10 @@ export default class Resources {
         for (const key in MODELS) {
             const url = MODELS[key]
             const mapKey = key
-            console.log(`[engine/resources] loading model ${url}`)
+            console.log(`[engine/resources] loading model ${key}`)
             stats.total++
             promises.push(ModelResource.load(url).then((res) => {
                 this.models.set(mapKey, res)
-                updateStats()
-            }))
-        }
-
-        for (const key in SHADERS) {
-            const url = SHADERS[key]
-            const mapKey = key
-            console.log(`[engine/resources] loading shader ${url}`)
-            stats.total++
-            promises.push(TextResource.load(url).then((res) => {
-                this.shaders.set(mapKey, res)
                 updateStats()
             }))
         }

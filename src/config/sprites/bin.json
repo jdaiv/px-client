@@ -11,7 +11,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "static/resources/sprites/bin.png",
+  "image": "src/assets/sprites/bin.png",
   "format": "RGBA8888",
   "size": { "w": 12, "h": 12 },
   "scale": "1"

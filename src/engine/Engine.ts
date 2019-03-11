@@ -29,12 +29,12 @@ export default class Engine {
         this.resources = new Resources()
         this.camera = new Camera()
         this.v = new Video(el, this)
+        this.materials = MaterialManager.load()
         this.overlay = new Overlay(el)
         // this.synth = new Synth()
         this.resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)
         }).then(() => {
-            this.materials = MaterialManager.load(this.resources)
             this.v.initQueue()
             this.activeStage = new Station(this)
             this.start()

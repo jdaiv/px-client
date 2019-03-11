@@ -31,7 +31,7 @@ html, body {
 	max-height: 100%;
 	overflow: hidden;
 	align-items: stretch;
-	padding-top: 1rem;
+	padding-top: 0.5rem;
 }
 
 .gameArea {
