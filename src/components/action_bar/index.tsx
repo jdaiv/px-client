@@ -1,8 +1,7 @@
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
-import UIStore from '../../stores/UIStore'
-
-import Button from '../shared/Button';
+import GameStore from '../../shared/GameStore'
+import Button from '../shared/Button'
 import style from './style.css'
 
 // import style from './style.css'
@@ -27,27 +26,26 @@ export default class ActionBar extends Component {
 
 }
 
-@inject('ui')
+@inject('game')
 @observer
-class UseBtn extends Component<{ ui?: UIStore; slot: string }> {
+class UseBtn extends Component<{ game?: GameStore; slot: string }> {
     public setSlot = () => {
-        this.props.ui.activeUseSlot = this.props.slot
+        this.props.game.activeUseSlot = this.props.slot
     }
 
-    public render({ ui, slot }) {
+    public render({ game, slot }) {
         return (
             <Button
                 onClick={this.setSlot}
-                class={'button ' + (ui.activeUseSlot === slot ? 'active' : '')}
+                class={'button ' + (game.activeUseSlot === slot ? 'active' : '')}
                 label={slot} />
         )
     }
 }
 
-@inject('ui')
 @observer
-class SkillBtn extends Component<{ ui?: UIStore; skill: string }> {
-    public render({ ui, skill }) {
+class SkillBtn extends Component<{ skill: string }> {
+    public render({ skill }) {
         return (
             <Button label={skill} />
         )

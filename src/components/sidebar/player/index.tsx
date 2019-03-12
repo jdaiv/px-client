@@ -18,36 +18,33 @@ export default class Player extends Component<{ game?: GameStore }> {
         const bag = []
         const skills = []
 
-        const gs = game.gameState
+        const gs = game.state
+        const player = game.state.activePlayer
 
-        if (gs.player) {
-            level = gs.player.level
+        if (player) {
+            level = player.level
             health = [
-                <StatBar label="HP" min={gs.player.hp} max={gs.player.maxHP} />,
-                <StatBar label="AP" min={gs.player.ap} max={gs.player.maxAP} />
+                <StatBar label="HP" min={player.hp} max={player.maxHP} />,
+                <StatBar label="AP" min={player.ap} max={player.maxAP} />
             ]
-            for (const key in gs.player.stats) {
-                if (gs.player.stats[key] > 0)
-                    stats.push(<p class={style.invItem}>{key}: {gs.player.stats[key]}</p>)
+            for (const key in player.stats) {
+                if (player.stats[key] > 0)
+                    stats.push(<p class={style.invItem}>{key}: {player.stats[key]}</p>)
             }
-            for (const key in gs.player.slots) {
+            for (const key in player.slots) {
                 equipped.push(
-                    <Gear item={{ ...gs.player.slots[key], key, equipped: true }} />)
+                    <Gear item={{ ...player.slots[key], key, equipped: true }} />)
             }
-            for (const key in gs.player.inventory) {
+            for (const key in player.inventory) {
                 bag.push(
-                    <Gear item={{ ...gs.player.inventory[key], bag: true }} />)
+                    <Gear item={{ ...player.inventory[key], bag: true }} />)
             }
-            for (const key in gs.player.skills) {
-                const s = gs.player.skills[key]
+            for (const key in player.skills) {
+                const s = player.skills[key]
                 skills.push(
                     <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
             }
         }
-
-        // skills.push(<Gear item={{ name: 'fightin\'', qty: 3 }} />)
-        // skills.push(<Gear item={{ name: 'defendin\'', qty: 3 }} />)
-        // skills.push(<Gear item={{ name: 'thinkin\'', qty: 3 }} />)
 
         const combatInfo = []
         if (gs.zone && gs.zone.combatInfo && gs.zone.combatInfo.inCombat) {
@@ -59,7 +56,7 @@ export default class Player extends Component<{ game?: GameStore }> {
             combatInfo.push(<p class={style.invItem}>combatants:</p>)
             ci.combatants.forEach((c, i) => {
                 const actor = c.isPlayer ?  gs.zone.players[c.id] : gs.zone.npcs[c.id]
-                combatInfo.push(<p class={style.invItem}>({i == ci.current ? '+' : ' '}) {actor.name} - {c.timer}</p>)
+                combatInfo.push(<p class={style.invItem}>({i === ci.current ? '+' : ' '}) {actor.name} - {c.timer}</p>)
             })
         }
 
@@ -144,7 +141,7 @@ class Gear extends Component<{ item: any }> {
         }
 
         const actions = []
-        if (item.equipped && item.type != 'empty') {
+        if (item.equipped && item.type !== 'empty') {
             actions.push(<button class={style.invAction} onClick={this.unequip}>unequip</button>)
         } else if (item.bag) {
             actions.push(<button class={style.invAction} onClick={this.equip}>equip</button>)

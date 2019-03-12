@@ -1,5 +1,6 @@
 import { vec3 } from 'gl-matrix'
-import Services from '../../services'
+import GameManager from '../../shared/GameManager'
+import GameState from '../../shared/GameState'
 import Engine from '../Engine'
 import { TILE_SIZE } from '../stages/Tiles'
 
@@ -9,48 +10,18 @@ const ONE = vec3.fromValues(1, 1, 1)
 export default class EntityManager {
 
     private engine: Engine
-    private entities: Map<number, any>
-    private players: Map<number, any>
     private playerPositions: Map<number, any>
-    private items: Map<number, any>
-    private npcs: Map<number, any>
     private activePlayer: any
+    private state: GameState
 
     constructor(engine: Engine) {
+        this.state = GameManager.instance.state
         this.engine = engine
-        this.entities = new Map()
-        this.players = new Map()
         this.playerPositions = new Map()
-        this.items = new Map()
-        this.npcs = new Map()
-        this.activePlayer = null
-    }
-
-    public set(activePlayer: any, players: any, ents: any, items: any, npcs: any) {
-        this.activePlayer = activePlayer
-        this.players.clear()
-        this.entities.clear()
-        this.items.clear()
-        this.npcs.clear()
-        for (const id in players) {
-            const p = players[id]
-            this.players.set(p.id, players[id])
-        }
-        ents.forEach((e: any) => {
-            this.entities.set(e.id, e)
-        })
-        for (const id in items) {
-            const i = items[id]
-            this.items.set(i.id, items[id])
-        }
-        for (const id in npcs) {
-            const n = npcs[id]
-            this.npcs.set(n.id, npcs[id])
-        }
     }
 
     public tick(dt: number) {
-        this.players.forEach((p, id) => {
+        this.state.players.forEach((p, id) => {
             let pos = this.playerPositions.get(id)
             if (pos) {
                 pos.target[0] = p.x * TILE_SIZE
@@ -63,7 +34,7 @@ export default class EntityManager {
                 this.playerPositions.set(id, pos)
             }
             vec3.lerp(pos.current, pos.current, pos.target, dt * 20)
-            if (this.activePlayer && this.activePlayer.id === id) {
+            if (this.state.activePlayer && this.state.activePlayer.id === id) {
                 this.engine.camera.setTarget([pos.current[0], 16, pos.current[2]])
             }
 
@@ -81,7 +52,7 @@ export default class EntityManager {
 
     public drawPlayers() {
         const rotation = ZERO
-        this.players.forEach((p, id) => {
+        this.state.players.forEach((p, id) => {
             const pos = this.playerPositions.get(id)
             if (!pos) return
             const x = pos.current[0]
@@ -101,7 +72,7 @@ export default class EntityManager {
 
     public drawNPCs() {
         const rotation = ZERO
-        this.npcs.forEach((p, id) => {
+        this.state.npcs.forEach((p, id) => {
             this.engine.v.drawSprite('blob',
                 { position: [p.x * TILE_SIZE, 0, p.y * TILE_SIZE], rotation },
                 'sprite', Math.floor(this.engine.time / 1000) % 2)
@@ -109,7 +80,7 @@ export default class EntityManager {
     }
 
     public drawEntities() {
-        this.entities.forEach((e, id) => {
+        this.state.entities.forEach((e, id) => {
             const transform = {
                 position: vec3.fromValues(e.x * TILE_SIZE, 0, e.y * TILE_SIZE),
                 scale: ONE,
@@ -149,7 +120,7 @@ export default class EntityManager {
     }
 
     public drawItems() {
-        this.items.forEach((i, id) => {
+        this.state.items.forEach((i, id) => {
             const transform = {
                 position: [i.x * TILE_SIZE, 4, i.y * TILE_SIZE],
                 scale: [0.5, 0.5, 0.5],

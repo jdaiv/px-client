@@ -1,8 +1,7 @@
 import { mat4, vec3 } from 'gl-matrix'
 import { Component, h, render } from 'preact'
-import Services from '../services'
-import EventManager from '../services/EventManager'
-import Engine from './Engine'
+import GameManager from '../shared/GameManager'
+import GameState from '../shared/GameState'
 import style from './Overlay.css'
 import { TILE_SIZE } from './stages/Tiles'
 
@@ -15,7 +14,6 @@ export default class Overlay {
 
     private base: Element
     private el: HTMLElement
-    private engine: Engine
 
     private points: Map<string, any>
     private positions: Map<string, any>
@@ -23,10 +21,6 @@ export default class Overlay {
     private elementsMap: Map<string, any>
 
     private player: any
-    private players: any
-    private entities: any
-    private items: any
-    private npcs: any
 
     public matrix: mat4
     public playerPositions: Map<string, any>
@@ -47,7 +41,7 @@ export default class Overlay {
         this.el.className = style.overlay
         el.appendChild(this.el)
 
-        EventManager.subscribe('ws/game_state', 'overlay', this.update)
+        GameManager.instance.state.registerListener(this.update)
 
         console.log('[engine/overlay] initialised')
     }
@@ -124,24 +118,17 @@ export default class Overlay {
         return changed
     }
 
-    public update = ({ data }) => {
+    public update = (state: GameState) => {
         this.points.forEach(p => p.active = false)
-
-        this.player = data.player
-        this.players = data.zone.players
-        this.entities = data.zone.entities
-        this.items = data.zone.items
-        this.npcs = data.zone.npcs
-
-        for (const id in this.players) {
+        this.player = state.activePlayer
+        state.players.forEach((x, id) => {
             const key = 'p' + id
-            const p = this.players[id]
-            const point = this.getOrCreatePoint(key, [p.x * TILE_SIZE, 24, p.y * TILE_SIZE])
+            const point = this.getOrCreatePoint(key, [x.x * TILE_SIZE, 24, x.y * TILE_SIZE])
             point.changed = true
-            point.player = p
-        }
-        this.entities.forEach(e => {
-            const key = 'e' + e.id
+            point.player = x
+        })
+        state.entities.forEach((e, id) => {
+            const key = 'e' + id
             let offset: number
             switch (e.type) {
             case 'sign':
@@ -161,20 +148,18 @@ export default class Overlay {
             point.changed = true
             point.entity = e
         })
-        for (const id in this.items) {
+        state.items.forEach((x, id) => {
             const key = 'i' + id
-            const i = this.items[id]
-            const point = this.getOrCreatePoint(key, [i.x * TILE_SIZE, 4, i.y * TILE_SIZE])
+            const point = this.getOrCreatePoint(key, [x.x * TILE_SIZE, 4, x.y * TILE_SIZE])
             point.changed = true
-            point.item = i
-        }
-        for (const id in this.npcs) {
+            point.item = x
+        })
+        state.npcs.forEach((x, id) => {
             const key = 'n' + id
-            const n = this.npcs[id]
-            const point = this.getOrCreatePoint(key, [n.x * TILE_SIZE, 10, n.y * TILE_SIZE])
+            const point = this.getOrCreatePoint(key, [x.x * TILE_SIZE, 10, x.y * TILE_SIZE])
             point.changed = true
-            point.npc = n
-        }
+            point.npc = x
+        })
     }
 
     public createElement() {
@@ -268,12 +253,12 @@ export default class Overlay {
 class Nametag extends Component<{ player: any; me: any }> {
     public click = () => {
         if (this.props.player.alignment !== 'hostile') return
-        Services.socket.send('game_action', {
-            type: 'attack',
-            params: {
-                id: this.props.player.id
-            }
-        })
+        // Services.socket.send('game_action', {
+        //     type: 'attack',
+        //     params: {
+        //         id: this.props.player.id
+        //     }
+        // })
     }
 
     public render({ player, me }) {
@@ -284,9 +269,9 @@ class Nametag extends Component<{ player: any; me: any }> {
         return (
             <div class={style.pointInner}>
                 <button class={style.useBtn} onClick={canAttack ? this.click : null}>
-                    { canAttack && player.alignment === 'hostile' ? <em>attack<br /></em> : '' }
-                    { player.name } - L0<br />
-                    HP { player.hp } / { player.maxHP }
+                    {canAttack && player.alignment === 'hostile' ? <em>attack<br /></em> : ''}
+                    {player.name} - L0<br />
+                    HP {player.hp} / {player.maxHP}
                 </button>
             </div>
         )
@@ -295,12 +280,12 @@ class Nametag extends Component<{ player: any; me: any }> {
 
 class Entity extends Component<{ player: any; entity: any }> {
     public click = () => {
-        Services.socket.send('game_action', {
-            type: 'use',
-            params: {
-                id: this.props.entity.id
-            }
-        })
+        // Services.socket.send('game_action', {
+        //     type: 'use',
+        //     params: {
+        //         id: this.props.entity.id
+        //     }
+        // })
     }
 
     public render({ entity, player }) {
@@ -311,12 +296,12 @@ class Entity extends Component<{ player: any; entity: any }> {
         }
 
         if (!entity.usable) {
-            return <div class={classes.join(' ')}><p>{ entity.name }</p></div>
+            return <div class={classes.join(' ')}><p>{entity.name}</p></div>
         }
 
         return (
             <div class={classes.join(' ')}>
-                <button class={style.useBtn} onClick={this.click}><em>{ entity.useText }</em> { entity.name }</button>
+                <button class={style.useBtn} onClick={this.click}><em>{entity.useText}</em> {entity.name}</button>
             </div>
         )
     }
@@ -324,12 +309,12 @@ class Entity extends Component<{ player: any; entity: any }> {
 
 class Item extends Component<{ player: any; item: any }>  {
     public click = () => {
-        Services.socket.send('game_action', {
-            type: 'take_item',
-            params: {
-                id: this.props.item.id
-            }
-        })
+        // Services.socket.send('game_action', {
+        //     type: 'take_item',
+        //     params: {
+        //         id: this.props.item.id
+        //     }
+        // })
     }
 
     public render({ item, player }) {
@@ -341,7 +326,7 @@ class Item extends Component<{ player: any; item: any }>  {
 
         return (
             <div class={classes.join(' ')}>
-                <button class={style.useBtn} onClick={this.click}><em>take</em> { item.name }</button>
+                <button class={style.useBtn} onClick={this.click}><em>take</em> {item.name}</button>
             </div>
         )
     }

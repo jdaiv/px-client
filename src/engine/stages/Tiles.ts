@@ -1,4 +1,6 @@
 import { vec3 } from 'gl-matrix'
+import GameManager from '../../shared/GameManager';
+import GameState from '../../shared/GameState';
 import Engine from '../Engine'
 
 export const TILE_SIZE = 16
@@ -11,18 +13,22 @@ export default class Tiles {
     constructor(engine: Engine) {
         this.engine = engine
         this.tiles = []
+        GameManager.instance.state.registerListener(this.set)
     }
 
-    public set({ map, width, height }) {
+    private set = (state: GameState) => {
         this.tiles.length = 0
-        map.forEach((t: any, i: number) => {
+        state.tiles.forEach((t: any, i: number) => {
             this.tiles.push({
                 type: t.type,
-                position: [
-                    Math.floor(i % width) * TILE_SIZE,
-                    -TILE_SIZE / 2,
-                    Math.floor(i / width) * TILE_SIZE,
-                ],
+                position: vec3.multiply(
+                    vec3.create(),
+                    t.position,
+                    [
+                        TILE_SIZE,
+                        -TILE_SIZE / 2,
+                        TILE_SIZE,
+                    ]),
                 rotation: vec3.create(),
                 scale: vec3.fromValues(1, 1, 1)
             })

@@ -1,6 +1,4 @@
 import { vec3 } from 'gl-matrix'
-
-import Services from '../../services'
 import Entity from '../Entity'
 
 export default class Player extends Entity {
@@ -9,12 +7,6 @@ export default class Player extends Entity {
     public keysDown: Map<string, boolean>
 
     public init() {
-        // this.body = this.addComponent('body', new Sprite3D('poses'))
-        // this.body.frame = 0
-        // this.face = this.addComponent('face', new Sprite3D('faces', 0, 0, 0.5))
-        // this.face.frame = 4
-        // this.faceTimer = 0
-
         this.keysDown = new Map()
 
         window.addEventListener('keydown', this.keydown)
@@ -28,16 +20,9 @@ export default class Player extends Entity {
         super.destroy()
     }
 
-    public tick(dt: number) {
-        this.keysDown.forEach((v, k) => {
-            if (!v) return
-
-        })
-    }
-
     public keydown = (evt: KeyboardEvent) => {
         this.keysDown.set(evt.code, true)
-        let direction
+        let direction: string
         switch (evt.code) {
         case 'ArrowLeft':
             direction = 'W'

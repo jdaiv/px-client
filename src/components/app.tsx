@@ -1,25 +1,21 @@
 import { observer, Provider } from 'mobx-preact'
 import { Component, h } from 'preact'
 import GameManager from '../shared/GameManager'
-import GameStore from '../shared/GameStore'
 import style from '../style/index.css'
 import ActionBar from './action_bar'
 import ContentPortal from './content_portal'
 import Header from './header'
 import Sidebar from './sidebar'
 
-const gameStore = new GameStore()
-const gameManager = new GameManager(gameStore)
+const gameManager = new GameManager()
 
 // tslint:disable-next-line: no-namespace
 declare namespace window {
-    let gameStore: GameStore
     let gameManager: GameManager
 }
 
 if (typeof window !== 'undefined') {
     if (window.gameManager) window.gameManager.socket.destroy()
-    window.gameStore = gameStore
     window.gameManager = gameManager
 }
 
@@ -28,13 +24,13 @@ export default class App extends Component {
     public render() {
         return (
             <div class={style.app}>
-                <Provider game={gameStore}>
+                <Provider game={gameManager.store}>
                     <Header />
                     <div class={style.container}>
                         <Sidebar />
                         <div class={style.gameArea}>
-                            {/* <ContentPortal /> */}
-                            {/* <ActionBar /> */}
+                            <ContentPortal />
+                            <ActionBar />
                         </div>
                     </div>
                 </Provider>

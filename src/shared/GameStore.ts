@@ -1,4 +1,5 @@
 import { action, observable } from 'mobx'
+import GameState from './GameState'
 
 class UserObject {
     @observable public id: number
@@ -39,8 +40,12 @@ export default class GameStore {
     public connection = new ConnectionInfo()
     public settings = new GameSettings()
     public chatLog = new ChatLog()
+    public state: GameState
 
-    @observable.shallow public gameState: any = {}
     @observable public activeUseSlot = 'empty'
+
+    constructor(state: GameState) {
+        this.state = state
+    }
 
 }

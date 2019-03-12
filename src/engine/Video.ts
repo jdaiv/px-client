@@ -1,11 +1,11 @@
 import { mat4, quat, vec2, vec3, vec4 } from 'gl-matrix'
 import { autorun } from 'mobx'
-import Services from '../services'
+import GameManager from '../shared/GameManager'
 import Engine from './Engine'
 import { Material } from './Materials'
 import Resources from './Resources'
 
-let SCALE = 4
+let SCALE = 2
 const INIT_QUEUE_SIZE = 16
 
 export let gl: WebGLRenderingContext
@@ -26,7 +26,6 @@ export default class Video {
     private el: HTMLCanvasElement
     private engine: Engine
     private resources: Resources
-    private ctx: WebGLRenderingContext
 
     private fboReady: boolean
     private fbos: GLFBO[]
@@ -48,7 +47,7 @@ export default class Video {
         this.engine = engine
         this.resources = engine.resources
 
-        gl = this.ctx = this.el.getContext('webgl', {
+        gl = this.el.getContext('webgl', {
             antialias: false
         })
 
@@ -74,7 +73,7 @@ export default class Video {
         this.el.addEventListener('mouseleave', () => { this.mouseActive = false })
 
         autorun(() => {
-            SCALE = Services.ui.quality
+            SCALE = GameManager.instance.store.settings.quality
             this.resize()
         }, { delay: 250 })
 
@@ -83,10 +82,10 @@ export default class Video {
     }
 
     public initQueue() {
-        this.engine.materials.forEach((mat, key) => {
+        this.engine.materials.forEach((_, key) => {
             const map = new Map()
             this.queue.set(key, map)
-            this.engine.resources.models.forEach((model, mKey) => {
+            this.engine.resources.models.forEach((__, mKey) => {
                 const array = new Array(INIT_QUEUE_SIZE)
                 for (let i = 0; i < INIT_QUEUE_SIZE; i++) {
                     array[i] = {

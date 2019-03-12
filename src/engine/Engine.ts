@@ -1,6 +1,4 @@
-// import Overlay from './Overlay'
 // import Synth from './audio/Synth'
-import UIStore from '../shared/GameStore'
 import Camera from './Camera'
 import { Material, MaterialManager } from './Materials'
 import Overlay from './Overlay'
@@ -13,7 +11,6 @@ export default class Engine {
 
     public resources: Resources
     public materials: Map<string, Material>
-    public ui: UIStore
     public camera: Camera
     public v: Video
     public activeStage: Stage
@@ -23,22 +20,21 @@ export default class Engine {
     public dt: number
     public raf: number
 
-    constructor(el: HTMLElement, ui: UIStore) {
+    constructor(el: HTMLElement) {
         console.log('[engine] starting...')
-        // this.ui = ui
-        // this.resources = new Resources()
-        // this.camera = new Camera()
-        // this.v = new Video(el, this)
-        // this.materials = MaterialManager.load()
-        // this.overlay = new Overlay(el)
-        // // this.synth = new Synth()
-        // this.resources.load(({ done, total }) => {
-        //     console.log(`[engine/resources] loaded ${done}/${total}`)
-        // }).then(() => {
-        //     this.v.initQueue()
-        //     this.activeStage = new Station(this)
-        //     this.start()
-        // })
+        this.resources = new Resources()
+        this.camera = new Camera()
+        this.v = new Video(el, this)
+        this.materials = MaterialManager.load()
+        this.overlay = new Overlay(el)
+        // this.synth = new Synth()
+        this.resources.load(({ done, total }) => {
+            console.log(`[engine/resources] loaded ${done}/${total}`)
+        }).then(() => {
+            this.v.initQueue()
+            this.activeStage = new Station(this)
+            this.start()
+        })
     }
 
     public start() {

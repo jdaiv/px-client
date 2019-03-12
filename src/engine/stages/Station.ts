@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix'
-import EventManager from '../../services/EventManager'
+import GameManager from '../../shared/GameManager'
 import Engine from '../Engine'
 import EntityManager from '../entities/EntityManager'
 import Player from '../entities/Player'
@@ -35,22 +35,10 @@ export default class Station extends Stage {
 
         this.data = {}
         this.playerPositions = new Map()
-        EventManager.subscribe(
-            'ws/game_state',
-            'game',
-            ({ data }) => {
-                if (this.debug) return
-                this.data = data
-                this.loading = false
-                this.tiles.set(data.zone)
-                this.entityManager.set(data.player,
-                    data.zone.players,
-                    data.zone.entities,
-                    data.zone.items,
-                    data.zone.npcs)
-                // this.debug = true
-            })
-        EventManager.subscribe('ws/play_effect', 'game', ({ data }) => {this.effects.handleEffect(data)})
+        GameManager.instance.state.registerListener((state) => {
+            this.loading = !state.valid
+        })
+        // EventManager.subscribe('ws/play_effect', 'game', ({ data }) => {this.effects.handleEffect(data)})
     }
 
     public tick(dt: number) {

@@ -1,4 +1,5 @@
 import Auth from './Auth'
+import GameState from './GameState'
 import GameStore from './GameStore'
 import Socket from './Socket'
 
@@ -6,18 +7,20 @@ export default class GameManager {
 
 // tslint:disable-next-line: variable-name
     private static _instance: GameManager
-    private static get instance(): GameManager {
+    public static get instance(): GameManager {
         return this._instance
     }
 
+    public state: GameState
     public store: GameStore
     public auth: Auth
     public socket: Socket
 
-    constructor(store: GameStore) {
-        this.store = store
-        this.auth = new Auth(store)
-        this.socket = new Socket(store, this.auth, this.onData)
+    constructor() {
+        this.state = new GameState()
+        this.store = new GameStore(this.state)
+        this.auth = new Auth(this.store)
+        this.socket = new Socket(this.store, this.auth, this.onData)
         this.socket.open()
         GameManager._instance = this
     }
@@ -25,7 +28,7 @@ export default class GameManager {
     public onData(type: string, { error, data }) {
         switch (type) {
         case 'game_state':
-            if (error === 0) this.store.gameState = data
+            if (error === 0) this.store.state.readData(data)
             break
 
         case 'list_users':

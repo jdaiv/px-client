@@ -1,9 +1,8 @@
 import { mat4, vec2, vec4 } from 'gl-matrix'
-import { gl, GLMesh } from './Video'
 import errorFS from './shaders/error.fs'
 import errorVS from './shaders/error.vs'
 import hittestFS from './shaders/hittest.fs'
-import hittestVS from './shaders/hittest.vs'
+// import hittestVS from './shaders/hittest.vs'
 import outlineFS from './shaders/outline.fs'
 import outlineVS from './shaders/outline.vs'
 import postVS from './shaders/post.vs'
@@ -13,6 +12,7 @@ import postrainbowsFS from './shaders/post_rainbows.fs'
 import postwobbleFS from './shaders/post_wobble.fs'
 import texturedFS from './shaders/textured.fs'
 import texturedVS from './shaders/textured.vs'
+import { gl, GLMesh } from './Video'
 
 const MATERIALS = {
     error: {
