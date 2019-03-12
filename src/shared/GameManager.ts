@@ -11,6 +11,8 @@ export default class GameManager {
         return this._instance
     }
 
+    public promises = new Map<string, Promise<any>>()
+
     public state: GameState
     public store: GameStore
     public auth: Auth
@@ -25,19 +27,52 @@ export default class GameManager {
         GameManager._instance = this
     }
 
-    public onData(type: string, { error, data }) {
+    private onData = (type: string, { error, data }) => {
         switch (type) {
         case 'game_state':
             if (error === 0) this.store.state.readData(data)
             break
 
         case 'list_users':
+            const pKey = 'list'
+            if (this.promises[pKey]) {
+                if (error !== 0) {
+                    this.promises[pKey].reject()
+                } else {
+                    this.promises[pKey].resolve(data)
+                }
+                delete this.promises[pKey]
+            }
             break
 
         case 'chat_message':
             this.store.chatLog.addEntry(data)
             break
         }
+    }
+
+    public destroy() {
+        this.socket.destroy()
+    }
+
+    public send(msg: string) {
+        this.socket.send('chat_message', {
+            content: msg
+        })
+    }
+
+    public getUserList(): Promise<any> {
+        const pKey = 'list'
+        if (!this.promises[pKey]) {
+            const newP: any = {}
+            this.socket.send('list_users')
+            newP.p = new Promise((resolve, reject) => {
+                newP.resolve = resolve
+                newP.reject = reject
+            })
+            this.promises[pKey] = newP
+        }
+        return this.promises[pKey].p
     }
 
 }

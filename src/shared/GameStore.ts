@@ -18,8 +18,13 @@ class GameSettings {
     @observable public quality: number = 2
 }
 
+interface IChatMessage {
+    notice: boolean
+    content: string
+}
+
 class ChatLog {
-    @observable.shallow public log: string[] = []
+    @observable.shallow public log: IChatMessage[] = []
     @observable.shallow public userList: string[] = []
 
     @action.bound
@@ -30,7 +35,7 @@ class ChatLog {
         } else {
             formatted = `(${data.class || 'system'}) ${content}`
         }
-        this.log.push(formatted)
+        this.log.push({ notice: data.class === 'server', content: formatted })
     }
 }
 

@@ -1,6 +1,7 @@
-import { observable, ObservableSet } from 'mobx'
+import { observable } from 'mobx'
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
+import GameManager from '../../../shared/GameManager'
 import GameStore from '../../../shared/GameStore'
 import Tabs from '../../shared/Tabs'
 import Input from './Input'
@@ -12,9 +13,9 @@ class UserList extends Component {
     @observable public users = ['Loading...']
 
     public componentDidMount() {
-        // Services.getUserList().then((list) => {
-        //     (this.users as any).replace(list)
-        // })
+        GameManager.instance.getUserList().then((list) => {
+            (this.users as any).replace(list)
+        })
     }
 
     public render() {

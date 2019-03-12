@@ -1,5 +1,6 @@
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
+import GameManager from '../../../shared/GameManager'
 import GameStore from '../../../shared/GameStore'
 import Button from '../../shared/Button'
 import style from './style.css'
@@ -11,7 +12,7 @@ export default class Input extends Component<{ game?: GameStore }> {
         evt.preventDefault()
         const message = evt.target.elements.message.value
         if (message.length > 0) {
-            // Services.send(message)
+            GameManager.instance.send(message)
             evt.target.reset()
         }
     }
@@ -19,7 +20,7 @@ export default class Input extends Component<{ game?: GameStore }> {
     public render({ game }) {
         return (
             <form
-                  class={style.form + ' ' + (game.connection.validUser.loggedIn ? '' : style.disabled)}
+                  class={style.form + ' ' + (game.connection.validUser ? '' : style.disabled)}
                   onSubmit={this.submit}
             >
                 <input name="message" autocomplete="off" placeholder="message" />
