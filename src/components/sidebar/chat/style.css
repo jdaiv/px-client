@@ -17,18 +17,6 @@
     margin: 0 0 0.5rem 0;
 }
 
-.options {
-    display: flex;
-    margin: 0 0 0.5rem 0;
-
-}
-
-.options > a, .options > button {
-    flex: 1;
-    margin: 0.25rem;
-    text-align: center;
-}
-
 .active {
     background: #0e0;
     color: #000;
@@ -41,7 +29,7 @@
 .form {
     width: 100%;
     display: flex;
-    flex: 0 0 3rem;
+    flex: 0 0 2.5rem;
 }
 
 .form input {
@@ -49,18 +37,26 @@
     flex: 1;
     margin: 0;
     font-family: monospace;
-    padding: 0.5rem;
+    padding: 0 1rem;
     font-size: 1rem;
+    line-height: 1;
 }
 
-.form input[type=text] {
-    border: 0;
+.form > input[type=text] {
+    border: 1px solid #0f0;
+    background: #000;
+    color: #0f0;
     outline: 0;
+    padding: 0 0.5rem;
 }
 
-.form input[type=submit] {
+.form > input[type=text]::placeholder {
+    color: #060;
+}
+
+.form > input[type=submit] {
     flex: 0;
-    margin-left: 1rem;
+    border-left: 0;
 }
 
 .disabled {

@@ -23,7 +23,7 @@ export default class Input extends Component<{ game?: GameStore }> {
                   class={style.form + ' ' + (game.connection.validUser ? '' : style.disabled)}
                   onSubmit={this.submit}
             >
-                <input name="message" autocomplete="off" placeholder="message" />
+                <input type="text" name="message" autocomplete="off" placeholder="message..." />
                 <Button large={true} submit={true} label="send" />
             </form>
         )
