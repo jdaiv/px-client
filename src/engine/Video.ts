@@ -357,8 +357,6 @@ export class GLTexture {
 
 export class GLMesh {
 
-    private raw: any
-
     public verts: Float32Array
     public normals: Float32Array
     public uvs: Float32Array
@@ -368,7 +366,6 @@ export class GLMesh {
     public uvsBuffer: WebGLBuffer
 
     constructor(rawMesh: any) {
-        this.raw = rawMesh
         this.setVerts(rawMesh.verts)
         this.setUVs(rawMesh.uvs)
         if (rawMesh.normals) this.setNormals(rawMesh.normals)

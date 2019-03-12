@@ -38,7 +38,7 @@ export default class Station extends Stage {
         GameManager.instance.state.registerListener((state) => {
             this.loading = !state.valid
         })
-        // EventManager.subscribe('ws/play_effect', 'game', ({ data }) => {this.effects.handleEffect(data)})
+        GameManager.instance.onEffect = this.effects.handleEffect
     }
 
     public tick(dt: number) {

@@ -1,6 +1,7 @@
 import { observable, reaction } from 'mobx'
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
+import GameManager from '../../shared/GameManager'
 import GameStore from '../../shared/GameStore'
 import Button from '../shared/Button'
 import style from './style.css'
@@ -13,22 +14,22 @@ export default class AuthBox extends Component<{ game?: GameStore }> {
     @observable private recovery = false
 
     private login = (evt: Event) => {
-        // evt.preventDefault()
-        // const fields = (evt.target as any).elements
-        // let authMethod: Promise<any>
-        // if (this.recovery) {
-        //     authMethod = Services.auth.login(fields.password.value)
-        // } else {
-        //     authMethod = Services.auth.createUser(fields.username.value)
-        // }
-        // authMethod.then(
-        //     ({ error, message }) => {
-        //         if (error !== 0) {
-        //             this.error = message
-        //         } else {
-        //             this.error = null
-        //         }
-        //     })
+        evt.preventDefault()
+        const fields = (evt.target as any).elements
+        let authMethod: Promise<any>
+        if (this.recovery) {
+            authMethod = GameManager.instance.auth.login(fields.password.value)
+        } else {
+            authMethod = GameManager.instance.auth.createUser(fields.username.value)
+        }
+        authMethod.then(
+            ({ error, message }) => {
+                if (error !== 0) {
+                    this.error = message
+                } else {
+                    this.error = null
+                }
+            })
     }
 
     private toggleMode = (evt: Event) => {

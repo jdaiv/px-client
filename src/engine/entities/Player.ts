@@ -1,4 +1,5 @@
 import { vec3 } from 'gl-matrix'
+import GameManager from '../../shared/GameManager';
 import Entity from '../Entity'
 
 export default class Player extends Entity {
@@ -39,12 +40,7 @@ export default class Player extends Entity {
         default:
             return
         }
-        Services.socket.send('game_action', {
-            type: 'move',
-            params: {
-                direction
-            }
-        })
+        GameManager.instance.playerMove(direction)
     }
 
     public keyup = (evt: KeyboardEvent) => {

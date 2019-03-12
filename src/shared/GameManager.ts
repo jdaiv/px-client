@@ -18,6 +18,8 @@ export default class GameManager {
     public auth: Auth
     public socket: Socket
 
+    public onEffect: (arg0: any) => void
+
     constructor() {
         this.state = new GameState()
         this.store = new GameStore(this.state)
@@ -31,6 +33,12 @@ export default class GameManager {
         switch (type) {
         case 'game_state':
             if (error === 0) this.store.state.readData(data)
+            break
+
+        case 'play_effect':
+            if (this.onEffect) {
+                this.onEffect(data)
+            }
             break
 
         case 'list_users':
@@ -73,6 +81,48 @@ export default class GameManager {
             this.promises[pKey] = newP
         }
         return this.promises[pKey].p
+    }
+
+    public playerMove(direction: string) {
+        this.socket.send('game_action', {
+            type: 'move', params: { direction }
+        })
+    }
+
+    public playerEquipItem(id: number) {
+        this.socket.send('game_action', {
+            type: 'equip_item', params: { id }
+        })
+    }
+
+    public playerUnquipItem(slot: string) {
+        this.socket.send('game_action', {
+            type: 'unequip_item', params: { slot }
+        })
+    }
+
+    public playerDropItem(id: number) {
+        this.socket.send('game_action', {
+            type: 'drop_item', params: { id }
+        })
+    }
+
+    public playerTakeItem(id: number) {
+        this.socket.send('game_action', {
+            type: 'take_item', params: { id }
+        })
+    }
+
+    public playerAttack(id: number) {
+        this.socket.send('game_action', {
+            type: 'attack', params: { id }
+        })
+    }
+
+    public playerUse(id: number) {
+        this.socket.send('game_action', {
+            type: 'use', params: { id }
+        })
     }
 
 }

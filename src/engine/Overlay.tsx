@@ -253,12 +253,7 @@ export default class Overlay {
 class Nametag extends Component<{ player: any; me: any }> {
     public click = () => {
         if (this.props.player.alignment !== 'hostile') return
-        // Services.socket.send('game_action', {
-        //     type: 'attack',
-        //     params: {
-        //         id: this.props.player.id
-        //     }
-        // })
+        GameManager.instance.playerAttack(this.props.player.id)
     }
 
     public render({ player, me }) {
@@ -279,14 +274,7 @@ class Nametag extends Component<{ player: any; me: any }> {
 }
 
 class Entity extends Component<{ player: any; entity: any }> {
-    public click = () => {
-        // Services.socket.send('game_action', {
-        //     type: 'use',
-        //     params: {
-        //         id: this.props.entity.id
-        //     }
-        // })
-    }
+    public click = () => GameManager.instance.playerUse(this.props.entity.id)
 
     public render({ entity, player }) {
         const classes = [style.pointInner]
@@ -308,14 +296,7 @@ class Entity extends Component<{ player: any; entity: any }> {
 }
 
 class Item extends Component<{ player: any; item: any }>  {
-    public click = () => {
-        // Services.socket.send('game_action', {
-        //     type: 'take_item',
-        //     params: {
-        //         id: this.props.item.id
-        //     }
-        // })
-    }
+    public click = () => GameManager.instance.playerTakeItem(this.props.item.id)
 
     public render({ item, player }) {
         const classes = [style.pointInner]

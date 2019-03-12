@@ -1,6 +1,7 @@
 import { observable } from 'mobx'
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
+import GameManager from '../../../shared/GameManager'
 import GameStore from '../../../shared/GameStore'
 import ItemLabel from '../../shared/ItemLabel'
 import StatBar from '../../shared/StatBar'
@@ -77,38 +78,10 @@ export default class Player extends Component<{ game?: GameStore }> {
 
 @observer
 class Gear extends Component<{ item: any }> {
-    private equip = () => {
-        // Services.socket.send('game_action', {
-        //     type: 'equip_item',
-        //     params: {
-        //         id: this.props.item.id
-        //     }
-        // })
-    }
-    private unequip = () => {
-        // Services.socket.send('game_action', {
-        //     type: 'unequip_item',
-        //     params: {
-        //         slot: this.props.item.key
-        //     }
-        // })
-    }
-    private drop = () => {
-        // Services.socket.send('game_action', {
-        //     type: 'drop_item',
-        //     params: {
-        //         id: this.props.item.id
-        //     }
-        // })
-    }
-    private use = () => {
-        // Services.socket.send('game_action', {
-        //     type: 'use_item',
-        //     params: {
-        //         id: this.props.item.id
-        //     }
-        // })
-    }
+    private equip = () => GameManager.instance.playerEquipItem(this.props.item.id)
+    private unequip = () => GameManager.instance.playerUnquipItem(this.props.item.key)
+    private drop = () => GameManager.instance.playerDropItem(this.props.item.id)
+    private use = () => GameManager.instance.playerEquipItem(this.props.item.id)
 
     @observable public statsVisible = false
 

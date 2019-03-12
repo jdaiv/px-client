@@ -20,7 +20,7 @@ export default class Effects {
         this.engine = engine
     }
 
-    public handleEffect(data: any) {
+    public handleEffect = (data: any) => {
         if (data.type === 'wood_ex') {
             for (let i = 0; i < 20; i++) {
                 this.parent.particles.push({

@@ -1,5 +1,6 @@
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
+import GameManager from '../../shared/GameManager'
 import GameStore from '../../shared/GameStore'
 import Button from '../shared/Button'
 import style from './style.css'
@@ -8,8 +9,8 @@ import style from './style.css'
 @observer
 export default class Header extends Component<{ game?: GameStore }> {
 
-    // private reconnect = () => Services.socket.open(true)
-    // private logout = () => Services.auth.logout()
+    private reconnect = () => GameManager.instance.socket.open(true)
+    // private logout = () => GameManager.instance.auth.logout()
 
     public render({ game }) {
         return (
@@ -18,7 +19,7 @@ export default class Header extends Component<{ game?: GameStore }> {
                     {game.connection.connected ?
                         'connected to server' :
                         <span>
-                            {/* <Button label="reconnect" onClick={this.reconnect} /> */}
+                            <Button label="reconnect" onClick={this.reconnect} />
                             &nbsp;disconnected from server
                         </span>
                     }
