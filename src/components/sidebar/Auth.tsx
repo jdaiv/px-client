@@ -1,36 +1,34 @@
 import { observable, reaction } from 'mobx'
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
-import Services from '../../services'
-import AuthStore from '../../stores/AuthStore'
+import GameStore from '../../shared/GameStore'
 import Button from '../shared/Button'
-
 import style from './style.css'
 
-@inject('auth')
+@inject('game')
 @observer
-export default class AuthBox extends Component<{ auth?: AuthStore }> {
+export default class AuthBox extends Component<{ game?: GameStore }> {
     private loginReaction: any
     @observable private error = null
     @observable private recovery = false
 
     private login = (evt: Event) => {
-        evt.preventDefault()
-        const fields = (evt.target as any).elements
-        let authMethod: Promise<any>
-        if (this.recovery) {
-            authMethod = Services.auth.login(fields.password.value)
-        } else {
-            authMethod = Services.auth.createUser(fields.username.value)
-        }
-        authMethod.then(
-            ({ error, message }) => {
-                if (error !== 0) {
-                    this.error = message
-                } else {
-                    this.error = null
-                }
-            })
+        // evt.preventDefault()
+        // const fields = (evt.target as any).elements
+        // let authMethod: Promise<any>
+        // if (this.recovery) {
+        //     authMethod = Services.auth.login(fields.password.value)
+        // } else {
+        //     authMethod = Services.auth.createUser(fields.username.value)
+        // }
+        // authMethod.then(
+        //     ({ error, message }) => {
+        //         if (error !== 0) {
+        //             this.error = message
+        //         } else {
+        //             this.error = null
+        //         }
+        //     })
     }
 
     private toggleMode = (evt: Event) => {
@@ -39,7 +37,7 @@ export default class AuthBox extends Component<{ auth?: AuthStore }> {
         return false
     }
 
-    public render({ auth }) {
+    public render({ game }) {
         const input = this.recovery ? (
             <input
                 style="margin-bottom: 0.25rem"
@@ -63,7 +61,7 @@ export default class AuthBox extends Component<{ auth?: AuthStore }> {
         )
 
         return (
-            <form class={style.form + ' ' + (auth.processing ? style.disabled : '')} onSubmit={this.login}>
+            <form class={style.form + ' ' + (game.connection.processing ? style.disabled : '')} onSubmit={this.login}>
                 <h2>welcome!</h2>
                 <p>to <strong>the panic express</strong>, we hope you enjoy your stay</p>
                 <hr class={style.hr} />

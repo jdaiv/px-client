@@ -1,20 +1,16 @@
 import { observable } from 'mobx'
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
-import Services from '../../../services'
-import AuthStore from '../../../stores/AuthStore'
-import UIStore from '../../../stores/UIStore'
+import GameStore from '../../../shared/GameStore'
 import ItemLabel from '../../shared/ItemLabel'
+import StatBar from '../../shared/StatBar'
 import ToggleSection from '../../shared/ToggleSection'
-
 import style from './style.css'
-import StatBar from '../../shared/StatBar';
 
-@inject('ui')
-@inject('auth')
+@inject('game')
 @observer
-export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }> {
-    public render({ ui, auth }) {
+export default class Player extends Component<{ game?: GameStore }> {
+    public render({ game }) {
         let level: number
         let health = []
         const stats = []
@@ -22,7 +18,7 @@ export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }
         const bag = []
         const skills = []
 
-        const gs = ui.gameState
+        const gs = game.gameState
 
         if (gs.player) {
             level = gs.player.level
@@ -69,53 +65,52 @@ export default class Player extends Component<{ ui?: UIStore; auth?: AuthStore }
 
         return (
             <div>
-                <h2 class={style.heading}>player: { auth.username }</h2>
-                <p>level { level } player</p>
-                { health }
-                <ToggleSection title="stats">{ stats }</ToggleSection>
-                <ToggleSection title="equipped" open={true}>{ equipped }</ToggleSection>
-                <ToggleSection title="bag">{ bag }</ToggleSection>
-                <ToggleSection title="skills">{ skills }</ToggleSection>
-                { combatInfo }
+                <h2 class={style.heading}>player: {game.user.username}</h2>
+                <p>level {level} player</p>
+                {health}
+                <ToggleSection title="stats">{stats}</ToggleSection>
+                <ToggleSection title="equipped" open={true}>{equipped}</ToggleSection>
+                <ToggleSection title="bag">{bag}</ToggleSection>
+                <ToggleSection title="skills">{skills}</ToggleSection>
+                {combatInfo}
             </div>
         )
     }
 }
 
-@inject('ui')
 @observer
-class Gear extends Component<{ ui?: UIStore, item: any }> {
+class Gear extends Component<{ item: any }> {
     private equip = () => {
-        Services.socket.send('game_action', {
-            type: 'equip_item',
-            params: {
-                id: this.props.item.id
-            }
-        })
+        // Services.socket.send('game_action', {
+        //     type: 'equip_item',
+        //     params: {
+        //         id: this.props.item.id
+        //     }
+        // })
     }
     private unequip = () => {
-        Services.socket.send('game_action', {
-            type: 'unequip_item',
-            params: {
-                slot: this.props.item.key
-            }
-        })
+        // Services.socket.send('game_action', {
+        //     type: 'unequip_item',
+        //     params: {
+        //         slot: this.props.item.key
+        //     }
+        // })
     }
     private drop = () => {
-        Services.socket.send('game_action', {
-            type: 'drop_item',
-            params: {
-                id: this.props.item.id
-            }
-        })
+        // Services.socket.send('game_action', {
+        //     type: 'drop_item',
+        //     params: {
+        //         id: this.props.item.id
+        //     }
+        // })
     }
     private use = () => {
-        Services.socket.send('game_action', {
-            type: 'use_item',
-            params: {
-                id: this.props.item.id
-            }
-        })
+        // Services.socket.send('game_action', {
+        //     type: 'use_item',
+        //     params: {
+        //         id: this.props.item.id
+        //     }
+        // })
     }
 
     @observable public statsVisible = false
@@ -128,23 +123,23 @@ class Gear extends Component<{ ui?: UIStore, item: any }> {
         this.statsVisible = false
     }
 
-    public render({ ui, item }) {
+    public render({ item }) {
         const classes = []
         if (!isNaN(item.quality) && item.quality >= 1 && item.quality <= 6) {
             classes.push(style['quality' + Math.floor(item.quality)])
         }
 
-        const stats = [<li>quality: { item.quality }</li>, <li>value: { item.price || '0' }g</li>]
+        const stats = [<li>quality: {item.quality}</li>, <li>value: {item.price || '0'}g</li>]
         if (item.stats && Object.keys(item.stats).length > 0) {
             stats.push(<li><em>- stats -</em></li>)
             for (const stat in item.stats) {
-                stats.push(<li>&nbsp;&nbsp;{ stat }: { item.stats[stat] }</li>)
+                stats.push(<li>&nbsp;&nbsp;{stat}: {item.stats[stat]}</li>)
             }
         }
         if (item.specials && Object.keys(item.specials).length > 0) {
             stats.push(<li><em>- special -</em></li>)
             for (const s in item.specials) {
-                stats.push(<li>&nbsp;&nbsp;{ item.specials[s] }</li>)
+                stats.push(<li>&nbsp;&nbsp;{item.specials[s]}</li>)
             }
         }
 
@@ -158,13 +153,15 @@ class Gear extends Component<{ ui?: UIStore, item: any }> {
         if (Array.isArray(item.specials) && item.specials.includes('consumable')) {
             actions.push(<button class={style.invAction} onClick={this.use}>use</button>)
         }
-        return (<div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
-            { item.type !== 'empty' && this.statsVisible ? <ul class={style.stats}>{ stats }</ul> : null }
-            <p>
-                { item.key ? `${item.key}: ` : '' }
-                <ItemLabel item={item} />
-            </p>
-            {actions}
-        </div>)
+        return (
+            <div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
+                {item.type !== 'empty' && this.statsVisible ? <ul class={style.stats}>{stats}</ul> : null}
+                <p>
+                    {item.key ? `${item.key}: ` : ''}
+                    <ItemLabel item={item} />
+                </p>
+                {actions}
+            </div>
+        )
     }
 }

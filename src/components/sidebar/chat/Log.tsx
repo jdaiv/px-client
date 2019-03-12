@@ -15,8 +15,7 @@ export default class Log extends Component<{ log: object[] }> {
     public render({ log }) {
         return (
             <div class={style.log}>
-                {log.map((msg) =>
-                    <div class={msg.notice ? style.notice : style.message}>{msg.formatted}</div>)}
+                {log.map((msg, i) => <div key={i} class={msg.notice ? style.notice : style.message}>{msg.formatted}</div>)}
                 <div id="chat-bottom" />
             </div>
         )

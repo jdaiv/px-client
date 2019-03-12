@@ -1,24 +1,23 @@
 import { action } from 'mobx'
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
-import UIStore from '../../stores/UIStore'
-
+import GameStore from '../../shared/GameStore'
 import style from './style.css'
 
-@inject('ui')
+@inject('game')
 @observer
-export default class SettingsForm extends Component<{ ui?: UIStore }> {
+export default class SettingsForm extends Component<{ game?: GameStore }> {
 
     private updateQuality = (evt: Event) => {
-        this.props.ui.quality = parseInt((evt.currentTarget as HTMLInputElement).value, 10)
+        this.props.game.settings.quality = parseInt((evt.currentTarget as HTMLInputElement).value, 10)
     }
 
-    public render({ ui }) {
+    public render({ game }) {
         return (
             <div class={style.form}>
                 <h2>app settings</h2>
                 <p>quality</p>
-                <input type="range" min="1" max="8" value={ui.quality} onChange={this.updateQuality} />
+                <input type="range" min="1" max="8" value={game.settings.quality} onChange={this.updateQuality} />
             </div>
         )
     }

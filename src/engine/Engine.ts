@@ -1,6 +1,6 @@
 // import Overlay from './Overlay'
 // import Synth from './audio/Synth'
-import UIStore from '../stores/UIStore'
+import UIStore from '../shared/GameStore'
 import Camera from './Camera'
 import { Material, MaterialManager } from './Materials'
 import Overlay from './Overlay'
@@ -25,20 +25,20 @@ export default class Engine {
 
     constructor(el: HTMLElement, ui: UIStore) {
         console.log('[engine] starting...')
-        this.ui = ui
-        this.resources = new Resources()
-        this.camera = new Camera()
-        this.v = new Video(el, this)
-        this.materials = MaterialManager.load()
-        this.overlay = new Overlay(el)
-        // this.synth = new Synth()
-        this.resources.load(({ done, total }) => {
-            console.log(`[engine/resources] loaded ${done}/${total}`)
-        }).then(() => {
-            this.v.initQueue()
-            this.activeStage = new Station(this)
-            this.start()
-        })
+        // this.ui = ui
+        // this.resources = new Resources()
+        // this.camera = new Camera()
+        // this.v = new Video(el, this)
+        // this.materials = MaterialManager.load()
+        // this.overlay = new Overlay(el)
+        // // this.synth = new Synth()
+        // this.resources.load(({ done, total }) => {
+        //     console.log(`[engine/resources] loaded ${done}/${total}`)
+        // }).then(() => {
+        //     this.v.initQueue()
+        //     this.activeStage = new Station(this)
+        //     this.start()
+        // })
     }
 
     public start() {

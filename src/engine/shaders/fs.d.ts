@@ -1,4 +1,4 @@
 declare module '*.fs' {
-  const value: string;
+  const value: string
   export default value
 }

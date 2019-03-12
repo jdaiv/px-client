@@ -1,15 +1,19 @@
+import { IReactionDisposer, reaction } from 'mobx'
 import { wsUrl } from '../config/const'
-import SocketStore from '../stores/SocketStore'
-import AuthService from './AuthService'
-import EventManager from './EventManager'
+import Auth from './Auth'
+import GameStore from './GameStore'
 
 const RETRY_WAIT = 1500
 const MAX_RETRIES = 3
 
-export default class SocketService {
+type DataCallback = (arg0: string, arg1: any) => void
 
-    public store: SocketStore
-    public authService: AuthService
+export default class Socket {
+
+    public auth: Auth
+    public store: GameStore
+    public authReaction: IReactionDisposer
+    public onData: DataCallback
 
     private destroyed: boolean
     private retries: number
@@ -17,20 +21,26 @@ export default class SocketService {
     private ws: WebSocket
     private pingInterval: any
 
-    constructor(socketStore: SocketStore, authService: AuthService) {
-        this.store = socketStore
-        this.authService = authService
+    constructor(store: GameStore, auth: Auth, onData: DataCallback) {
+        this.store = store
+        this.auth = auth
+        this.onData = onData
 
         this.retries = 0
         this.queue = []
         this.destroyed = false
 
-        EventManager.subscribe('auth_update', 'ws_auth', (data) => {
-            if (data === true) this.auth()
-            else if (data === false) {
-                this.store.authenticated = false
+        this.authReaction = reaction(
+            () => this.store.connection.validUser,
+            valid => {
+                if (valid) {
+                    this.login()
+                } else {
+                    this.store.connection.authenticated = false
+                    this.close()
+                }
             }
-        })
+        )
     }
 
     public open(manual?: boolean) {
@@ -44,7 +54,6 @@ export default class SocketService {
         this.ws.onopen = () => {
             console.log('ws opened', wsUrl)
             this.retries = 0
-            EventManager.publish('ws_debug', null)
             this.pingInterval = setInterval(() => {
                 this.send('ping', null, true)
             }, 1000) as any
@@ -53,29 +62,25 @@ export default class SocketService {
         this.ws.onmessage = (evt) => {
             // console.log('ws message', evt)
             this.receive(evt)
-            EventManager.publish('ws_debug', null)
         }
 
         this.ws.onerror = (evt) => {
             console.error('ws error', evt)
             this.retries++
-            EventManager.publish('ws_debug', null)
         }
 
         this.ws.onclose = () => {
             console.log('ws closed')
-            this.store.authenticated = false
-            this.store.ready = false
-            EventManager.publish('ws_debug', null)
-            EventManager.publish('ws_status', false)
+            this.store.connection.authenticated = false
+            this.store.connection.connected = false
             if (!this.destroyed) setTimeout(this.open.bind(this), RETRY_WAIT)
             clearInterval(this.pingInterval)
         }
     }
 
     public close() {
-        this.store.ready = false
-        this.store.authenticated = false
+        this.store.connection.connected = false
+        this.store.connection.authenticated = false
         this.ws.close()
     }
 
@@ -84,9 +89,11 @@ export default class SocketService {
         this.close()
     }
 
-    public auth() {
-        if (this.authService.password && this.store.ready && !this.store.authenticated) {
-            this.send('login', this.authService.password, true)
+    public login() {
+        if (this.auth.password &&
+            this.store.connection.connected &&
+            !this.store.connection.authenticated) {
+            this.send('login', this.auth.password, true)
         }
     }
 
@@ -100,11 +107,10 @@ export default class SocketService {
         if (force && !this.ws && this.ws.readyState !== 1) {
             console.log(`can't force send ${action}:`, data)
         } else if (!force &&
-            (!this.ws || this.ws.readyState != 1 || !this.store.ready)) {
+            (!this.ws || this.ws.readyState !== 1 || !this.store.connection.connected)) {
             this.queue.push([action, data])
         } else {
             // console.log(`sending ${action}:`, data)
-            EventManager.publish('ws_debug', data)
             this.ws.send(JSON.stringify({
                 action,
                 data: JSON.stringify(data)
@@ -121,24 +127,20 @@ export default class SocketService {
             return
         }
 
-        EventManager.publish('ws_debug', data)
-
-        if (!this.store.ready && !this.store.authenticated) {
+        if (!this.store.connection.connected && !this.store.connection.authenticated) {
             if (!data.error && data.action === 'ping') {
-                this.store.ready = true
-                this.auth()
+                this.store.connection.connected = true
+                this.login()
             }
-            EventManager.publish('ws_status', this.store.ready)
         } else if (data.action === 'login') {
             if (data.error === 0) {
-                this.store.authenticated = true
+                this.store.connection.authenticated = true
                 this.flushQueue()
             } else {
-                this.authService.logout()
+                this.auth.logout()
             }
-            EventManager.publish('ws_auth', this.store.authenticated)
         } else {
-            EventManager.publish(`ws/${data.action}`, data)
+            this.onData(data.action, data)
         }
     }
 

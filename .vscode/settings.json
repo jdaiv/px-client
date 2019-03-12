@@ -1,5 +1,6 @@
 {
     "search.exclude": {
-        "**/.fusebox": true
+        "**/.fusebox": true,
+        "**/public": true
     }
 }
