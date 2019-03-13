@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix'
-import { observable, ObservableMap, ObservableSet } from 'mobx'
+import { action, observable, ObservableMap, ObservableSet } from 'mobx'
 
 type Listener = (arg0: GameState) => void
 
@@ -7,6 +7,7 @@ export default class GameState {
 
     @observable public valid = false
     @observable.shallow public activePlayer: any
+    @observable.shallow public combatInfo: any
 
     public entities: ObservableMap<number, any>
     public players: ObservableMap<number, any>
@@ -28,6 +29,7 @@ export default class GameState {
         this.listeners.push(fn)
     }
 
+    @action
     public readData(data: any) {
         this.setTiles(data.zone.map,
             data.zone.width,
@@ -38,6 +40,7 @@ export default class GameState {
             data.zone.items,
             data.zone.npcs)
         this.valid = true
+        this.combatInfo = data.zone.combatInfo
         this.listeners.forEach(x => x(this))
     }
 

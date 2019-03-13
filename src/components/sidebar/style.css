@@ -7,7 +7,7 @@
 	display: flex;
 	flex-direction: column;
 	background: #000;
-	padding: 0rem 0.5rem 0.5rem 0.5rem;
+	padding: 0rem 0.5rem 0.5rem 0.25rem;
 	border: 8px solid transparent;
 	border-image: url('../../assets/sprites/small-display.png') 8;
 	border-right: 0;

@@ -115,8 +115,14 @@ export default class Video {
         console.log('[engine/video] resizing')
         setTimeout(() => {
             const box = this.base.getBoundingClientRect()
-            this.width = this.el.width = Math.floor(box.width / SCALE)
-            this.height = this.el.height = Math.floor(box.height / SCALE)
+            this.width = Math.floor(box.width / SCALE)
+            this.height = Math.floor(box.height / SCALE)
+            if (SCALE % 2 === 0) {
+                this.width -= this.width % 2
+                this.height -= this.height % 2
+            }
+            this.el.width = this.width
+            this.el.height = this.height
             // this prevents weird half pixel scaling
             this.el.style.width = this.width * SCALE + 'px'
             this.el.style.height = this.height * SCALE + 'px'

@@ -10,9 +10,12 @@ export default class StatBar extends Component<{ label: string, min: number, max
         if (small) classes.push(style.small)
 
         return (
-            <div class={classes.join(' ')} style={`background: linear-gradient(to right, #030 ${width}%, #000 ${width}%);`}>
-                <div style="float: right">{ min } / { max }</div>
-                { label }
+            <div
+                class={classes.join(' ')}
+                style={`background: linear-gradient(to right, #030 ${width}%, #000 ${width}%);`}
+            >
+                <div style="float: right">{min || '0'} / {max}</div>
+                {label}
             </div>
         )
     }
