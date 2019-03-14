@@ -14,6 +14,8 @@ export default class GameState {
     public items: ObservableMap<number, any>
     public npcs: ObservableMap<number, any>
     public tiles: ObservableSet<any>
+    @observable public mapWidth = 0
+    @observable public mapHeight = 0
 
     private listeners = new Array<Listener>()
 
@@ -56,6 +58,8 @@ export default class GameState {
                 )
             })
         })
+        this.mapWidth = width
+        this.mapHeight = height
         this.tiles.replace(newTiles)
     }
 

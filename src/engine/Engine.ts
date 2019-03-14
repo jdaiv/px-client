@@ -2,6 +2,7 @@
 import Camera from './Camera'
 import { Material, MaterialManager } from './Materials'
 import Overlay from './Overlay'
+import Particles from './Particles'
 import Resources from './Resources'
 import Stage from './Stage'
 import Station from './stages/Station'
@@ -13,6 +14,7 @@ export default class Engine {
     public materials: Map<string, Material>
     public camera: Camera
     public v: Video
+    public particles: Particles
     public activeStage: Stage
     public overlay: Overlay
 
@@ -27,6 +29,7 @@ export default class Engine {
         this.v = new Video(el, this)
         this.materials = MaterialManager.load()
         this.overlay = new Overlay(el)
+        this.particles = new Particles(this.materials.get('particle'))
         // this.synth = new Synth()
         this.resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)
@@ -67,6 +70,7 @@ export default class Engine {
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
             this.activeStage.lateTick(this.dt)
+            this.particles.tick(this.dt)
             this.v.run(this.dt, this.time, () => this.activeStage.draw(this.dt))
             this.overlay.run(this.dt)
             // this.synth.tick(this.dt)

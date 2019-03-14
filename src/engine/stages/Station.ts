@@ -3,6 +3,7 @@ import GameManager from '../../shared/GameManager'
 import Engine from '../Engine'
 import EntityManager from '../entities/EntityManager'
 import Player from '../entities/Player'
+import { Emitter } from '../Particles'
 import Stage from '../Stage'
 import Effects from './Effects'
 import Tiles from './Tiles'
@@ -24,12 +25,13 @@ export default class Station extends Stage {
 
     public playerPositions: Map<string, vec3>
 
+    private loadingEmitter: Emitter
+
     constructor(engine: Engine) {
         super(engine)
-        this.effects = new Effects(this, engine)
+        this.effects = new Effects(engine)
         this.tiles = new Tiles(engine)
         this.entityManager = new EntityManager(engine)
-        this.particles = []
 
         this.addEntity(new Player('player'))
 
@@ -39,14 +41,32 @@ export default class Station extends Stage {
             this.loading = !state.valid
         })
         GameManager.instance.onEffect = this.effects.handleEffect
+
+        const e = engine.particles.newEmitter()
+        e.dampening.set([0.9, 0.9, 0.9])
+        e.gravity.set([0, 50, 0])
+        e.size = [0.5, 1]
+        e.velocity = [0, 0]
+        e.lifetime = [1, 2]
+        e.color = [0, 255, 0, 255]
+        e.shape = 'square'
+        e.cube = vec3.fromValues(10, 16, 64)
+        e.rotation = vec3.fromValues(0, 0, 0)
+        e.outline = true
+        e.spread = 0.4
+        this.loadingEmitter = e
     }
 
     public tick(dt: number) {
         super.tick(dt)
         this.loadingRot += dt * 100
+
         if (this.loading) {
             this.engine.camera.setTarget([0, 0, 0])
             this.engine.camera.setOffset([0, 0, 200])
+            this.loadingEmitter.position = vec3.fromValues(0, Math.sin(this.loadingRot / 1000) * 4, 0)
+            this.loadingEmitter.rotation = vec3.fromValues(0, this.loadingRot + 90, Math.sin(this.loadingRot / 80) * 8)
+            this.loadingEmitter.emit(100)
         } else {
             this.engine.camera.setTarget([0, 0, 0])
             this.engine.camera.setOffset([0, 60, 120])
@@ -54,19 +74,6 @@ export default class Station extends Stage {
 
         this.tiles.tick(dt)
         this.entityManager.tick(dt)
-
-        this.particles.forEach(p => {
-            p.positionV[1] -= 200 * dt
-            vec3.scaleAndAdd(p.position, p.position, p.positionV, dt)
-            vec3.scaleAndAdd(p.rotation, p.rotation, p.rotationV, dt)
-            if (p.position[1] < 0) {
-                p.position[1] = 0
-                vec3.multiply(p.positionV, p.positionV, [0.5, -0.5, 0.5])
-            }
-            if (p.position[1] < 5 && vec3.length(p.positionV) < 10) {
-                p.active = false
-            }
-        })
     }
 
     public draw(dt: number) {
@@ -78,9 +85,6 @@ export default class Station extends Stage {
                 rotation: [0, this.loadingRot, Math.sin(this.loadingRot / 80) * 8],
             }, 'sprite', 0)
         } else {
-            this.particles.forEach((p, i) => {
-                if (p.active) this.engine.v.drawMesh('error', p, 'error', 'missing')
-            })
             this.tiles.draw()
             this.entityManager.draw()
         }

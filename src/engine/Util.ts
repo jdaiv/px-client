@@ -1,53 +1,42 @@
 
 export default class Util {
 
-    public static makeCube(x0, y0, z0, x1, y1, z1) {
+    public static makeQuad(x0: number, y0: number, x1: number, y1: number, count = 1) {
         const verts = [
-            x0, y0, z0, // 0
-            x1, y0, z0,
-            x1, y1, z0, // 2
-            x0, y1, z0,
-            x0, y1, z1, // 4
-            x1, y1, z1,
-            x1, y0, z1, // 6
-            x0, y0, z1,
+            x0, y0, 0,
+            x1, y0, 0,
+            x1, y1, 0,
+            x0, y1, 0,
         ]
 
         const uvs = [
-            0, 1,
-            1, 1,
-            1, 0,
             0, 0,
-            0, 1,
-            1, 1,
             1, 0,
-            0, 0,
+            1, 1,
+            0, 1,
         ]
 
         const tris = [
-            0, 2, 1, 0, 3, 2, // front
-            2, 3, 4, 2, 4, 5, // top
-            1, 2, 5, 1, 5, 6, // right
-            0, 7, 4, 0, 4, 3, // left
-            5, 4, 7, 5, 7, 6, // back
-            0, 6, 7, 0, 1, 6, // bottom
+            0, 1, 2, 0, 2, 3, // front
         ]
 
-        let _verts = []
-        let _uvs = []
+        const processedVerts = []
+        const processedUvs = []
 
-        tris.forEach(t => {
-            _verts.push(verts[t * 3], verts[t * 3 + 1], verts[t * 3 + 2])
-            _uvs.push(uvs[t * 2], uvs[t * 2 + 1])
-        })
+        for (let i = 0; i < count; i++) {
+            tris.forEach(t => {
+                processedVerts.push(verts[t * 3], verts[t * 3 + 1], verts[t * 3 + 2])
+                processedUvs.push(uvs[t * 2], uvs[t * 2 + 1])
+            })
+        }
 
         return {
-            verts: _verts,
-            uvs: _uvs
+            verts: processedVerts,
+            uvs: processedUvs
         }
     }
 
-    public static readObj(objFile, scale = 8) {
+    public static readObj(objFile: string, scale = 8) {
         const verts = []
         const uvs = []
         const tris = []

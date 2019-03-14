@@ -1,37 +1,31 @@
 import { vec3 } from 'gl-matrix'
 import Engine from '../Engine'
-import Stage from '../Stage'
+import { Emitter } from '../Particles'
 import { TILE_SIZE } from './Tiles'
-
-function rand(range: number): number {
-    return Math.random() * range * 2 - range
-}
-function randN(range: number): number {
-    return Math.random() * range
-}
 
 export default class Effects {
 
-    private parent: Stage
     private engine: Engine
+    private bloodEmitter: Emitter
 
-    constructor(parent: Stage, engine: Engine) {
-        this.parent = parent
+    constructor(engine: Engine) {
         this.engine = engine
+        this.bloodEmitter = engine.particles.newEmitter()
+        this.bloodEmitter.dampening.set([1, 1, 1])
+        this.bloodEmitter.gravity.set([0, -200, 0])
+        this.bloodEmitter.velocity = [50, 80]
+        this.bloodEmitter.size = [2, 4]
+        this.bloodEmitter.lifetime = [10, 20]
+        this.bloodEmitter.color = [200, 0, 0, 255]
+        this.bloodEmitter.bounce = true
+        this.bloodEmitter.spread = 0.25
+        this.bloodEmitter.rotation = vec3.fromValues(0, 0, 90)
     }
 
     public handleEffect = (data: any) => {
         if (data.type === 'wood_ex') {
-            for (let i = 0; i < 20; i++) {
-                this.parent.particles.push({
-                    position: vec3.fromValues(data.x * TILE_SIZE, 8, data.y * TILE_SIZE),
-                    rotation: vec3.fromValues(rand(180), rand(180), rand(180)),
-                    positionV: vec3.fromValues(rand(20), randN(100) + 50, rand(20)),
-                    rotationV: vec3.fromValues(rand(180), rand(180), rand(180)),
-                    scale: vec3.fromValues(0.25, 0.25, 0.25),
-                    active: true
-                })
-            }
+            vec3.set(this.bloodEmitter.position, data.x * TILE_SIZE, 8, data.y * TILE_SIZE)
+            this.bloodEmitter.emit(100)
         } else if (data.type === 'screen_shake') {
             this.engine.camera.addShake([data.x, 0, data.y])
         }

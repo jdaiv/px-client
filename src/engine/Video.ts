@@ -52,7 +52,7 @@ export default class Video {
         })
 
         gl.enable(gl.DEPTH_TEST)
-        gl.enable(gl.BLEND)
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         gl.enable(gl.CULL_FACE)
 
         this.fboReady = false
@@ -324,6 +324,12 @@ export default class Video {
             material.postDraw()
             material.end()
         })
+
+        gl.enable(gl.BLEND)
+        gl.depthMask(false)
+        this.engine.particles.draw(data)
+        gl.disable(gl.BLEND)
+        gl.depthMask(true)
 
         this.fbos.forEach((fbo, i) => {
             if (i >= this.fbos.length - 1) {
