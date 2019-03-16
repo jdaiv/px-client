@@ -11,25 +11,55 @@ export default class BloodSplatter implements IEffect {
     constructor(engine: Engine) {
         this.emitter = engine.particles.newEmitter({
             dampening: vec3.fromValues(1, 1, 1),
-            gravity: vec3.fromValues(0, -200, 0),
+            gravity: vec3.fromValues(0, -20, 0),
             velocity: [50, 80],
-            size: [2, 4],
-            lifetime: [10, 20],
+            size: [0.5, 1],
+            lifetime: [5, 10],
             color: [200, 0, 0, 255],
-            bounce: true,
-            spread: 0.25,
-            rotation: vec3.fromValues(0, 0, 90),
+            bounce: 0.1,
+            spread: 20,
+            // rotation: vec3.fromValues(0, 0, 90),
         })
     }
 
     public * run(params: any) {
         let t = 0
+        const pos = vec3.fromValues(params.x * TILE_SIZE, 8, params.y * TILE_SIZE)
+        const numChunks = 10
+        const chunks = new Array(numChunks)
+        const chunksPos = new Array(numChunks)
+        for (let i = 0; i < numChunks; i++) {
+            const x = vec3.create()
+            vec3.random(x)
+            vec3.scale(x, x, Math.random() * 20 + 10)
+            if (x[1] < 0) {
+                x[1] = -x[1]
+            }
+            x[1] *= 6
+            chunks[i] = x
+            chunksPos[i] = vec3.clone(pos)
+        }
+
+        vec3.copy(this.emitter.position, pos)
+        // this.emitter.emit(10)
 
         while (t < 60) {
-            vec3.set(this.emitter.position, params.x * TILE_SIZE, 8, params.y * TILE_SIZE)
-            this.emitter.emit(100)
+            this.emitter.velocity[0] = -6
+            this.emitter.velocity[1] = 6
+            chunks.forEach((x, i) => {
+                const cPos = chunksPos[i]
+                x[1] -= 200 * 1 / 60
+                vec3.scaleAndAdd(cPos, cPos, x, 1 / 60)
+                vec3.copy(this.emitter.position, cPos)
+                if (cPos[1] < 0) {
+                    cPos[1] = 0
+                    x[1] *= -0.5
+                }
+                this.emitter.emit(1)
+            })
+
             t++
-            return false
+            yield false
         }
 
         yield true

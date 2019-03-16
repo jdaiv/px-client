@@ -3,7 +3,7 @@ import { Material } from './Materials'
 import Util from './Util'
 import { gl, GLMesh } from './Video'
 
-const MAX_PARTICLES = 10000
+const MAX_PARTICLES = 50000
 const QUAD_VERTS = 6
 const one = vec3.fromValues(1, 1, 1)
 
@@ -31,7 +31,7 @@ class Particle {
     public color = [0, 0, 0, 255]
     public life = 0
     public lifetime = 0
-    public bounce = false
+    public bounce = -1
 
     constructor() {
         this.active = false
@@ -50,10 +50,10 @@ class Particle {
             vec3.scaleAndAdd(this.velocity, this.velocity, this.gravity, dt)
             vec3.mul(this.velocity, this.velocity, this.dampening)
             vec3.scaleAndAdd(this.position, this.position, this.velocity, dt)
-            if (this.bounce && this.position[1] < 0) {
+            if (this.bounce >= 0 && this.position[1] < 0) {
                 this.position[1] *= -1
                 this.velocity[1] *= -1
-                vec3.scale(this.velocity, this.velocity, 0.5)
+                vec3.scale(this.velocity, this.velocity, this.bounce)
                 if (vec3.len(this.velocity) < 1) {
                     this.pause = true
                 }
@@ -80,7 +80,7 @@ export interface IEmitterOpts {
     color?: number[]
     speed?: number
     spread?: number
-    bounce?: boolean
+    bounce?: number
     shape?: 'cube' | 'square' | 'sphere' | 'point'
     cube?: vec3
     rotation?: vec3
@@ -100,7 +100,7 @@ export class Emitter implements IEmitterOpts {
     public color: number[] = [255, 255, 0, 255]
     public speed = 0
     public spread = 0
-    public bounce = false
+    public bounce = -1
     public shape: 'cube' | 'square' | 'sphere' | 'point' = 'point'
     public cube: vec3
     public outline = false

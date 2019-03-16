@@ -19,7 +19,6 @@ export default class FireBall implements IEffect {
             size: [2, 4],
             lifetime: [0.25, 0.75],
             color: [255, 100, 0, 255],
-            bounce: true,
             spread: 1,
             rotation: vec3.fromValues(0, 0, 90),
         })
@@ -47,7 +46,7 @@ export default class FireBall implements IEffect {
             const x = t / 60
             vec3.lerp(this.trailEmitter.position, source, target, x)
             this.trailEmitter.position[1] = (-1 * Math.pow(x, 2) + x) * 100 + 8
-            this.emitter.color[1] = Math.floor(Math.random() * 60 + 80)
+            this.trailEmitter.color[1] = Math.floor(Math.random() * 40 + 80)
             this.trailEmitter.emit(10)
             t++
             yield false
@@ -64,7 +63,7 @@ export default class FireBall implements IEffect {
         this.engine.camera.addShake([shake, shake, shake])
         while (t < 90) {
             vec3.copy(this.emitter.position, target)
-            this.emitter.color[1] = Math.floor(Math.random() * 60 + 80)
+            this.emitter.color[1] = Math.floor(Math.random() * 120 + 80)
             this.emitter.velocity[0] = 5
             this.emitter.velocity[1] = 20
             this.emitter.emit(2)
