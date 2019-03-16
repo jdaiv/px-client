@@ -55,7 +55,7 @@ export default class BloodSplatter implements IEffect {
                     cPos[1] = 0
                     x[1] *= -0.5
                 }
-                this.emitter.emit(1)
+                this.emitter.emit(3)
             })
 
             t++

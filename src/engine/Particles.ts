@@ -3,7 +3,7 @@ import { Material } from './Materials'
 import Util from './Util'
 import { gl, GLMesh } from './Video'
 
-const MAX_PARTICLES = 50000
+const MAX_PARTICLES = 10000
 const QUAD_VERTS = 6
 const one = vec3.fromValues(1, 1, 1)
 
