@@ -3,6 +3,7 @@ import GameManager from '../../shared/GameManager'
 import GameState from '../../shared/GameState'
 import Engine from '../Engine'
 import { Emitter } from '../Particles'
+import Station from './Station'
 
 export const TILE_SIZE = 16
 
@@ -77,14 +78,20 @@ export default class Tiles {
     }
 
     public draw() {
+        const state = GameManager.instance.state
         this.tiles.forEach((p, i) => {
             this.engine.v.drawMesh('cube', p, 'textured', p.type !== 'default' ? p.type : 'grid', {
                 callback: (type: string) => {
                     if (type === 'move') p.hover = true
                     else if (type === 'click') {
-                        vec3.copy(this.clickEmitter.position, p.position)
-                        this.clickEmitter.position[1] = 0
-                        this.clickEmitter.emit(100)
+                        const player = state.activePlayer
+                        const tile = state.tiles[i]
+                        const stage = this.engine.activeStage as Station
+                        stage.effects.handleEffect({
+                            type: 'fireball',
+                            origin: [player.x, player.y],
+                            target: [tile.position[0], tile.position[2]]
+                        })
                     }
                 }
             })

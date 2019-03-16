@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix'
-import { action, observable, ObservableMap, ObservableSet } from 'mobx'
+import { action, IObservableArray, observable, ObservableMap } from 'mobx'
 
 type Listener = (arg0: GameState) => void
 
@@ -13,7 +13,7 @@ export default class GameState {
     public players: ObservableMap<number, any>
     public items: ObservableMap<number, any>
     public npcs: ObservableMap<number, any>
-    public tiles: ObservableSet<any>
+    public tiles: IObservableArray<any>
     @observable public mapWidth = 0
     @observable public mapHeight = 0
 
@@ -24,7 +24,7 @@ export default class GameState {
         this.players = observable.map(null, { deep: false })
         this.items = observable.map(null, { deep: false })
         this.npcs = observable.map(null, { deep: false })
-        this.tiles = observable.set(null, { deep: false })
+        this.tiles = observable.array(null, { deep: false })
     }
 
     public registerListener(fn: Listener) {

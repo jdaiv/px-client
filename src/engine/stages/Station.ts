@@ -19,7 +19,7 @@ export default class Station extends Stage {
 
     public debug = false
 
-    private effects: Effects
+    public effects: Effects
     private tiles: Tiles
     private entityManager: EntityManager
 
@@ -42,19 +42,19 @@ export default class Station extends Stage {
         })
         GameManager.instance.onEffect = this.effects.handleEffect
 
-        const e = engine.particles.newEmitter()
-        e.dampening.set([0.9, 0.9, 0.9])
-        e.gravity.set([0, 50, 0])
-        e.size = [0.5, 1]
-        e.velocity = [0, 0]
-        e.lifetime = [1, 2]
-        e.color = [0, 255, 0, 255]
-        e.shape = 'square'
-        e.cube = vec3.fromValues(10, 16, 64)
-        e.rotation = vec3.fromValues(0, 0, 0)
-        e.outline = true
-        e.spread = 0.4
-        this.loadingEmitter = e
+        this.loadingEmitter = engine.particles.newEmitter({
+            dampening: vec3.fromValues(0.9, 0.9, 0.9),
+            gravity: vec3.fromValues(0, 50, 0),
+            size: [0.5, 1],
+            velocity: [0, 0],
+            lifetime: [1, 2],
+            color: [0, 255, 0, 255],
+            shape: 'square',
+            cube: vec3.fromValues(10, 16, 64),
+            rotation: vec3.fromValues(0, 0, 0),
+            outline: true,
+            spread: 0.4,
+        })
     }
 
     public tick(dt: number) {
@@ -74,6 +74,7 @@ export default class Station extends Stage {
 
         this.tiles.tick(dt)
         this.entityManager.tick(dt)
+        this.effects.tick()
     }
 
     public draw(dt: number) {
