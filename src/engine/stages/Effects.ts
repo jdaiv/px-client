@@ -10,16 +10,17 @@ export default class Effects {
 
     constructor(engine: Engine) {
         this.engine = engine
-        this.bloodEmitter = engine.particles.newEmitter()
-        this.bloodEmitter.dampening.set([1, 1, 1])
-        this.bloodEmitter.gravity.set([0, -200, 0])
-        this.bloodEmitter.velocity = [50, 80]
-        this.bloodEmitter.size = [2, 4]
-        this.bloodEmitter.lifetime = [10, 20]
-        this.bloodEmitter.color = [200, 0, 0, 255]
-        this.bloodEmitter.bounce = true
-        this.bloodEmitter.spread = 0.25
-        this.bloodEmitter.rotation = vec3.fromValues(0, 0, 90)
+        this.bloodEmitter = engine.particles.newEmitter({
+            dampening: vec3.fromValues(1, 1, 1),
+            gravity: vec3.fromValues(0, -200, 0),
+            velocity: [50, 80],
+            size: [2, 4],
+            lifetime: [10, 20],
+            color: [200, 0, 0, 255],
+            bounce: true,
+            spread: 0.25,
+            rotation: vec3.fromValues(0, 0, 90),
+        })
     }
 
     public handleEffect = (data: any) => {

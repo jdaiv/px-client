@@ -11,25 +11,39 @@ export default class Tiles {
     private engine: Engine
     private tiles: any[]
     private sparkleEmitter: Emitter
+    private clickEmitter: Emitter
 
     constructor(engine: Engine) {
         this.engine = engine
         this.tiles = []
         GameManager.instance.state.registerListener(this.set)
 
-        const e = engine.particles.newEmitter()
-        e.dampening.set([0.9, 0.9, 0.9])
-        e.gravity.set([0, 0, 0])
-        e.size = [0.5, 1]
-        e.velocity = [10, 20]
-        e.lifetime = [0.25, 0.5]
-        e.color = [0, 255, 0, 255]
-        e.shape = 'square'
-        e.cube = vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2)
-        e.rotation = vec3.fromValues(0, 0, 90)
-        e.outline = true
-        e.spread = 0.4
-        this.sparkleEmitter = e
+        this.sparkleEmitter = engine.particles.newEmitter({
+            dampening: vec3.fromValues(0.9, 0.9, 0.9),
+            gravity: vec3.fromValues(0, 0, 0),
+            size: [0.5, 1],
+            velocity: [10, 20],
+            lifetime: [0.25, 0.5],
+            color: [0, 255, 0, 255],
+            shape: 'square',
+            cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2),
+            rotation: vec3.fromValues(0, 0, 90),
+            outline: true,
+            spread: 0.4,
+        })
+        this.clickEmitter = engine.particles.newEmitter({
+            dampening: vec3.fromValues(1, 1, 1),
+            gravity: vec3.fromValues(0, -200, 0),
+            size: [0.5, 1],
+            velocity: [25, 75],
+            lifetime: [1, 2],
+            color: [0, 255, 0, 255],
+            cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2),
+            rotation: vec3.fromValues(0, 0, 90),
+            shape: 'square',
+            spread: 0,
+            bounce: true
+        })
     }
 
     private set = (state: GameState) => {
@@ -65,8 +79,13 @@ export default class Tiles {
     public draw() {
         this.tiles.forEach((p, i) => {
             this.engine.v.drawMesh('cube', p, 'textured', p.type !== 'default' ? p.type : 'grid', {
-                callback: () => {
-                    p.hover = true
+                callback: (type: string) => {
+                    if (type === 'move') p.hover = true
+                    else if (type === 'click') {
+                        vec3.copy(this.clickEmitter.position, p.position)
+                        this.clickEmitter.position[1] = 0
+                        this.clickEmitter.emit(100)
+                    }
                 }
             })
         })

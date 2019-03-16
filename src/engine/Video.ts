@@ -36,6 +36,7 @@ export default class Video {
     private mouseActive: boolean
     private mouseX: number
     private mouseY: number
+    private activeMouseObject: string
 
     private queue: RenderingQueue
 
@@ -69,6 +70,7 @@ export default class Video {
         this.resize()
         window.addEventListener('resize', this.resize)
         this.el.addEventListener('mousemove', this.mouseMove.bind(this))
+        this.el.addEventListener('click', this.mouseClick.bind(this))
         this.el.addEventListener('mouseenter', () => { this.mouseActive = true })
         this.el.addEventListener('mouseleave', () => { this.mouseActive = false })
 
@@ -285,9 +287,10 @@ export default class Video {
 
             gl.readPixels(this.mouseX, this.height - this.mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
             const key = this.hitTestData.map(x => Math.floor(x / 5) * 5).join(',')
+            this.activeMouseObject = key
             const cb = this.hitTestCallbacks.get(key)
             if (cb) {
-                cb.callback()
+                cb.callback('move')
             }
         }
 
@@ -347,6 +350,13 @@ export default class Video {
     public mouseMove(evt: MouseEvent) {
         this.mouseX = Math.floor(evt.offsetX / SCALE)
         this.mouseY = Math.floor(evt.offsetY / SCALE)
+    }
+
+    public mouseClick() {
+        const cb = this.hitTestCallbacks.get(this.activeMouseObject)
+        if (cb) {
+            cb.callback('click')
+        }
     }
 
 }

@@ -70,7 +70,24 @@ function randI() {
     return Math.random() * 2 - 1
 }
 
-export class Emitter {
+export interface IEmitterOpts {
+    position?: vec3
+    size?: number[]
+    lifetime?: number[]
+    gravity?: vec3
+    dampening?: vec3
+    velocity?: number[]
+    color?: number[]
+    speed?: number
+    spread?: number
+    bounce?: boolean
+    shape?: 'cube' | 'square' | 'sphere' | 'point'
+    cube?: vec3
+    rotation?: vec3
+    outline?: boolean
+}
+
+export class Emitter implements IEmitterOpts {
 
     private particles: Particle[]
 
@@ -84,7 +101,6 @@ export class Emitter {
     public speed = 0
     public spread = 0
     public bounce = false
-
     public shape: 'cube' | 'square' | 'sphere' | 'point' = 'point'
     public cube: vec3
     public outline = false
@@ -95,8 +111,11 @@ export class Emitter {
         quat.fromEuler(this.angle, v[0], v[1], v[2])
     }
 
-    constructor(particles: Particle[]) {
+    constructor(particles: Particle[], opts: IEmitterOpts) {
         this.particles = particles
+        for (const key in opts) {
+            this[key] = opts[key]
+        }
     }
 
     public emit(count: number) {
@@ -213,8 +232,8 @@ export default class Particles {
         gl.bufferData(gl.ARRAY_BUFFER, this.buffer, gl.DYNAMIC_DRAW)
     }
 
-    public newEmitter(): Emitter {
-        return new Emitter(this.particles)
+    public newEmitter(opts: IEmitterOpts): Emitter {
+        return new Emitter(this.particles, opts)
     }
 
     public tick(dt: number) {
