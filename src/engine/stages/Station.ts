@@ -25,8 +25,6 @@ export default class Station extends Stage {
 
     public playerPositions: Map<string, vec3>
 
-    private loadingEmitter: Emitter
-
     constructor(engine: Engine) {
         super(engine)
         this.effects = new Effects(engine)
@@ -41,20 +39,6 @@ export default class Station extends Stage {
             this.loading = !state.valid
         })
         GameManager.instance.onEffect = this.effects.handleEffect
-
-        this.loadingEmitter = engine.particles.newEmitter({
-            dampening: vec3.fromValues(0.9, 0.9, 0.9),
-            gravity: vec3.fromValues(0, 50, 0),
-            size: [0.5, 1],
-            velocity: [0, 0],
-            lifetime: [1, 2],
-            color: [0, 255, 0, 255],
-            shape: 'square',
-            cube: vec3.fromValues(10, 16, 64),
-            rotation: vec3.fromValues(0, 0, 0),
-            outline: true,
-            spread: 0.4,
-        })
     }
 
     public tick(dt: number) {
@@ -64,9 +48,6 @@ export default class Station extends Stage {
         if (this.loading) {
             this.engine.camera.setTarget([0, 0, 0])
             this.engine.camera.setOffset([0, 0, 200])
-            this.loadingEmitter.position = vec3.fromValues(0, Math.sin(this.loadingRot / 1000) * 4, 0)
-            this.loadingEmitter.rotation = vec3.fromValues(0, this.loadingRot + 90, Math.sin(this.loadingRot / 80) * 8)
-            this.loadingEmitter.emit(100)
         } else {
             this.engine.camera.setTarget([0, 0, 0])
             this.engine.camera.setOffset([0, 60, 120])

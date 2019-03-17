@@ -265,7 +265,7 @@ class Nametag extends Component<{ player: any; me: any }> {
             <div class={style.pointInner}>
                 <button class={style.useBtn} onClick={canAttack ? this.click : null}>
                     {canAttack && player.alignment === 'hostile' ? <em>attack<br /></em> : ''}
-                    {player.name} - L0<br />
+                    {player.name} - L{player.level}<br />
                     HP {player.hp} / {player.maxHP}
                 </button>
             </div>
