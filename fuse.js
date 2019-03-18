@@ -9,18 +9,16 @@ const blender = process.env.BLENDER_PATH
 const aseprite = process.env.ASEPRITE_PATH
 
 const modelPath = 'models'
-const spritePath = 'sprites'
 
 const baseExportPath = 'src/assets/'
 const modelExportPath = baseExportPath + modelPath
-const spriteExportPath = baseExportPath + spritePath
-const spriteDataExportPath = 'src/config/sprites'
+const texDataExportPath = 'src/config/sprites'
 const dataExportFile = 'src/config/resources.ts'
 
 const modelSources = './resources/**/*.blend';
-const spriteSources = './resources/**/*.+(aseprite|ase)';
+const texSources = './resources/**/*.+(aseprite|ase)';
 
-const resourceSources = [modelSources, spriteSources];
+const resourceSources = [modelSources, texSources];
 
 const resources = './**/*.+(obj|png|ico)';
 
@@ -128,8 +126,13 @@ context(
         }
 
         buildSprite(f) {
+            const texPath = path.dirname(f.filepath)
+            try {
+                fs.mkdirSync(texPath, { recursive: true })
+            } catch (e) {}
+            const subdir  = path.basename(texPath)
             const name = f.name.split('.')[0]
-            execSync(`${aseprite} -b "${f.filepath}" --sheet "${spriteExportPath}/${name}.png" --data "${spriteDataExportPath}/${name}.json"`)
+            execSync(`${aseprite} -b "${f.filepath}" --sheet "${baseExportPath}${subdir}/${name}.png" --data "${texDataExportPath}/${name}.json"`)
         }
 
         buildShader(f) {
@@ -142,19 +145,30 @@ context(
                 return { full, clean: full.replace(/[^A-Za-z0-9]/g, '') }
             }
             const modelNames = fs.readdirSync(modelExportPath).map(getName)
-            const spriteNames = fs.readdirSync(spriteExportPath).map(getName)
+            const spriteNames = fs.readdirSync(`${baseExportPath}/sprites`).map(getName)
+            const texNames = fs.readdirSync(`${baseExportPath}/textures`).map(getName)
 
             const imports =
                 spriteNames.map(n =>
                     `import * as sprite${n.clean}Data from './sprites/${n.full}.json'\n` +
-                    `import sprite${n.clean} from '../assets/sprites/${n.full}.png'`)
+                    `import sprite${n.clean} from '../assets/sprites/${n.full}.png'`
+                )
                 .concat(
-                    modelNames.map(n => `import model${n.clean}Data from '../assets/models/${n.full}.obj'`))
+                    texNames.map(n =>
+                        `import * as tex${n.clean}Data from './sprites/${n.full}.json'\n` +
+                        `import tex${n.clean} from '../assets/textures/${n.full}.png'`
+                    )
+                )
+                .concat(
+                    modelNames.map(n => `import model${n.clean}Data from '../assets/models/${n.full}.obj'`)
+                )
 
             const models = modelNames.map(n =>
                 `'${n.full}': model${n.clean}Data,`)
             const sprites = spriteNames.map(n =>
                 `'${n.full}': { file: sprite${n.clean}, data: sprite${n.clean}Data },`)
+            const textures = texNames.map(n =>
+                `'${n.full}': { file: tex${n.clean}, data: tex${n.clean}Data },`)
 
             fs.writeFileSync(dataExportFile, `// AUTOMATICALLY GENERATED FILE
 ${imports.join('\n')}
@@ -164,6 +178,9 @@ export const MODELS = {
 }
 export const SPRITES = {
     ${sprites.join('\n    ')}
+}
+export const TEXTURES = {
+    ${textures.join('\n    ')}
 }
 `)
         }

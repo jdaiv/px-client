@@ -1,3 +1,5 @@
+#extension GL_OES_standard_derivatives : enable
+
 precision highp float;
 
 uniform highp float uTime;
@@ -7,38 +9,28 @@ uniform mediump vec2 uScreenSize;
 
 varying highp vec2 vTextureCoord;
 
-vec2 getScreenCoords(vec2 uv) {
-    return vec2(uv.x, uv.y) * uScreenSize;
-}
-
-vec2 getUV(vec2 screenCoord) {
-    return screenCoord /  uScreenSize;
-}
-
-vec4 processColor(vec2 coords, vec4 color) {
-    if (color.w <= 0.0 || length(color.xyz) <= 0.0) {
-        color = texture2D(uSampler, getUV(coords + vec2(0, 1)));
-        color += texture2D(uSampler, getUV(coords + vec2(0, 2))) * 0.5;
-        color += texture2D(uSampler, getUV(coords + vec2(1, 1)));
-        color += texture2D(uSampler, getUV(coords + vec2(1, 0)));
-        color += texture2D(uSampler, getUV(coords + vec2(2, 0))) * 0.5;
-        color += texture2D(uSampler, getUV(coords + vec2(-1, 1)));
-        color += texture2D(uSampler, getUV(coords + vec2(-1, -1)));
-        color += texture2D(uSampler, getUV(coords + vec2(0, -1)));
-        color += texture2D(uSampler, getUV(coords + vec2(0, -2))) * 0.5;
-        color += texture2D(uSampler, getUV(coords + vec2(-1, 0)));
-        color += texture2D(uSampler, getUV(coords + vec2(-2, 0))) * 0.5;
-        color += texture2D(uSampler, getUV(coords + vec2(1, -1)));
-        color /= 12.0;
-    }
-    return color;
-}
-
 void main() {
-    vec2 screenCoords = getScreenCoords(vTextureCoord);
     vec4 color = texture2D(uSampler, vTextureCoord);
-
-    color = processColor(screenCoords, color);
+    // if (length(color.rgb) <= 0.0 || color.a <= 0.0) {
+        float x = 1.0 / uScreenSize.x;
+        float y = 1.0 / uScreenSize.y;
+        vec4 horizEdge = vec4(0.0);
+        horizEdge -= texture2D(uSampler, vec2(vTextureCoord.x - x, vTextureCoord.y - y)) * 1.0;
+        horizEdge -= texture2D(uSampler, vec2(vTextureCoord.x - x, vTextureCoord.y    )) * 2.0;
+        horizEdge -= texture2D(uSampler, vec2(vTextureCoord.x - x, vTextureCoord.y + y)) * 1.0;
+        horizEdge += texture2D(uSampler, vec2(vTextureCoord.x + x, vTextureCoord.y - y)) * 1.0;
+        horizEdge += texture2D(uSampler, vec2(vTextureCoord.x + x, vTextureCoord.y    )) * 2.0;
+        horizEdge += texture2D(uSampler, vec2(vTextureCoord.x + x, vTextureCoord.y + y)) * 1.0;
+        vec4 vertEdge = vec4(0.0);
+        vertEdge -= texture2D(uSampler, vec2(vTextureCoord.x - x, vTextureCoord.y - y)) * 1.0;
+        vertEdge -= texture2D(uSampler, vec2(vTextureCoord.x    , vTextureCoord.y - y)) * 2.0;
+        vertEdge -= texture2D(uSampler, vec2(vTextureCoord.x + x, vTextureCoord.y - y)) * 1.0;
+        vertEdge += texture2D(uSampler, vec2(vTextureCoord.x - x, vTextureCoord.y + y)) * 1.0;
+        vertEdge += texture2D(uSampler, vec2(vTextureCoord.x    , vTextureCoord.y + y)) * 2.0;
+        vertEdge += texture2D(uSampler, vec2(vTextureCoord.x + x, vTextureCoord.y + y)) * 1.0;
+        vec3 edge = sqrt((horizEdge.rgb * horizEdge.rgb) + (vertEdge.rgb * vertEdge.rgb));
+        color.rgb += edge / 20.0;
+    // }
 
     gl_FragColor = color;
 }

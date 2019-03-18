@@ -11,7 +11,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "src/assets/sprites/water.png",
+  "image": "src/assets/textures/water.png",
   "format": "RGBA8888",
   "size": { "w": 32, "h": 16 },
   "scale": "1"

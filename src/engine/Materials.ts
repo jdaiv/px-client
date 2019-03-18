@@ -1,6 +1,6 @@
 import { mat4, vec2, vec4 } from 'gl-matrix'
 import Particles, { PARTICLE_COLOR_OFFSET, PARTICLE_POSITION_OFFSET,
-    PARTICLE_ROTATION_OFFSET, PARTICLE_SCALE_OFFSET, PARTICLE_STRIDE } from './Particles'
+    PARTICLE_SCALE_OFFSET, PARTICLE_STRIDE } from './Particles'
 import errorFS from './shaders/error.fs'
 import errorVS from './shaders/error.vs'
 import hittestFS from './shaders/hittest.fs'
@@ -43,6 +43,8 @@ const MATERIALS = {
 
         screenSize: false,
         time: true,
+
+        manual: true,
     },
     textured: {
         vs: texturedVS,
@@ -75,6 +77,7 @@ const MATERIALS = {
         transform: true,
         cull: 0,
         particle: true,
+        manual: true,
     },
     outline: {
         vs: outlineVS,
@@ -89,6 +92,7 @@ const MATERIALS = {
         time: false,
     },
     post_none: {
+        manual: true,
         vs: postVS,
         fs: postnoneFS,
         transform: false,
@@ -100,6 +104,7 @@ const MATERIALS = {
         time: false,
     },
     post_bloom: {
+        manual: true,
         vs: postVS,
         fs: postbloomFS,
         transform: false,
@@ -111,6 +116,7 @@ const MATERIALS = {
         time: true,
     },
     post_rainbows: {
+        manual: true,
         vs: postVS,
         fs: postrainbowsFS,
         transform: false,
@@ -122,6 +128,7 @@ const MATERIALS = {
         time: true,
     },
     post_wobble: {
+        manual: true,
         vs: postVS,
         fs: postwobbleFS,
         transform: false,
@@ -152,14 +159,13 @@ export class Material {
 
     private shader: Shader
 
-    private settings: any
+    public settings: any
 
     private vertexPosLoc: number
     private vertexNormalLoc: number
     private vertexUvLoc: number
     private particlePosLoc: number
-    private particleRotLoc: number
-    private particleScaleLoc: number
+    private particleSizeLoc: number
     private particleColorLoc: number
     private numTris: number
 
@@ -193,8 +199,7 @@ export class Material {
 
         if (settings.particle) {
             this.particlePosLoc = gl.getAttribLocation(prog, 'aParticlePosition')
-            this.particleRotLoc = gl.getAttribLocation(prog, 'aParticleRotation')
-            this.particleScaleLoc = gl.getAttribLocation(prog, 'aParticleScale')
+            this.particleSizeLoc = gl.getAttribLocation(prog, 'aParticleSize')
             this.particleColorLoc = gl.getAttribLocation(prog, 'aParticleColor')
         }
 
@@ -219,11 +224,17 @@ export class Material {
     }
 
     public end() {
-        gl.disableVertexAttribArray(this.vertexPosLoc)
-        if (this.settings.normals)
-            gl.disableVertexAttribArray(this.vertexNormalLoc)
-        if (this.settings.textured)
-            gl.disableVertexAttribArray(this.vertexUvLoc)
+        if (this.settings.particle) {
+            gl.disableVertexAttribArray(this.particlePosLoc)
+            gl.disableVertexAttribArray(this.particleSizeLoc)
+            gl.disableVertexAttribArray(this.particleColorLoc)
+        } else {
+            gl.disableVertexAttribArray(this.vertexPosLoc)
+            if (this.settings.normals)
+                gl.disableVertexAttribArray(this.vertexNormalLoc)
+            if (this.settings.textured)
+                gl.disableVertexAttribArray(this.vertexUvLoc)
+        }
     }
 
     public setGlobalUniforms(data: any) {
@@ -277,13 +288,9 @@ export class Material {
             PARTICLE_STRIDE, PARTICLE_POSITION_OFFSET)
         gl.enableVertexAttribArray(this.particlePosLoc)
 
-        // gl.vertexAttribPointer(this.particleRotLoc, 4, gl.FLOAT, false,
-        //     PARTICLE_STRIDE, PARTICLE_ROTATION_OFFSET)
-        // gl.enableVertexAttribArray(this.particleRotLoc)
-
-        gl.vertexAttribPointer(this.particleScaleLoc, 4, gl.FLOAT, false,
+        gl.vertexAttribPointer(this.particleSizeLoc, 1, gl.FLOAT, false,
             PARTICLE_STRIDE, PARTICLE_SCALE_OFFSET)
-        gl.enableVertexAttribArray(this.particleScaleLoc)
+        gl.enableVertexAttribArray(this.particleSizeLoc)
 
         gl.vertexAttribPointer(this.particleColorLoc, 4, gl.UNSIGNED_BYTE, true,
             PARTICLE_STRIDE, PARTICLE_COLOR_OFFSET)

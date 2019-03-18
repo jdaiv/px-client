@@ -1,22 +1,17 @@
-import { mat4, quat, vec3 } from 'gl-matrix'
+import { quat, vec3 } from 'gl-matrix'
 import { Material } from './Materials'
-import Util from './Util'
-import { gl, GLMesh } from './Video'
+import { gl } from './Video'
 
-const MAX_PARTICLES = 10000
-const QUAD_VERTS = 6
-const one = vec3.fromValues(1, 1, 1)
+const MAX_PARTICLES = 100000
 
 export const PARTICLE_STRIDE = (
     4 * 4 + // position f32[4]
-    4 * 4 + // scale f32[4]
-    1 * 4 + // rotation f32[1]
+    4 * 1 + // scale f32[1]
     4 * 1 // color byte[4]
 )
 export const PARTICLE_POSITION_OFFSET = 0
 export const PARTICLE_SCALE_OFFSET = 16
-export const PARTICLE_ROTATION_OFFSET = 32
-export const PARTICLE_COLOR_OFFSET = 36
+export const PARTICLE_COLOR_OFFSET = 20
 
 class Particle {
     public active: boolean
@@ -26,8 +21,8 @@ class Particle {
     public gravity = vec3.create()
     public dampening = vec3.create()
     public velocity = vec3.create()
+    public startSize = 1
     public size = 1
-    public scale = vec3.create()
     public color = [0, 0, 0, 255]
     public life = 0
     public lifetime = 0
@@ -38,13 +33,13 @@ class Particle {
     }
 
     public tick(dt: number) {
-        if (! this.active) return
+        if (!this.active) return
         this.life -= dt
         if (this.life <= 0) {
             this.active = false
             return
         }
-        vec3.scale(this.scale, one, this.life / this.lifetime * this.size)
+        this.size = this.life / this.lifetime * this.startSize
         this.color[3] = this.life / this.lifetime * 255
         if (!this.pause) {
             vec3.scaleAndAdd(this.velocity, this.velocity, this.gravity, dt)
@@ -89,7 +84,7 @@ export interface IEmitterOpts {
 
 export class Emitter implements IEmitterOpts {
 
-    private particles: Particle[]
+    private particles: Particles
 
     public position = vec3.create()
     public size: number[] = [1, 1]
@@ -111,7 +106,7 @@ export class Emitter implements IEmitterOpts {
         quat.fromEuler(this.angle, v[0], v[1], v[2])
     }
 
-    constructor(particles: Particle[], opts: IEmitterOpts) {
+    constructor(particles: Particles, opts: IEmitterOpts) {
         this.particles = particles
         for (const key in opts) {
             this[key] = opts[key]
@@ -119,11 +114,11 @@ export class Emitter implements IEmitterOpts {
     }
 
     public emit(count: number) {
-        for (const p of this.particles) {
-            if (p.active) continue
+        for (let i = 0; i < count; i++) {
+            const p = this.particles.getParticle()
             p.gravity = this.gravity
             p.dampening = this.dampening
-            p.size = randN(this.size[0], this.size[1])
+            p.startSize = randN(this.size[0], this.size[1])
             vec3.copy(p.position, this.position)
             if (this.shape !== 'point') {
                 let offset: vec3
@@ -196,14 +191,13 @@ export class Emitter implements IEmitterOpts {
 export default class Particles {
 
     private particles: Particle[]
+    private currentIdx: number = 0
 
-    public mesh: GLMesh
     public material: Material
-    private mMesh: mat4
 
     public buffer: ArrayBuffer
     private bufView: DataView
-    private activeParticles = 0
+    public activeParticles = 0
 
     public glBuffer: WebGLBuffer
 
@@ -214,26 +208,27 @@ export default class Particles {
         }
 
         this.material = mat
-        this.mesh = new GLMesh(Util.makeQuad(-0.5, -0.5, 0.5, 0.5, MAX_PARTICLES))
         this.makeBuffers()
         this.bufView = new DataView(this.buffer)
-        this.mMesh = mat4.fromRotationTranslationScale(
-            mat4.create(),
-            quat.create(),
-            vec3.create(),
-            vec3.fromValues(2, 2, 2))
     }
 
     private makeBuffers() {
         // 6 verts in a quad
-        this.buffer = new ArrayBuffer(MAX_PARTICLES * QUAD_VERTS * PARTICLE_STRIDE)
+        this.buffer = new ArrayBuffer(MAX_PARTICLES * PARTICLE_STRIDE)
         this.glBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.glBuffer)
         gl.bufferData(gl.ARRAY_BUFFER, this.buffer, gl.DYNAMIC_DRAW)
     }
 
     public newEmitter(opts: IEmitterOpts): Emitter {
-        return new Emitter(this.particles, opts)
+        return new Emitter(this, opts)
+    }
+
+    public getParticle(): Particle {
+        if (this.currentIdx >= MAX_PARTICLES) {
+            this.currentIdx = 0
+        }
+        return this.particles[this.currentIdx++]
     }
 
     public tick(dt: number) {
@@ -245,37 +240,36 @@ export default class Particles {
             if (!p.active) return
 
             const pos = p.position
-            const scale = p.scale
+            const size = p.size
             const color = p.color
-            for (let j = 0; j < QUAD_VERTS; j++) {
-                v.setFloat32(PARTICLE_STRIDE * idx, pos[0], true)
-                v.setFloat32(PARTICLE_STRIDE * idx + 4, pos[1], true)
-                v.setFloat32(PARTICLE_STRIDE * idx + 8, pos[2], true)
-                v.setFloat32(PARTICLE_STRIDE * idx + 12, 1, true)
-                v.setFloat32(PARTICLE_STRIDE * idx + PARTICLE_SCALE_OFFSET + 0, scale[0], true)
-                v.setFloat32(PARTICLE_STRIDE * idx + PARTICLE_SCALE_OFFSET + 4, scale[1], true)
-                v.setFloat32(PARTICLE_STRIDE * idx + PARTICLE_SCALE_OFFSET + 8, scale[2], true)
-                v.setFloat32(PARTICLE_STRIDE * idx + PARTICLE_SCALE_OFFSET + 12, 1, true)
-                v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 0, color[0])
-                v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 1, color[1])
-                v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 2, color[2])
-                v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 3, color[3])
-                idx++
-            }
+            v.setFloat32(PARTICLE_STRIDE * idx, pos[0], true)
+            v.setFloat32(PARTICLE_STRIDE * idx + 4, pos[1], true)
+            v.setFloat32(PARTICLE_STRIDE * idx + 8, pos[2], true)
+            v.setFloat32(PARTICLE_STRIDE * idx + 12, 1, true)
+            v.setFloat32(PARTICLE_STRIDE * idx + PARTICLE_SCALE_OFFSET, size, true)
+            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 0, color[0])
+            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 1, color[1])
+            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 2, color[2])
+            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 3, color[3])
+            idx++
         })
 
         this.activeParticles = idx
     }
 
     public draw(data: any) {
-        const m = this.material
-        m.use()
-        m.setGlobalUniforms(data)
-        m.bindMesh(this.mesh, this.activeParticles)
-        m.setMeshUniforms(this.mMesh)
-        m.bindParticles(this)
-        m.draw()
-        m.end()
+        if (this.activeParticles > 0) {
+            const m = this.material
+            m.use()
+            m.setGlobalUniforms(data)
+            m.bindParticles(this)
+            gl.enable(gl.BLEND)
+            gl.depthMask(false)
+            gl.drawArrays(gl.POINTS, 0, this.activeParticles)
+            gl.disable(gl.BLEND)
+            gl.depthMask(true)
+            m.end()
+        }
     }
 
 }

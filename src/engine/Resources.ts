@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix'
-import { MODELS, SPRITES } from '../config/resources'
+import { MODELS, SPRITES, TEXTURES } from '../config/resources'
 import Util from './Util'
 import { GLMesh, GLTexture } from './Video'
 
@@ -11,16 +11,18 @@ class SpriteResource {
     public height: number
     public frames: number
     public spriteScale: vec3
+    public isSprite: boolean
 
     public texture: GLTexture
 
     private image: HTMLImageElement
 
-    constructor(src: string, data: any) {
+    constructor(src: string, data: any, isSprite = true) {
         this.src = src
 
         const frameKeys = Object.keys(data.frames)
 
+        this.isSprite = isSprite
         this.trueWidth = data.meta.size.w
         this.width = data.frames[frameKeys[0]].frame.w
         this.height = data.meta.size.h
@@ -33,15 +35,15 @@ class SpriteResource {
             this.image = new Image()
             // what if this image fails to load?
             this.image.onload = () => {
-                this.texture = new GLTexture(this.image)
+                this.texture = new GLTexture(this.image, this.isSprite)
                 resolve()
             }
             this.image.src = this.src
         })
     }
 
-    public static async load(src: string, data: any): Promise<SpriteResource> {
-        const sprite = new SpriteResource(src, data)
+    public static async load(src: string, data: any, isSprite = true): Promise<SpriteResource> {
+        const sprite = new SpriteResource(src, data, isSprite)
         await sprite.loadImage()
         return sprite
     }
@@ -93,6 +95,17 @@ export default class Resources {
             console.log(`[engine/resources] loading sprite ${key}`)
             stats.total++
             promises.push(SpriteResource.load(url, SPRITES[key].data).then((res) => {
+                this.sprites.set(mapKey, res)
+                updateStats()
+            }))
+        }
+
+        for (const key in TEXTURES) {
+            const url = TEXTURES[key].file
+            const mapKey = key
+            console.log(`[engine/resources] loading sprite ${key}`)
+            stats.total++
+            promises.push(SpriteResource.load(url, TEXTURES[key].data, false).then((res) => {
                 this.sprites.set(mapKey, res)
                 updateStats()
             }))

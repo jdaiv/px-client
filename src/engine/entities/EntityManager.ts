@@ -11,7 +11,6 @@ export default class EntityManager {
 
     private engine: Engine
     private playerPositions: Map<number, any>
-    private activePlayer: any
     private state: GameState
 
     constructor(engine: Engine) {
@@ -80,12 +79,17 @@ export default class EntityManager {
     }
 
     public drawEntities() {
+        const transform = {
+            position: vec3.fromValues(0 * TILE_SIZE, 0, 0 * TILE_SIZE),
+            scale: ONE,
+            rotation: ZERO
+        }
+        // this.engine.v.drawMesh('house', transform, 'outline', 'house')
+        // this.engine.v.drawMesh('house', transform, 'textured', 'house')
         this.state.entities.forEach((e, id) => {
-            const transform = {
-                position: vec3.fromValues(e.x * TILE_SIZE, 0, e.y * TILE_SIZE),
-                scale: ONE,
-                rotation: ZERO
-            }
+            transform.position[0] = e.x * TILE_SIZE
+            transform.position[1] = 0
+            transform.position[2] = e.y * TILE_SIZE
             switch (e.type) {
             case 'sign':
             case 'dummy':

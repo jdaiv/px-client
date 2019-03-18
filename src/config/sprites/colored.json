@@ -1,0 +1,19 @@
+{ "frames": {
+   "colored.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 2, "h": 2 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 2, "h": 2 },
+    "sourceSize": { "w": 2, "h": 2 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.9-x64",
+  "image": "src/assets/textures/colored.png",
+  "format": "RGBA8888",
+  "size": { "w": 2, "h": 2 },
+  "scale": "1"
+ }
+}

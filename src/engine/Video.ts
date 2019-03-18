@@ -29,6 +29,7 @@ export default class Video {
 
     private fboReady: boolean
     private fbos: GLFBO[]
+    private mouseFBO: GLFBO
     private postStack: string[]
 
     private hitTestData: Uint8Array
@@ -51,6 +52,8 @@ export default class Video {
         gl = this.el.getContext('webgl', {
             antialias: false
         })
+
+        gl.getExtension('OES_standard_derivatives')
 
         gl.enable(gl.DEPTH_TEST)
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
@@ -84,7 +87,8 @@ export default class Video {
     }
 
     public initQueue() {
-        this.engine.materials.forEach((_, key) => {
+        this.engine.materials.forEach((mat, key) => {
+            if (mat.settings.manual) return
             const map = new Map()
             this.queue.set(key, map)
             this.engine.resources.models.forEach((__, mKey) => {
@@ -197,12 +201,13 @@ export default class Video {
 
         if (!this.fboReady) {
             console.log('[engine/video] creating framebuffer')
-            this.fbos = []
             this.fbos = this.postStack.map((mat) => {
                 const fbo = new GLFBO(materials.get(mat))
                 fbo.resize(this.width, this.height)
                 return fbo
             })
+            this.mouseFBO = new GLFBO(materials.get('post_none'))
+            this.mouseFBO.resize(this.width, this.height)
             this.fboReady = true
         }
 
@@ -235,13 +240,19 @@ export default class Video {
         this.clearQueue()
         f()
 
-        this.fbos[0].bind()
-
         if (this.mouseActive) {
+            this.mouseFBO.bind()
+            gl.readPixels(this.mouseX, this.height - this.mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
+            const key = this.hitTestData.map(x => Math.floor(x / 5) * 5).join(',')
+            this.activeMouseObject = key
+            const cb = this.hitTestCallbacks.get(key)
+            if (cb) {
+                cb.callback('move')
+            }
+
             this.clear()
 
             const htMat = materials.get('hitTest')
-
             htMat.use()
             htMat.setGlobalUniforms(data)
             htMat.preDraw()
@@ -284,16 +295,9 @@ export default class Video {
             })
             htMat.postDraw()
             htMat.end()
-
-            gl.readPixels(this.mouseX, this.height - this.mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
-            const key = this.hitTestData.map(x => Math.floor(x / 5) * 5).join(',')
-            this.activeMouseObject = key
-            const cb = this.hitTestCallbacks.get(key)
-            if (cb) {
-                cb.callback('move')
-            }
         }
 
+        this.fbos[0].bind()
         this.clear()
 
         this.queue.forEach((q, matKey) => {
@@ -328,11 +332,7 @@ export default class Video {
             material.end()
         })
 
-        gl.enable(gl.BLEND)
-        gl.depthMask(false)
         this.engine.particles.draw(data)
-        gl.disable(gl.BLEND)
-        gl.depthMask(true)
 
         this.fbos.forEach((fbo, i) => {
             if (i >= this.fbos.length - 1) {
@@ -365,14 +365,19 @@ export class GLTexture {
 
     public tex: WebGLTexture
 
-    constructor(image: TexImageSource) {
+    constructor(image: TexImageSource, sprite: boolean = false) {
         this.tex = gl.createTexture()
         gl.bindTexture(gl.TEXTURE_2D, this.tex)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-        gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, sprite ? gl.NEAREST : gl.LINEAR)
+        gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, sprite ? gl.NEAREST : gl.LINEAR)
+    }
+
+    public static isPowerOf2(value: number) {
+// tslint:disable-next-line: no-bitwise
+        return (value & (value - 1)) === 0
     }
 
 }
