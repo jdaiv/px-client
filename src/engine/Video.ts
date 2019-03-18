@@ -135,6 +135,7 @@ export default class Video {
             gl.viewport(0, 0, this.width, this.height)
             if (this.fboReady) {
                 this.fbos.forEach(fbo => fbo.resize(this.width, this.height))
+                this.mouseFBO.resize(this.width, this.height)
             }
         }, 50)
     }
