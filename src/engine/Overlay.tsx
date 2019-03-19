@@ -16,7 +16,6 @@ export default class Overlay {
     private el: HTMLElement
 
     private points: Map<string, any>
-    private positions: Map<string, any>
     private elements: any[]
     private elementsMap: Map<string, any>
 
@@ -27,7 +26,6 @@ export default class Overlay {
 
     constructor(el: HTMLElement) {
         this.points = new Map()
-        this.positions = new Map()
         this.playerPositions = new Map()
         this.elements = []
         this.elementsMap = new Map()
@@ -65,21 +63,20 @@ export default class Overlay {
         console.log('[engine/overlay] destroyed')
     }
 
-    public getOrCreatePoint(id, position) {
+    public getOrCreatePoint(id) {
         let p = this.points.get(id)
         if (!p) {
             p = {}
             this.points.set(id, p)
         }
         p.active = true
-        p.targetPosition = position
         return p
     }
 
     public getOrCreateElement(id: string) {
         let el = this.elementsMap.get(id)
         if (!el) {
-            this.elements.forEach((e, i) => {
+            this.elements.forEach(e => {
                 if (!e.active) {
                     el = e
                 }
@@ -123,9 +120,11 @@ export default class Overlay {
         this.player = state.activePlayer
         state.players.forEach((x, id) => {
             const key = 'p' + id
-            const point = this.getOrCreatePoint(key, [x.x * TILE_SIZE, 24, x.y * TILE_SIZE])
+            const point = this.getOrCreatePoint(key)
+            point.player = true
+            point.yOffset = 24
             point.changed = true
-            point.player = x
+            point.source = x
         })
         state.entities.forEach((e, id) => {
             const key = 'e' + id
@@ -144,21 +143,24 @@ export default class Overlay {
             default:
                 offset = 0
             }
-            const point = this.getOrCreatePoint(key, [e.x * TILE_SIZE, offset, e.y * TILE_SIZE])
+            const point = this.getOrCreatePoint(key)
+            point.yOffset = offset
             point.changed = true
-            point.entity = e
+            point.source = e
         })
         state.items.forEach((x, id) => {
             const key = 'i' + id
-            const point = this.getOrCreatePoint(key, [x.x * TILE_SIZE, 4, x.y * TILE_SIZE])
+            const point = this.getOrCreatePoint(key)
+            point.yOffset = 4
             point.changed = true
-            point.item = x
+            point.source = x
         })
         state.npcs.forEach((x, id) => {
             const key = 'n' + id
-            const point = this.getOrCreatePoint(key, [x.x * TILE_SIZE, 10, x.y * TILE_SIZE])
+            const point = this.getOrCreatePoint(key)
+            point.yOffset = 10
             point.changed = true
-            point.npc = x
+            point.source = x
         })
     }
 
@@ -202,33 +204,28 @@ export default class Overlay {
                 const type = id.slice(0, 1)
                 switch (type) {
                 case 'p':
-                    render(<Nametag player={p.player} me={this.player} />, c, c.firstChild)
+                    render(<Nametag player={p.source} me={this.player} />, c, c.firstChild)
                     break
                 case 'n':
-                    render(<Nametag player={p.npc} me={this.player} />, c, c.firstChild)
+                    render(<Nametag player={p.source} me={this.player} />, c, c.firstChild)
                     break
                 case 'e':
-                    render(<Entity entity={p.entity} player={this.player} />, c, c.firstChild)
+                    render(<Entity entity={p.source} player={this.player} />, c, c.firstChild)
                     break
                 case 'i':
-                    render(<Item item={p.item} player={this.player} />, c, c.firstChild)
+                    render(<Item item={p.source} player={this.player} />, c, c.firstChild)
                     break
                 }
 
-                p.el.rect = c.getBoundingClientRect()
                 p.changed = false
                 c.changed = false
             }
 
             const current = p.currentPosition
-            const newTarget = p.player ? this.playerPositions.get(id) : p.targetPosition
+            const newTarget = p.player ? this.playerPositions.get(id) :
+                [p.source.x * TILE_SIZE, p.yOffset || 0, p.source.y * TILE_SIZE]
             const target = this.transformPosition(newTarget)
 
-            const rect = p.el.rect
-            if (rect) {
-                target[0] -= rect.width / 2
-                target[1] -= rect.height / 2
-            }
             target[2] = newTarget[1]
 
             if (!current) {

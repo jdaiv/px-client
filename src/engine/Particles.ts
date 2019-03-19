@@ -234,10 +234,8 @@ export default class Particles {
     public tick(dt: number) {
         const v = this.bufView
         let idx = 0
-        this.particles.forEach((p) => {
-            if (!p.active) return
+        this.particles.filter(p => p.active).forEach((p) => {
             p.tick(dt)
-            if (!p.active) return
 
             const pos = p.position
             const size = p.size

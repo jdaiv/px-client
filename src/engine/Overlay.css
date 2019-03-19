@@ -3,15 +3,19 @@
     top: 0px;
     left: 0px;
     pointer-events: none;
+    overflow: hidden;
 }
 
 .point {
     position: absolute;
     color: white;
     user-select: none;
+    white-space: nowrap;
 }
 
 .pointInner {
+    transform: translate(-50%, -50%);
+
     background: rgba(0, 0, 0, 0.5);
     /* padding: 0.5rem; */
     border: 1px solid #0f0;
