@@ -43,27 +43,22 @@ export default class Tiles {
             rotation: vec3.fromValues(0, 0, 90),
             shape: 'square',
             spread: 0,
-            bounce: true
+            bounce: 1
         })
     }
 
     private set = (state: GameState) => {
         this.tiles.length = 0
-        state.tiles.forEach((t: any, i: number) => {
-            this.tiles.push({
-                type: t.type,
-                position: vec3.multiply(
-                    vec3.create(),
-                    t.position,
-                    [
-                        TILE_SIZE,
-                        -TILE_SIZE / 2,
-                        TILE_SIZE,
-                    ]),
-                rotation: vec3.create(),
-                scale: vec3.fromValues(1, 1, 1)
-            })
+        const tiles = new Array<[vec3, number]>()
+        state.tiles.forEach((t: any) => {
+            let type = 2
+            switch (t.type) {
+                case 'grass': type = 3; break
+                case 'water': type = 4; break
+            }
+            tiles.push([t.position, type])
         })
+        this.engine.terrain.set(tiles, state.mapWidth, state.mapHeight)
     }
 
     public tick(dt: number) {
@@ -78,24 +73,24 @@ export default class Tiles {
     }
 
     public draw() {
-        const state = GameManager.instance.state
-        this.tiles.forEach((p, i) => {
-            this.engine.v.drawMesh('cube', p, 'textured', p.type !== 'default' ? p.type : 'grid', {
-                callback: (type: string) => {
-                    if (type === 'move') p.hover = true
-                    else if (type === 'click') {
-                        const player = state.activePlayer
-                        const tile = state.tiles[i]
-                        const stage = this.engine.activeStage as Station
-                        stage.effects.handleEffect({
-                            type: 'fireball',
-                            origin: [player.x, player.y],
-                            target: [tile.position[0], tile.position[2]]
-                        })
-                    }
-                }
-            })
-        })
+        // const state = GameManager.instance.state
+        // this.tiles.forEach((p, i) => {
+        //     this.engine.v.drawMesh('cube', p, 'textured', p.type !== 'default' ? p.type : 'grid', {
+        //         callback: (type: string) => {
+        //             if (type === 'move') p.hover = true
+        //             else if (type === 'click') {
+        //                 const player = state.activePlayer
+        //                 const tile = state.tiles[i]
+        //                 const stage = this.engine.activeStage as Station
+        //                 stage.effects.handleEffect({
+        //                     type: 'fireball',
+        //                     origin: [player.x, player.y],
+        //                     target: [tile.position[0], tile.position[2]]
+        //                 })
+        //             }
+        //         }
+        //     })
+        // })
     }
 
 }

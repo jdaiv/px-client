@@ -3,7 +3,7 @@ import { MODELS, SPRITES, TEXTURES } from '../config/resources'
 import Util from './Util'
 import { GLMesh, GLTexture } from './Video'
 
-class SpriteResource {
+export class SpriteResource {
 
     public src: string
     public trueWidth: number
@@ -50,7 +50,7 @@ class SpriteResource {
 
 }
 
-class ModelResource {
+export class ModelResource {
 
     public src: string
     public mesh: GLMesh

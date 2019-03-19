@@ -14,8 +14,14 @@ import postbloomFS from './shaders/post_bloom.fs'
 import postnoneFS from './shaders/post_none.fs'
 import postrainbowsFS from './shaders/post_rainbows.fs'
 import postwobbleFS from './shaders/post_wobble.fs'
+import stencilFS from './shaders/stencil.fs'
+import stencilVS from './shaders/stencil.vs'
+import terrainFS from './shaders/terrain.fs'
+import terrainVS from './shaders/terrain.vs'
 import texturedFS from './shaders/textured.fs'
 import texturedVS from './shaders/textured.vs'
+import waterFS from './shaders/water.fs'
+import waterVS from './shaders/water.vs'
 import { gl, GLMesh } from './Video'
 
 const MATERIALS = {
@@ -46,6 +52,12 @@ const MATERIALS = {
 
         manual: true,
     },
+    stencil: {
+        vs: stencilVS,
+        fs: stencilFS,
+        transform: true,
+        manual: true,
+    },
     textured: {
         vs: texturedVS,
         fs: texturedFS,
@@ -57,6 +69,31 @@ const MATERIALS = {
 
         screenSize: false,
         time: true,
+    },
+    terrain: {
+        vs: terrainVS,
+        fs: terrainFS,
+        transform: true,
+
+        textured: true,
+        normals: false,
+        spriteData: false,
+
+        screenSize: false,
+        time: true,
+
+        manual: true,
+    },
+    water: {
+        vs: waterVS,
+        fs: waterFS,
+        transform: true,
+
+        textured: true,
+        screenSize: true,
+        time: true,
+
+        manual: true,
     },
     sprite: {
         vs: texturedVS,

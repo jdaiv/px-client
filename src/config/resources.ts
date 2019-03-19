@@ -15,8 +15,6 @@ import * as spriteerrorData from './sprites/error.json'
 import spriteerror from '../assets/sprites/error.png'
 import * as spritefacesData from './sprites/faces.json'
 import spritefaces from '../assets/sprites/faces.png'
-import * as spritegrassData from './sprites/grass.json'
-import spritegrass from '../assets/sprites/grass.png'
 import * as spritegridData from './sprites/grid.json'
 import spritegrid from '../assets/sprites/grid.png'
 import * as spritehouseData from './sprites/house.json'
@@ -41,6 +39,8 @@ import * as spritestationdoorData from './sprites/station-door.json'
 import spritestationdoor from '../assets/sprites/station-door.png'
 import * as spritestationpostersData from './sprites/station-posters.json'
 import spritestationposters from '../assets/sprites/station-posters.png'
+import * as spriteterrainData from './sprites/terrain.json'
+import spriteterrain from '../assets/sprites/terrain.png'
 import * as spritetestData from './sprites/test.json'
 import spritetest from '../assets/sprites/test.png'
 import * as spritewaterData from './sprites/water.json'
@@ -51,16 +51,12 @@ import * as texcoloredData from './sprites/colored.json'
 import texcolored from '../assets/textures/colored.png'
 import * as texdummyData from './sprites/dummy.json'
 import texdummy from '../assets/textures/dummy.png'
-import * as texgrassData from './sprites/grass.json'
-import texgrass from '../assets/textures/grass.png'
 import * as texgridData from './sprites/grid.json'
 import texgrid from '../assets/textures/grid.png'
 import * as texhouseData from './sprites/house.json'
 import texhouse from '../assets/textures/house.png'
 import * as texsignData from './sprites/sign.json'
 import texsign from '../assets/textures/sign.png'
-import * as texwaterData from './sprites/water.json'
-import texwater from '../assets/textures/water.png'
 import modelarcadecabData from '../assets/models/arcadecab.obj'
 import modelcubeData from '../assets/models/cube.obj'
 import modeldummyData from '../assets/models/dummy.obj'
@@ -87,7 +83,6 @@ export const SPRITES = {
     'emotes': { file: spriteemotes, data: spriteemotesData },
     'error': { file: spriteerror, data: spriteerrorData },
     'faces': { file: spritefaces, data: spritefacesData },
-    'grass': { file: spritegrass, data: spritegrassData },
     'grid': { file: spritegrid, data: spritegridData },
     'house': { file: spritehouse, data: spritehouseData },
     'item-bag': { file: spriteitembag, data: spriteitembagData },
@@ -100,6 +95,7 @@ export const SPRITES = {
     'small-display': { file: spritesmalldisplay, data: spritesmalldisplayData },
     'station-door': { file: spritestationdoor, data: spritestationdoorData },
     'station-posters': { file: spritestationposters, data: spritestationpostersData },
+    'terrain': { file: spriteterrain, data: spriteterrainData },
     'test': { file: spritetest, data: spritetestData },
     'water': { file: spritewater, data: spritewaterData },
 }
@@ -107,9 +103,7 @@ export const TEXTURES = {
     'arcadecab': { file: texarcadecab, data: texarcadecabData },
     'colored': { file: texcolored, data: texcoloredData },
     'dummy': { file: texdummy, data: texdummyData },
-    'grass': { file: texgrass, data: texgrassData },
     'grid': { file: texgrid, data: texgridData },
     'house': { file: texhouse, data: texhouseData },
     'sign': { file: texsign, data: texsignData },
-    'water': { file: texwater, data: texwaterData },
 }

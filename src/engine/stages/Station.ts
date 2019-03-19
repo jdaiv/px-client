@@ -50,7 +50,7 @@ export default class Station extends Stage {
             this.engine.camera.setOffset([0, 0, 200])
         } else {
             this.engine.camera.setTarget([0, 0, 0])
-            this.engine.camera.setOffset([0, 60, 120])
+            this.engine.camera.setOffset([0, 50, 120])
         }
 
         this.tiles.tick(dt)

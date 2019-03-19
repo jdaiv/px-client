@@ -6,6 +6,7 @@ import Particles from './Particles'
 import Resources from './Resources'
 import Stage from './Stage'
 import Station from './stages/Station'
+import Terrain from './Terrain'
 import Video from './Video'
 
 export default class Engine {
@@ -15,6 +16,7 @@ export default class Engine {
     public camera: Camera
     public v: Video
     public particles: Particles
+    public terrain: Terrain
     public activeStage: Stage
     public overlay: Overlay
 
@@ -34,6 +36,10 @@ export default class Engine {
         this.resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)
         }).then(() => {
+            this.terrain = new Terrain(
+                this,
+                this.materials.get('terrain'),
+                this.resources.sprites.get('terrain'))
             this.v.initQueue()
             this.activeStage = new Station(this)
             this.start()

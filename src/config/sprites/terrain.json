@@ -1,5 +1,5 @@
 { "frames": {
-   "water.aseprite": {
+   "terrain.aseprite": {
     "frame": { "x": 0, "y": 0, "w": 256, "h": 256 },
     "rotated": false,
     "trimmed": false,
@@ -11,7 +11,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "src/assets/sprites/water.png",
+  "image": "src/assets/sprites/terrain.png",
   "format": "RGBA8888",
   "size": { "w": 256, "h": 256 },
   "scale": "1"

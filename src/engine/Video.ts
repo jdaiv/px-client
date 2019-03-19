@@ -28,7 +28,7 @@ export default class Video {
     private resources: Resources
 
     private fboReady: boolean
-    private fbos: GLFBO[]
+    private fbos: GLFBO[] = []
     private mouseFBO: GLFBO
     private postStack: string[]
 
@@ -149,7 +149,7 @@ export default class Video {
     public clear() {
         gl.clearColor(0, 0, 0, 0)
 // tslint:disable-next-line: no-bitwise
-        gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
+        gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT)
     }
 
     public drawMesh(name: string, { position, rotation, scale }: ITransform,
@@ -197,6 +197,12 @@ export default class Video {
         qObj.mouseData = mouseData
     }
 
+    public getFBO(mat: Material) {
+        const fbo = new GLFBO(mat)
+        this.fbos.push(fbo)
+        return fbo
+    }
+
     public run(dt: number, t: number, f: (() => void)) {
         const materials = this.engine.materials
 
@@ -204,9 +210,9 @@ export default class Video {
             console.log('[engine/video] creating framebuffer')
             this.fbos = this.postStack.map((mat) => {
                 const fbo = new GLFBO(materials.get(mat))
-                fbo.resize(this.width, this.height)
                 return fbo
-            })
+            }).concat(this.fbos)
+            this.fbos.forEach(fbo => fbo.resize(this.width, this.height))
             this.mouseFBO = new GLFBO(materials.get('post_none'))
             this.mouseFBO.resize(this.width, this.height)
             this.fboReady = true
@@ -301,6 +307,8 @@ export default class Video {
         this.fbos[0].bind()
         this.clear()
 
+        this.engine.terrain.draw(data)
+
         this.queue.forEach((q, matKey) => {
             const material = materials.get(matKey)
 
@@ -334,9 +342,11 @@ export default class Video {
         })
 
         this.engine.particles.draw(data)
+        this.engine.terrain.drawWater(data)
 
-        this.fbos.forEach((fbo, i) => {
-            if (i >= this.fbos.length - 1) {
+        this.postStack.forEach((_, i) => {
+            const fbo = this.fbos[i]
+            if (i >= this.postStack.length - 1) {
                 gl.bindRenderbuffer(gl.RENDERBUFFER, null)
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null)
             } else {
@@ -370,8 +380,10 @@ export class GLTexture {
         this.tex = gl.createTexture()
         gl.bindTexture(gl.TEXTURE_2D, this.tex)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        if (!GLTexture.isPowerOf2(image.width) || !GLTexture.isPowerOf2(image.height)) {
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        }
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, sprite ? gl.NEAREST : gl.LINEAR)
         gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, sprite ? gl.NEAREST : gl.LINEAR)
     }
@@ -385,6 +397,7 @@ export class GLTexture {
 
 export class GLMesh {
 
+    public mode: number
     public verts: Float32Array
     public normals: Float32Array
     public uvs: Float32Array
@@ -393,7 +406,11 @@ export class GLMesh {
     public normalBuffer: WebGLBuffer
     public uvsBuffer: WebGLBuffer
 
-    constructor(rawMesh: any) {
+    constructor(rawMesh: any, mode?: number) {
+        if (!mode) {
+            mode = gl.STATIC_DRAW
+        }
+        this.mode = mode
         this.setVerts(rawMesh.verts)
         this.setUVs(rawMesh.uvs)
         if (rawMesh.normals) this.setNormals(rawMesh.normals)
@@ -404,7 +421,7 @@ export class GLMesh {
         if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
         this.vertBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, this.verts, gl.STATIC_DRAW)
+        gl.bufferData(gl.ARRAY_BUFFER, this.verts, this.mode)
     }
 
     public setNormals(normals: number[]) {
@@ -412,7 +429,7 @@ export class GLMesh {
         if (this.normalBuffer) gl.deleteBuffer(this.normalBuffer)
         this.normalBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, this.normals, gl.STATIC_DRAW)
+        gl.bufferData(gl.ARRAY_BUFFER, this.normals, this.mode)
     }
 
     public setUVs(uvs: number[]) {
@@ -420,7 +437,7 @@ export class GLMesh {
         if (this.uvsBuffer) gl.deleteBuffer(this.uvsBuffer)
         this.uvsBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, this.uvs, gl.STATIC_DRAW)
+        gl.bufferData(gl.ARRAY_BUFFER, this.uvs, this.mode)
     }
 
     public destroy() {
@@ -431,7 +448,7 @@ export class GLMesh {
 
 }
 
-class GLFBO {
+export class GLFBO {
 
     public material: Material
     public texture: WebGLTexture
@@ -478,6 +495,9 @@ class GLFBO {
 
         gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderBuffer)
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h)
+
+        gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderBuffer)
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, w, h)
     }
 
     public bind() {
@@ -485,7 +505,7 @@ class GLFBO {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D, this.texture, 0)
         gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderBuffer)
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT,
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT,
             gl.RENDERBUFFER, this.renderBuffer)
     }
 
