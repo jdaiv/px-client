@@ -8,6 +8,6 @@ varying highp vec4 vVertexNormal;
 
 void main() {
     vec4 color = texture2D(uSampler, vec2(0, 0));
-    // color = vec4(vVertexNormal / 2.0 + 0.5, color.a);
+    color = vec4(0, dot(vVertexNormal.xyz / 2.0 + 0.5, vec3(0.2125, 0.7154, 0.0721)), 0, color.a);
     gl_FragColor = color;
 }
