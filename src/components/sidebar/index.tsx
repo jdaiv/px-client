@@ -6,6 +6,7 @@ import Tabs from '../shared/Tabs'
 import AccountSettingsForm from './AccountSettingsForm'
 import Auth from './Auth'
 import Chat from './chat'
+import Editor from './editor'
 import Player from './player'
 import SettingsForm from './SettingsForm'
 import style from './style.css'
@@ -14,7 +15,7 @@ import style from './style.css'
 @observer
 export default class Sidebar extends Component<{ game?: GameStore }> {
 
-    @observable public activeTab = 'player'
+    @observable public activeTab = 'editor'
     private changeTab = (tab: string) => this.activeTab = tab
 
     public render({ game }) {
@@ -30,6 +31,9 @@ export default class Sidebar extends Component<{ game?: GameStore }> {
             case 'settings':
                 inner = <SettingsForm />
                 break
+            case 'editor':
+                inner = <Editor />
+                break
         }
 
         if (game.connection.validUser) {
@@ -39,7 +43,8 @@ export default class Sidebar extends Component<{ game?: GameStore }> {
                         <Tabs
                             active={this.activeTab}
                             onClick={this.changeTab}
-                            options={['player', 'account', 'settings']} />
+                            options={['player', 'account', 'settings', 'editor']}
+                        />
                         <div class={style.content}>{inner}</div>
                         <hr class={style.hr} />
                         <Chat />

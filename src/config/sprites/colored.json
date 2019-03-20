@@ -11,7 +11,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.9-x64",
-  "image": "src/assets/textures/colored.png",
+  "image": "src/assets/sprites/colored.png",
   "format": "RGBA8888",
   "size": { "w": 2, "h": 2 },
   "scale": "1"

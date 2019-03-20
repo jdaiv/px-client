@@ -18,6 +18,14 @@ class GameSettings {
     @observable public quality: number = 2
 }
 
+class EditorSettings {
+    @observable public mode = 'zone'
+    @observable public enabled = false
+    @observable public activeTile: number = 2
+    @observable public activeEntity: string
+    @observable public selectedEntity = -1
+}
+
 interface IChatMessage {
     notice: boolean
     content: string
@@ -44,6 +52,7 @@ export default class GameStore {
     public user = new UserObject()
     public connection = new ConnectionInfo()
     public settings = new GameSettings()
+    public editor = new EditorSettings()
     public chatLog = new ChatLog()
     public state: GameState
 

@@ -79,12 +79,12 @@ export default class Terrain {
             u1 = (texX + 1) * TEX_TILE_SIZE / this.texWidth
             v1 = (texY + 1) * TEX_TILE_SIZE / this.texHeight
             uvs.push(
+                u0, v0,
                 u0, v1,
-                u0, v0,
-                u1, v1,
-                u0, v0,
                 u1, v0,
+                u0, v1,
                 u1, v1,
+                u1, v0,
             )
 
             let nextTile = map[i + width]

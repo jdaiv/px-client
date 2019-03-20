@@ -1,0 +1,78 @@
+
+.flex {
+    display: flex;
+}
+
+.flex > * {
+    margin-left: 0.25rem !important;
+    margin-right: 0.25rem !important;
+}
+
+.flex > *:first-child {
+    margin-left: 0rem !important;
+}
+
+.flex > *:last-child {
+    margin-right: 0rem !important;
+}
+
+.input {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.input > label {
+    flex: 0 0 30%;
+    margin-right: 0.5rem;
+}
+
+.input > input {
+    flex: 1;
+    padding: 0.25rem;
+    margin: 0;
+}
+
+.checkbox {
+    display: flex;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.checkbox > label {
+    flex: 1;
+    line-height: 1;
+}
+
+.checkbox > input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+}
+
+.tileSelector {
+    background: no-repeat url('../../../assets/sprites/terrain.png');
+    background-size: 100%;
+    image-rendering: pixelated;
+    width: 256px;
+    height: 256px;
+    box-shadow: 0 0 4px lime;
+    margin: 0 auto;
+}
+
+.tileBtn {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    outline: 0;
+    border: 0;
+    background: 0;
+}
+
+.tileBtn:hover {
+    border: 1px lime solid;
+}
+
+.tileBtn.active {
+    border: 2px lime solid;
+}

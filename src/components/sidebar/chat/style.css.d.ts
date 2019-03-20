@@ -1,7 +1,6 @@
 declare const styles: {
   readonly "container": string;
   readonly "chat": string;
-  readonly "options": string;
   readonly "active": string;
   readonly "form": string;
   readonly "disabled": string;

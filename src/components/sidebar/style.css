@@ -58,7 +58,7 @@ a.active:hover {
 .form p, .form h2, .form h3 {
 	font-size: 1rem;
 	line-height: 1.1;
-	margin: 0 0 1rem 0;
+	margin: 1rem 0;
 	font-weight: 400;
 }
 

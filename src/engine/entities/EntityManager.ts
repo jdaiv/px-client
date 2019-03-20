@@ -84,9 +84,22 @@ export default class EntityManager {
             scale: ONE,
             rotation: ZERO
         }
-        // this.engine.v.drawMesh('house', transform, 'outline', 'house')
-        // this.engine.v.drawMesh('house', transform, 'textured', 'house')
+        const editor = GameManager.instance.store.editor
+
         this.state.entities.forEach((e, id) => {
+            let mouseData = null
+            if (editor.enabled && editor.mode === 'entity') {
+                mouseData = {
+                    draw: true,
+                    callback: (type: string) => {
+                        if (type === 'click') {
+                            console.log(e)
+                            editor.selectedEntity = id
+                        }
+                    }
+                }
+            }
+
             transform.position[0] = e.x * TILE_SIZE
             transform.position[1] = 0
             transform.position[2] = e.y * TILE_SIZE
@@ -97,30 +110,24 @@ export default class EntityManager {
             case 'sign':
             case 'dummy':
                 this.engine.v.drawMesh(e.type, transform, 'outline', e.type)
-                this.engine.v.drawMesh(e.type, transform, 'textured', e.type)
-                break
-            case 'item_bag':
-                transform.position[1] = 4
-                vec3.scale(transform.scale, transform.scale, 0.5)
-                this.engine.v.drawMesh('quad', transform, 'sprite', 'itemBag')
+                this.engine.v.drawMesh(e.type, transform, 'textured', e.type, mouseData)
                 break
             case 'door':
                 transform.position[1] = 12
-                this.engine.v.drawSprite('station-door', transform, 'sprite', 0)
+                this.engine.v.drawSprite('station-door', transform, 'sprite', 0, mouseData)
                 break
             case 'corpse':
                 switch (e.strings.type) {
                 case 'player':
-                    this.engine.v.drawSprite('poses', transform, 'sprite', 7)
+                    this.engine.v.drawSprite('poses', transform, 'sprite', 7, mouseData)
                     break
                 case 'blob':
-                    this.engine.v.drawSprite('blob', transform, 'sprite', 2)
+                    this.engine.v.drawSprite('blob', transform, 'sprite', 2, mouseData)
                     break
                 }
-
                 break
             default:
-                this.engine.v.drawMesh('error', transform, 'error', null)
+                this.engine.v.drawMesh('error', transform, 'error', null, mouseData)
                 break
             }
         })

@@ -29,7 +29,6 @@ export default class Video {
 
     private fboReady: boolean
     private fbos: GLFBO[] = []
-    private mouseFBO: GLFBO
     private postStack: string[]
 
     private hitTestData: Uint8Array
@@ -135,7 +134,6 @@ export default class Video {
             gl.viewport(0, 0, this.width, this.height)
             if (this.fboReady) {
                 this.fbos.forEach(fbo => fbo.resize(this.width, this.height))
-                this.mouseFBO.resize(this.width, this.height)
             }
         }, 50)
     }
@@ -213,8 +211,6 @@ export default class Video {
                 return fbo
             }).concat(this.fbos)
             this.fbos.forEach(fbo => fbo.resize(this.width, this.height))
-            this.mouseFBO = new GLFBO(materials.get('post_none'))
-            this.mouseFBO.resize(this.width, this.height)
             this.fboReady = true
         }
 
@@ -247,29 +243,23 @@ export default class Video {
         this.clearQueue()
         f()
 
-        if (this.mouseActive) {
-            this.mouseFBO.bind()
-            gl.readPixels(this.mouseX, this.height - this.mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
-            const key = this.hitTestData.map(x => Math.floor(x / 5) * 5).join(',')
-            this.activeMouseObject = key
-            const cb = this.hitTestCallbacks.get(key)
-            if (cb) {
-                cb.callback('move')
-            }
+        this.fbos[0].bind()
 
+        if (this.mouseActive) {
             this.clear()
 
             const htMat = materials.get('hitTest')
             htMat.use()
             htMat.setGlobalUniforms(data)
             htMat.preDraw()
+            const color = vec4.fromValues(255, 255, 255, 255)
+            const nullColor = vec4.fromValues(0, 0, 0, 255)
             this.queue.forEach((q) => {
                 q.forEach((mq, modelKey) => {
                     htMat.bindMesh(this.resources.models.get(modelKey).mesh)
-                    const color = vec4.fromValues(255, 255, 255, 255)
-                    const nullColor = vec4.fromValues(0, 0, 0, 255)
                     for (let i = 0; i < mq.count; i++) {
                         const o = mq.array[i]
+                        if (!o.mouseData) continue
                         const image = this.resources.sprites.get(o.texture)
                         htMat.setTexture(image.texture.tex)
                         const mMat = mat4.create()
@@ -284,7 +274,6 @@ export default class Video {
                         }
                         htMat.setMeshUniforms(mMat, spriteData, o.mouseData ? color : nullColor)
                         htMat.draw()
-                        if (!o.mouseData) continue
 
                         this.hitTestCallbacks.set(color.join(','), o.mouseData)
 
@@ -302,9 +291,16 @@ export default class Video {
             })
             htMat.postDraw()
             htMat.end()
+
+            gl.readPixels(this.mouseX, this.height - this.mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
+            const key = this.hitTestData.map(x => Math.floor(x / 5) * 5).join(',')
+            this.activeMouseObject = key
+            const cb = this.hitTestCallbacks.get(key)
+            if (cb) {
+                cb.callback('move')
+            }
         }
 
-        this.fbos[0].bind()
         this.clear()
 
         this.engine.terrain.draw(data)
@@ -320,6 +316,7 @@ export default class Video {
                 material.bindMesh(this.resources.models.get(modelKey).mesh)
                 for (let i = 0; i < mq.count; i++) {
                     const o = mq.array[i]
+                    if (o.mouseData && !o.mouseData.draw) continue
                     const image = this.resources.sprites.get(o.texture)
                     material.setTexture(image.texture.tex)
                     const mMat = mat4.create()
@@ -341,8 +338,8 @@ export default class Video {
             material.end()
         })
 
-        this.engine.particles.draw(data)
         this.engine.terrain.drawWater(data)
+        this.engine.particles.draw(data)
 
         this.postStack.forEach((_, i) => {
             const fbo = this.fbos[i]
@@ -366,6 +363,7 @@ export default class Video {
     public mouseClick() {
         const cb = this.hitTestCallbacks.get(this.activeMouseObject)
         if (cb) {
+            console.log(this.activeMouseObject)
             cb.callback('click')
         }
     }

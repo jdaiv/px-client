@@ -125,4 +125,10 @@ export default class GameManager {
         })
     }
 
+    public editAction(params: any) {
+        this.socket.send('game_edit', {
+            type: 'edit', params
+        })
+    }
+
 }

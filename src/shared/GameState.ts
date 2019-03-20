@@ -8,12 +8,14 @@ export default class GameState {
     @observable public valid = false
     @observable.shallow public activePlayer: any
     @observable.shallow public combatInfo: any
+    @observable.shallow public definitions: any
 
     public entities: ObservableMap<number, any>
     public players: ObservableMap<number, any>
     public items: ObservableMap<number, any>
     public npcs: ObservableMap<number, any>
     public tiles: IObservableArray<any>
+    @observable public zoneName = ''
     @observable public mapWidth = 0
     @observable public mapHeight = 0
 
@@ -33,6 +35,7 @@ export default class GameState {
 
     @action
     public readData(data: any) {
+        this.zoneName = data.zone.name
         this.setTiles(data.zone.map,
             data.zone.width,
             data.zone.height)
@@ -43,6 +46,7 @@ export default class GameState {
             data.zone.npcs)
         this.valid = true
         this.combatInfo = data.zone.combatInfo
+        this.definitions = data.defs
         this.listeners.forEach(x => x(this))
     }
 
@@ -50,7 +54,8 @@ export default class GameState {
         const newTiles = []
         map.forEach((t: any, i: number) => {
             newTiles.push({
-                type: t.type,
+                type: t.id,
+                name: t.name,
                 position: vec3.fromValues(
                     Math.floor(i % width),
                     1,

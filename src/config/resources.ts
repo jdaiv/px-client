@@ -1,24 +1,16 @@
 // AUTOMATICALLY GENERATED FILE
-import * as spritearcadecabData from './sprites/arcadecab.json'
-import spritearcadecab from '../assets/sprites/arcadecab.png'
 import * as spritebinData from './sprites/bin.json'
 import spritebin from '../assets/sprites/bin.png'
 import * as spriteblobData from './sprites/blob.json'
 import spriteblob from '../assets/sprites/blob.png'
 import * as spritecoloredData from './sprites/colored.json'
 import spritecolored from '../assets/sprites/colored.png'
-import * as spritedummyData from './sprites/dummy.json'
-import spritedummy from '../assets/sprites/dummy.png'
 import * as spriteemotesData from './sprites/emotes.json'
 import spriteemotes from '../assets/sprites/emotes.png'
 import * as spriteerrorData from './sprites/error.json'
 import spriteerror from '../assets/sprites/error.png'
 import * as spritefacesData from './sprites/faces.json'
 import spritefaces from '../assets/sprites/faces.png'
-import * as spritegridData from './sprites/grid.json'
-import spritegrid from '../assets/sprites/grid.png'
-import * as spritehouseData from './sprites/house.json'
-import spritehouse from '../assets/sprites/house.png'
 import * as spriteitembagData from './sprites/item-bag.json'
 import spriteitembag from '../assets/sprites/item-bag.png'
 import * as spriteloadingData from './sprites/loading.json'
@@ -27,8 +19,6 @@ import * as spritepaletteData from './sprites/palette.json'
 import spritepalette from '../assets/sprites/palette.png'
 import * as spriteposesData from './sprites/poses.json'
 import spriteposes from '../assets/sprites/poses.png'
-import * as spritesignData from './sprites/sign.json'
-import spritesign from '../assets/sprites/sign.png'
 import * as spritesmalldisplayleftData from './sprites/small-display-left.json'
 import spritesmalldisplayleft from '../assets/sprites/small-display-left.png'
 import * as spritesmalldisplayrightData from './sprites/small-display-right.json'
@@ -47,8 +37,6 @@ import * as spritewaterData from './sprites/water.json'
 import spritewater from '../assets/sprites/water.png'
 import * as texarcadecabData from './sprites/arcadecab.json'
 import texarcadecab from '../assets/textures/arcadecab.png'
-import * as texcoloredData from './sprites/colored.json'
-import texcolored from '../assets/textures/colored.png'
 import * as texdummyData from './sprites/dummy.json'
 import texdummy from '../assets/textures/dummy.png'
 import * as texgridData from './sprites/grid.json'
@@ -63,7 +51,9 @@ import modeldummyData from '../assets/models/dummy.obj'
 import modelerrorData from '../assets/models/error.obj'
 import modelhouseData from '../assets/models/house.obj'
 import modelquadData from '../assets/models/quad.obj'
+import modelrocksData from '../assets/models/rocks.obj'
 import modelsignData from '../assets/models/sign.obj'
+import modeltreeData from '../assets/models/tree.obj'
 
 export const MODELS = {
     'arcadecab': modelarcadecabData,
@@ -72,24 +62,21 @@ export const MODELS = {
     'error': modelerrorData,
     'house': modelhouseData,
     'quad': modelquadData,
+    'rocks': modelrocksData,
     'sign': modelsignData,
+    'tree': modeltreeData,
 }
 export const SPRITES = {
-    'arcadecab': { file: spritearcadecab, data: spritearcadecabData },
     'bin': { file: spritebin, data: spritebinData },
     'blob': { file: spriteblob, data: spriteblobData },
     'colored': { file: spritecolored, data: spritecoloredData },
-    'dummy': { file: spritedummy, data: spritedummyData },
     'emotes': { file: spriteemotes, data: spriteemotesData },
     'error': { file: spriteerror, data: spriteerrorData },
     'faces': { file: spritefaces, data: spritefacesData },
-    'grid': { file: spritegrid, data: spritegridData },
-    'house': { file: spritehouse, data: spritehouseData },
     'item-bag': { file: spriteitembag, data: spriteitembagData },
     'loading': { file: spriteloading, data: spriteloadingData },
     'palette': { file: spritepalette, data: spritepaletteData },
     'poses': { file: spriteposes, data: spriteposesData },
-    'sign': { file: spritesign, data: spritesignData },
     'small-display-left': { file: spritesmalldisplayleft, data: spritesmalldisplayleftData },
     'small-display-right': { file: spritesmalldisplayright, data: spritesmalldisplayrightData },
     'small-display': { file: spritesmalldisplay, data: spritesmalldisplayData },
@@ -101,7 +88,6 @@ export const SPRITES = {
 }
 export const TEXTURES = {
     'arcadecab': { file: texarcadecab, data: texarcadecabData },
-    'colored': { file: texcolored, data: texcoloredData },
     'dummy': { file: texdummy, data: texdummyData },
     'grid': { file: texgrid, data: texgridData },
     'house': { file: texhouse, data: texhouseData },
