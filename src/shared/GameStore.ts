@@ -5,6 +5,7 @@ class UserObject {
     @observable public id: number
     @observable public usernameN: string
     @observable public username: string
+    @observable public superuser: boolean
 }
 
 class ConnectionInfo {

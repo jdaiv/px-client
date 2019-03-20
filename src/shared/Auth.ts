@@ -47,6 +47,7 @@ export default class Auth {
                 this.savePassword(password)
                 this.store.user.usernameN = json.data.nameNormal
                 this.store.user.username = json.data.name
+                this.store.user.superuser = json.data.superuser
                 this.store.connection.validUser = true
             }
             return json

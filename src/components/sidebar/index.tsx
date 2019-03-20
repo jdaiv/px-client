@@ -20,6 +20,10 @@ export default class Sidebar extends Component<{ game?: GameStore }> {
 
     public render({ game }) {
 
+        const tabs = ['player', 'account', 'settings']
+        if (game.user.superuser) {
+            tabs.push('editor')
+        }
         let inner: any
         switch (this.activeTab) {
             case 'player':
@@ -43,7 +47,7 @@ export default class Sidebar extends Component<{ game?: GameStore }> {
                         <Tabs
                             active={this.activeTab}
                             onClick={this.changeTab}
-                            options={['player', 'account', 'settings', 'editor']}
+                            options={tabs}
                         />
                         <div class={style.content}>{inner}</div>
                         <hr class={style.hr} />
