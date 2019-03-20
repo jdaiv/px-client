@@ -15,7 +15,7 @@ import style from './style.css'
 @observer
 export default class Sidebar extends Component<{ game?: GameStore }> {
 
-    @observable public activeTab = 'editor'
+    @observable public activeTab = 'player'
     private changeTab = (tab: string) => this.activeTab = tab
 
     public render({ game }) {
