@@ -1,5 +1,6 @@
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
+import GameManager from '../../../shared/GameManager'
 import GameStore from '../../../shared/GameStore'
 import baseStyle from '../style.css'
 import EntityEditor from './EntityEditor'
@@ -16,6 +17,7 @@ export default class Editor extends Component<{ game?: GameStore }> {
 
     private updateEnabled = (evt: Event) => {
         this.props.game.editor.enabled = (evt.currentTarget as HTMLInputElement).checked
+        GameManager.instance.toggleEdit(this.props.game.editor.enabled)
     }
 
     public render({ game }) {

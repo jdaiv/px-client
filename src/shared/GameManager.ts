@@ -131,4 +131,13 @@ export default class GameManager {
         })
     }
 
+    public toggleEdit(on: boolean) {
+        this.socket.send('game_edit', {
+            type: 'edit',
+            params: {
+                type: on ? 'enable' : 'disable'
+            }
+        })
+    }
+
 }
