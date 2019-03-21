@@ -117,7 +117,7 @@ export default class EntityManager {
                 this.engine.v.drawSprite('station-door', transform, 'sprite', 0, mouseData)
                 break
             case 'corpse':
-                switch (e.strings.type) {
+                switch (e.fields.type) {
                 case 'player':
                     this.engine.v.drawSprite('poses', transform, 'sprite', 7, mouseData)
                     break
