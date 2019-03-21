@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix'
 import { action, IObservableArray, observable, ObservableMap } from 'mobx'
 
-type Listener = (arg0: GameState) => void
+type Listener = (arg0: GameState, zoneChanged: boolean) => void
 
 export default class GameState {
 
@@ -9,12 +9,15 @@ export default class GameState {
     @observable.shallow public activePlayer: any
     @observable.shallow public combatInfo: any
     @observable.shallow public definitions: any
+    @observable.shallow public zoneDebug: any
+    @observable.shallow public allZones: any
 
     public entities: ObservableMap<number, any>
     public players: ObservableMap<number, any>
     public items: ObservableMap<number, any>
     public npcs: ObservableMap<number, any>
     public tiles: IObservableArray<any>
+    private oldZoneName = ''
     @observable public zoneName = ''
     @observable public mapMinX = 0
     @observable public mapMaxX = 0
@@ -47,11 +50,20 @@ export default class GameState {
         this.valid = true
         this.combatInfo = data.zone.combatInfo
         this.definitions = data.defs
-        this.listeners.forEach(x => x(this))
+        this.zoneDebug = data.debugZone
+        this.allZones = data.allZones
+        this.listeners.forEach(x => x(this, this.zoneName !== this.oldZoneName))
+        this.oldZoneName = data.zone.name
     }
 
     public setTiles(map: any) {
         const newTiles = []
+
+        this.mapMinX = 0
+        this.mapMaxX = 0
+        this.mapMinY = 0
+        this.mapMaxY = 0
+
         for (const key in map) {
             const t = map[key]
             const coords = key.split(',')

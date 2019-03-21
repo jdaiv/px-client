@@ -47,7 +47,11 @@ export default class Tiles {
         })
     }
 
-    private set = (state: GameState) => {
+    private set = (state: GameState, zoneChanged: boolean) => {
+        if (zoneChanged) {
+            this.trees.clear()
+            this.rocks.clear()
+        }
         const tiles = new Array<[vec3, number]>()
         state.tiles.forEach((t: any, i) => {
             tiles.push([t.position, t.type])

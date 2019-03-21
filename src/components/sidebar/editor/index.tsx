@@ -21,7 +21,17 @@ export default class Editor extends Component<{ game?: GameStore }> {
     }
 
     public render({ game }) {
-
+        const selector = (
+            <div>
+                <p>mode:</p>
+                <select onChange={this.setMode} value={game.editor.mode}>
+                    <option>zone</option>
+                    <option>entity</option>
+                    <option>item</option>
+                    <option>npc</option>
+                </select>
+            </div>
+        )
         let inner: any
         switch (game.editor.mode) {
             case 'zone': inner = <ZoneEditor />; break
@@ -36,14 +46,8 @@ export default class Editor extends Component<{ game?: GameStore }> {
                     <label>enabled</label>
                     <input type="checkbox" checked={game.editor.enabled} onChange={this.updateEnabled} />
                 </div>
-                <p>mode:</p>
-                <select onChange={this.setMode} value={game.editor.mode}>
-                    <option>zone</option>
-                    <option>entity</option>
-                    <option>item</option>
-                    <option>npc</option>
-                </select>
-                {inner}
+                {game.editor.enabled ? selector : ''}
+                {game.editor.enabled && game.state.definitions ? inner : ''}
             </div>
         )
     }

@@ -356,6 +356,9 @@ export default class Video {
     }
 
     public mouseMove(evt: MouseEvent) {
+        if (typeof document.activeElement === typeof HTMLElement) {
+            (document.activeElement as HTMLElement).blur()
+        }
         this.mouseX = Math.floor(evt.offsetX / SCALE)
         this.mouseY = Math.floor(evt.offsetY / SCALE)
     }
