@@ -250,14 +250,15 @@ export default class Overlay {
 class Nametag extends Component<{ player: any; me: any }> {
     public click = () => {
         if (this.props.player.alignment !== 'hostile') return
-        GameManager.instance.playerAttack(this.props.player.id)
+        // GameManager.instance.playerAttack(this.props.player.id)
+        GameManager.instance.playerSpell('fireball', this.props.player.x, this.props.player.y)
     }
 
     public render({ player, me }) {
-        let canAttack = false
-        if (Math.abs(player.x - me.x) <= 1 && Math.abs(player.y - me.y) <= 1) {
-            canAttack = true
-        }
+        const canAttack = player.alignment === 'hostile'
+        // if (Math.abs(player.x - me.x) <= 1 && Math.abs(player.y - me.y) <= 1) {
+        //     canAttack = true
+        // }
         return (
             <div class={style.pointInner}>
                 <button class={style.useBtn} onClick={canAttack ? this.click : null}>

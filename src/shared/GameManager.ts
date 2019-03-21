@@ -115,7 +115,13 @@ export default class GameManager {
 
     public playerAttack(id: number) {
         this.socket.send('game_action', {
-            type: 'attack', params: { id }
+            type: 'attack', params: { mode: 'melee', id }
+        })
+    }
+
+    public playerSpell(spell: string, x: number, y: number) {
+        this.socket.send('game_action', {
+            type: 'attack', params: { mode: 'spell', spell, x, y }
         })
     }
 

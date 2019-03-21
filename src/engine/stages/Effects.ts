@@ -1,5 +1,6 @@
 import Engine from '../Engine'
 import BloodSplatter from './effects/BloodSplatter'
+import Fire from './effects/Fire'
 import FireBall from './effects/FireBall'
 import IEffect from './effects/IEffect'
 import ScreenShake from './effects/ScreenShake'
@@ -14,6 +15,7 @@ export default class Effects {
         this.effects.set('wood_ex', new BloodSplatter(engine))
         this.effects.set('screen_shake', new ScreenShake(engine))
         this.effects.set('fireball', new FireBall(engine))
+        this.effects.set('fire', new Fire(engine))
 
         this.runningEffects = new Map()
     }
