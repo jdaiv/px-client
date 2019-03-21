@@ -37,7 +37,34 @@ export default class Terrain {
         this.transform = mat4.fromTranslation(mat4.create(), [0, 0, 0])
     }
 
-    public set(map: Array<[vec3, number]>, width: number, height: number) {
+    private calculateEdges(map: Array<[vec3, number]>, start: number[], end: number[]): boolean[][][] {
+        const solid = new Array<boolean[]>()
+        const edges = new Array<boolean[][]>()
+        for (let x = start[0]; x <= end[0]; x++) {
+            solid[x] = new Array<boolean>()
+            edges[x] = new Array<boolean[]>()
+            for (let y = start[1]; y <= end[1]; y++) {
+                solid[x][y] = false
+                // N, E, S, W
+                edges[x][y] = [false, false, false, false]
+            }
+        }
+        map.forEach(t => {
+            solid[t[0][0]][t[0][1]] = t[1] !== 4
+        })
+        for (let x = start[0]; x <= end[0]; x++) {
+            for (let y = start[1]; y <= end[1]; y++) {
+                edges[x][y][0] = y === start[1] || !solid[x][y - 1]
+                edges[x][y][1] = x === end[0] || !solid[x + 1][y]
+                edges[x][y][2] = y === end[1] || !solid[x][y + 1]
+                edges[x][y][3] = x === start[0] || !solid[x - 1][y]
+            }
+        }
+
+        return edges
+    }
+
+    public set(map: Array<[vec3, number]>, start: number[], end: number[]) {
         const verts: number[] = []
         const uvs: number[] = []
         const waterVerts: number[] = []
@@ -57,6 +84,7 @@ export default class Terrain {
         const edgeV0 = 1 * TEX_TILE_SIZE / this.texHeight
         const edgeU1 = 2 * TEX_TILE_SIZE / this.texWidth
         const edgeV1 = 0
+        const edges = this.calculateEdges(map, start, end)
         map.forEach((t, i) => {
             if (t[1] === 4) return
             const p = t[0]
@@ -87,8 +115,7 @@ export default class Terrain {
                 u1, v0,
             )
 
-            let nextTile = map[i + width]
-            if (Math.floor(i / width) === height - 1 || (nextTile && nextTile[1] === 4)) {
+            if (edges[p[0]][p[2]][2]) {
                 verts.push(
                     x0, y0, z1,
                     x0, y1, z1,
@@ -106,9 +133,7 @@ export default class Terrain {
                     edgeU1, edgeV1,
                 )
             }
-            nextTile = map[i + 1]
-            let isEnd = Math.floor(i % width) === width - 1
-            if (i !== 0 && isEnd || (!isEnd && nextTile && nextTile[1] === 4)) {
+            if (edges[p[0]][p[2]][1]) {
                 verts.push(
                     x1, y0, z1,
                     x1, y1, z1,
@@ -126,9 +151,7 @@ export default class Terrain {
                     edgeU1, edgeV1,
                 )
             }
-            nextTile = map[i - 1]
-            isEnd = Math.floor(i % width) === 0
-            if (i !== width - 1 && isEnd || (!isEnd && nextTile && nextTile[1] === 4)) {
+            if (edges[p[0]][p[2]][3]) {
                 verts.push(
                     x0, y0, z0,
                     x0, y1, z0,
@@ -148,11 +171,11 @@ export default class Terrain {
             }
 
         })
-        x0 = -TILE_SIZE_HALF + 1
-        z0 = -TILE_SIZE_HALF + 1
+        x0 = TILE_SIZE * start[0] + 1 - TILE_SIZE_HALF
+        z0 = TILE_SIZE * start[1] + 1 - TILE_SIZE_HALF
         y = 0
-        x1 = (width - 1) * TILE_SIZE + TILE_SIZE_HALF - 1
-        z1 = (height - 1) * TILE_SIZE + TILE_SIZE_HALF - 1
+        x1 = (end[0]) * TILE_SIZE + TILE_SIZE_HALF - 1
+        z1 = (end[1]) * TILE_SIZE + TILE_SIZE_HALF - 1
         waterVerts.push(
             x0, y, z0,
             x0, y, z1,
@@ -163,8 +186,8 @@ export default class Terrain {
         )
         u0 = 0
         v0 = 0
-        u1 = (TILE_SIZE / this.texWidth * 2) * width
-        v1 = (TILE_SIZE / this.texHeight * 2) * height
+        u1 = (TILE_SIZE / this.texWidth * 2) * (end[0] - start[0])
+        v1 = (TILE_SIZE / this.texHeight * 2) * (end[1] - start[1])
         waterUVs.push(
             u0, v1,
             u0, v0,

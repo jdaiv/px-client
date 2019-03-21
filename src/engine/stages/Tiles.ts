@@ -10,15 +10,14 @@ export const TILE_SIZE = 16
 export default class Tiles {
 
     private engine: Engine
-    private tiles: any[]
     private trees = new Map<number, any>()
     private rocks = new Map<number, any>()
     private sparkleEmitter: Emitter
     private clickEmitter: Emitter
+    private hover = false
 
     constructor(engine: Engine) {
         this.engine = engine
-        this.tiles = []
         GameManager.instance.state.registerListener(this.set)
 
         this.sparkleEmitter = engine.particles.newEmitter({
@@ -49,16 +48,9 @@ export default class Tiles {
     }
 
     private set = (state: GameState) => {
-        this.tiles.length = 0
         const tiles = new Array<[vec3, number]>()
         state.tiles.forEach((t: any, i) => {
             tiles.push([t.position, t.type])
-            this.tiles.push({
-                type: t.type,
-                position: vec3.mul(vec3.create(), t.position, [TILE_SIZE, -TILE_SIZE_HALF, TILE_SIZE]),
-                rotation: vec3.create(),
-                scale: vec3.fromValues(1, 1, 1),
-            })
             if (t.type === 5 && !this.trees.has(i)) {
                 const scale = Math.random() * 2 + 1
                 const transform = {
@@ -84,57 +76,65 @@ export default class Tiles {
                 this.rocks.delete(i)
             }
         })
-        this.engine.terrain.set(tiles, state.mapWidth, state.mapHeight)
+        this.engine.terrain.set(tiles, [state.mapMinX, state.mapMinY], [state.mapMaxX, state.mapMaxY])
     }
 
     public tick(dt: number) {
-        this.tiles.forEach((p, i) => {
-            if (p.hover) {
-                vec3.copy(this.sparkleEmitter.position, p.position)
-                this.sparkleEmitter.position[1] = 0
-                this.sparkleEmitter.emit(2)
-            }
-            p.hover = false
-        })
+        if (this.hover) {
+            this.sparkleEmitter.position[1] = 0
+            this.sparkleEmitter.emit(2)
+        }
+        this.hover = false
     }
 
     public draw() {
         const gm = GameManager.instance
         if (gm.store.editor.enabled) {
-            this.tiles.forEach((p, i) => {
-                this.engine.v.drawMesh('cube', p, 'textured', 'grid', {
-                    draw: false,
-                    callback: (type: string) => {
-                        if (type === 'move') p.hover = true
-                        else if (type === 'click') {
-                            vec3.copy(this.clickEmitter.position, p.position)
-                            this.clickEmitter.position[1] = 0
-                            this.clickEmitter.emit(50)
-                            switch (gm.store.editor.mode) {
-                                case 'zone':
-                                    gm.editAction({
-                                        type: 'tile',
-                                        idx: i,
-                                        to: gm.store.editor.activeTile
-                                    })
-                                    break
-                                case 'entity':
-                                    if (gm.store.editor.selectedEntity === -1) {
+            const transform = {
+                position: vec3.fromValues(1, -TILE_SIZE_HALF, 1),
+                rotation: vec3.create(),
+                scale: vec3.fromValues(1, 1, 1),
+            }
+            for (let x = gm.state.mapMinX - 1; x <= gm.state.mapMaxX + 1; x++) {
+                for (let y = gm.state.mapMinY - 1; y <= gm.state.mapMaxY + 1; y++) {
+                    transform.position[0] = TILE_SIZE * x
+                    transform.position[2] = TILE_SIZE * y
+                    const p = vec3.clone(transform.position)
+                    this.engine.v.drawMesh('cube', transform, 'textured', 'grid', {
+                        draw: false,
+                        callback: (type: string) => {
+                            if (type === 'move') {
+                                vec3.copy(this.sparkleEmitter.position, p)
+                                this.hover = true
+                            } else if (type === 'click') {
+                                vec3.copy(this.clickEmitter.position, p)
+                                this.clickEmitter.position[1] = 0
+                                this.clickEmitter.emit(50)
+                                switch (gm.store.editor.mode) {
+                                    case 'zone':
                                         gm.editAction({
-                                            type: 'entity_create',
-                                            ent: gm.store.editor.activeEntity,
-                                            x: Math.floor(p.position[0] / TILE_SIZE),
-                                            y: Math.floor(p.position[2] / TILE_SIZE)
+                                            type: 'tile',
+                                            x, y,
+                                            to: gm.store.editor.activeTile
                                         })
-                                    } else {
-                                        gm.store.editor.selectedEntity = -1
-                                    }
-                                    break
+                                        break
+                                    case 'entity':
+                                        if (gm.store.editor.selectedEntity === -1) {
+                                            gm.editAction({
+                                                type: 'entity_create',
+                                                ent: gm.store.editor.activeEntity,
+                                                x, y
+                                            })
+                                        } else {
+                                            gm.store.editor.selectedEntity = -1
+                                        }
+                                        break
+                                }
                             }
                         }
-                    }
-                })
-            })
+                    })
+                }
+            }
         } else {
             this.trees.forEach((t) => {
                 this.engine.v.drawMesh('tree', t, 'textured', 'colored')

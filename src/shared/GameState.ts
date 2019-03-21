@@ -16,8 +16,10 @@ export default class GameState {
     public npcs: ObservableMap<number, any>
     public tiles: IObservableArray<any>
     @observable public zoneName = ''
-    @observable public mapWidth = 0
-    @observable public mapHeight = 0
+    @observable public mapMinX = 0
+    @observable public mapMaxX = 0
+    @observable public mapMinY = 0
+    @observable public mapMaxY = 0
 
     private listeners = new Array<Listener>()
 
@@ -36,9 +38,7 @@ export default class GameState {
     @action
     public readData(data: any) {
         this.zoneName = data.zone.name
-        this.setTiles(data.zone.map,
-            data.zone.width,
-            data.zone.height)
+        this.setTiles(data.zone.map)
         this.set(data.player,
             data.zone.players,
             data.zone.entities,
@@ -50,21 +50,30 @@ export default class GameState {
         this.listeners.forEach(x => x(this))
     }
 
-    public setTiles(map: any, width: number, height: number) {
+    public setTiles(map: any) {
         const newTiles = []
-        map.forEach((t: any, i: number) => {
+        for (const key in map) {
+            const t = map[key]
+            const coords = key.split(',')
+            const x = Math.floor(parseInt(coords[0], 10))
+            const y = Math.floor(parseInt(coords[1], 10))
+            if (x < this.mapMinX) {
+                this.mapMinX = x
+            }
+            if (x > this.mapMaxX) {
+                this.mapMaxX = x
+            }
+            if (y < this.mapMinY) {
+                this.mapMinY = y
+            }
+            if (y > this.mapMaxY) {
+                this.mapMaxY = y
+            }
             newTiles.push({
                 type: t.id,
-                name: t.name,
-                position: vec3.fromValues(
-                    Math.floor(i % width),
-                    1,
-                    Math.floor(i / width),
-                )
+                position: vec3.fromValues(x, 1, y)
             })
-        })
-        this.mapWidth = width
-        this.mapHeight = height
+        }
         this.tiles.replace(newTiles)
     }
 
