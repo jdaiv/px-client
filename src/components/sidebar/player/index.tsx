@@ -57,6 +57,7 @@ export default class Player extends Component<{ game?: GameStore }> {
             combatInfo.push(<p class={style.invItem}>combatants:</p>)
             ci.combatants.forEach((c, i) => {
                 const actor = c.isPlayer ?  gs.players.get(c.id) : gs.npcs.get(c.id)
+                if (!actor) return
                 combatInfo.push(<p class={style.invItem}>({i === ci.current ? '+' : ' '}) {actor.name} - {c.timer}</p>)
             })
         }
