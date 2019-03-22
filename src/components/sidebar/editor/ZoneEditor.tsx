@@ -3,6 +3,7 @@ import { Component, h } from 'preact'
 import GameManager from '../../../shared/GameManager'
 import GameStore from '../../../shared/GameStore'
 import Button from '../../shared/Button'
+import DefSelect from './DefSelect'
 import style from './style.css'
 
 @inject('game')
@@ -24,19 +25,11 @@ export default class ZoneEditor extends Component<{ game?: GameStore }> {
     }
 
     private gotoZone = () => {
-        GameManager.instance.editAction({ type: 'zone_goto', zone: parseInt(this.zoneSelector.value, 10) })
+        GameManager.instance.editAction({ type: 'zone_goto',
+            zone: parseInt(this.zoneSelector.base.value, 10) })
     }
 
     public render({ game }) {
-        const zones = []
-        for (const key in game.state.allZones) {
-            zones.push(<option value={key}>{game.state.allZones[key]}</option>)
-        }
-        const zoneSelector = (
-            <select ref={x => this.zoneSelector = x}>
-                {zones}
-            </select>
-        )
         const buttons = []
         for (let i = 0; i < 64; i++) {
             buttons.push((
@@ -61,7 +54,7 @@ export default class ZoneEditor extends Component<{ game?: GameStore }> {
                     {buttons}
                 </div>
                 <h3>goto zone</h3>
-                {zoneSelector}
+                <DefSelect ref={x => this.zoneSelector = x} name="goto_zone" type="zone" value="" />
                 <Button large={true} label="go" onClick={this.gotoZone} />
             </div>
         )

@@ -18,15 +18,22 @@ export default class Player extends Component<{ game?: GameStore }> {
         const equipped = []
         const bag = []
         const skills = []
+        const spells = []
 
         const gs = game.state
         const player = game.state.activePlayer
+        const ci = gs.combatInfo
+        let inCombat = false
+
+        if (gs.combatInfo && gs.combatInfo.inCombat) {
+            inCombat = true
+        }
 
         if (player) {
             level = player.level
             health = [
-                <StatBar label="HP" min={player.hp} max={player.maxHP} />,
-                <StatBar label="AP" min={player.ap} max={player.maxAP} />
+                <StatBar key="hp" label="HP" min={player.hp} max={player.maxHP} />,
+                <StatBar key="ap" label="AP" min={player.ap} max={player.maxAP} />
             ]
             for (const key in player.stats) {
                 if (player.stats[key] > 0)
@@ -45,11 +52,14 @@ export default class Player extends Component<{ game?: GameStore }> {
                 skills.push(
                     <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
             }
+            for (const key in player.spells) {
+                const s = player.spells[key]
+                spells.push(<Spell spell={s} inCombat={inCombat} />)
+            }
         }
 
         const combatInfo = []
-        if (gs.combatInfo && gs.combatInfo.inCombat) {
-            const ci = gs.combatInfo
+        if (inCombat) {
             combatInfo.push(<h2>combat!</h2>)
             combatInfo.push(<p class={style.invItem}>in combat: {ci.inCombat.toString()}</p>)
             combatInfo.push(<p class={style.invItem}>waiting: {ci.waiting.toString()}</p>)
@@ -58,11 +68,12 @@ export default class Player extends Component<{ game?: GameStore }> {
             ci.combatants.forEach((c, i) => {
                 const actor = c.isPlayer ?  gs.players.get(c.id) : gs.npcs.get(c.id)
                 if (!actor) return
-                combatInfo.push(<p class={style.invItem}>({i === ci.current ? '+' : ' '}) {actor.name} - {c.timer}</p>)
+                combatInfo.push(
+                <p class={style.invItem}>({i === ci.current ? '+' : ' '}) {actor.name} - {c.timer}</p>)
             })
         }
 
-        return (
+        return(
             <div>
                 <h2 class={style.heading}>player: {game.user.username}</h2>
                 <p>level {level} player</p>
@@ -71,8 +82,9 @@ export default class Player extends Component<{ game?: GameStore }> {
                 <ToggleSection title="equipped" open={true}>{equipped}</ToggleSection>
                 <ToggleSection title="bag">{bag}</ToggleSection>
                 <ToggleSection title="skills">{skills}</ToggleSection>
+                <ToggleSection title="spells">{spells}</ToggleSection>
                 {combatInfo}
-            </div>
+            </div >
         )
     }
 }
@@ -95,18 +107,20 @@ class Gear extends Component<{ item: any }> {
     }
 
     public render({ item }) {
-        const classes = []
-        if (!isNaN(item.quality) && item.quality >= 1 && item.quality <= 6) {
-            classes.push(style['quality' + Math.floor(item.quality)])
-        }
-
-        const stats = [<li>quality: {item.quality}</li>, <li>value: {item.price || '0'}g</li>]
+        const stats = []
         if (item.stats && Object.keys(item.stats).length > 0) {
             stats.push(<li><em>- stats -</em></li>)
             for (const stat in item.stats) {
                 stats.push(<li>&nbsp;&nbsp;{stat}: {item.stats[stat]}</li>)
             }
         }
+        const hover = (
+            <ul class={style.stats}>
+                <li>quality: {item.quality}</li>
+                <li>value: {item.price || '0'}g</li>
+                {stats}
+            </ul>
+        )
         if (item.specials && Object.keys(item.specials).length > 0) {
             stats.push(<li><em>- special -</em></li>)
             for (const s in item.specials) {
@@ -126,10 +140,47 @@ class Gear extends Component<{ item: any }> {
         }
         return (
             <div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
-                {item.type !== 'empty' && this.statsVisible ? <ul class={style.stats}>{stats}</ul> : null}
+                {item.type !== 'empty' && this.statsVisible ? hover : null}
                 <p>
                     {item.key ? `${item.key}: ` : ''}
                     <ItemLabel item={item} />
+                </p>
+                {actions}
+            </div>
+        )
+    }
+}
+
+@observer
+class Spell extends Component<{ spell: any, inCombat: boolean }> {
+    private use = () => GameManager.instance.playerEquipItem(this.props.spell.name)
+
+    @observable public statsVisible = false
+
+    private showStats = () => {
+        this.statsVisible = true
+    }
+
+    private hideStats = () => {
+        this.statsVisible = false
+    }
+
+    public render({ spell, inCombat }) {
+        const hover = (
+            <ul class={style.stats}>
+            <li>skill: {spell.skill}</li>
+            </ul>
+        )
+
+        const actions = []
+        if (inCombat) {
+            actions.push(<button class={style.invAction} onClick={this.use}>use</button>)
+        }
+        return (
+            <div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
+                {this.statsVisible ? hover : null}
+                <p>
+                    L{spell.level} {spell.name}
                 </p>
                 {actions}
             </div>

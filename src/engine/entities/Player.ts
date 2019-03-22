@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix'
-import GameManager from '../../shared/GameManager';
+import GameManager from '../../shared/GameManager'
 import Entity from '../Entity'
 
 export default class Player extends Entity {
@@ -25,16 +25,16 @@ export default class Player extends Entity {
         this.keysDown.set(evt.code, true)
         let direction: string
         switch (evt.code) {
-        case 'ArrowLeft':
+        case 'KeyA':
             direction = 'W'
             break
-        case 'ArrowRight':
+        case 'KeyD':
             direction = 'E'
             break
-        case 'ArrowUp':
+        case 'KeyW':
             direction = 'S'
             break
-        case 'ArrowDown':
+        case 'KeyS':
             direction = 'N'
             break
         default:

@@ -46,6 +46,7 @@ export default class Editor extends Component<{ game?: GameStore }> {
                     <label>enabled</label>
                     <input type="checkbox" checked={game.editor.enabled} onChange={this.updateEnabled} />
                 </div>
+                <p>x: {game.state.activePlayer.x}, y: {game.state.activePlayer.y}</p>
                 {game.editor.enabled ? selector : ''}
                 {game.editor.enabled && game.state.definitions ? inner : ''}
             </div>
