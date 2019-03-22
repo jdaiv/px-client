@@ -219,7 +219,6 @@ export default class Video {
         const matrix = mat4.create()
         const matrixV = mat4.create()
         mat4.identity(matrixV)
-
         mat4.perspective(matrix,
             camera.fov * Math.PI / 180,
             this.width / this.height,
@@ -228,7 +227,16 @@ export default class Video {
         const cameraPos = vec3.add(vec3.create(),
             camera.offset,
             camera.target)
-        mat4.lookAt(matrixV, cameraPos, camera.target, [0, 1, 0])
+
+        if (camera.lookAt) {
+            mat4.lookAt(matrixV, cameraPos, camera.target, [0, 1, 0])
+        } else {
+            const target = vec4.fromValues(0, 0, 1, 0)
+            vec4.transformQuat(target, target, camera.rotation)
+            vec3.add(target as any, cameraPos, target as any)
+            mat4.lookAt(matrixV, cameraPos, target as any, [0, 1, 0])
+        }
+
         mat4.mul(matrix, matrix, matrixV)
 
         this.engine.overlay.matrix = matrix

@@ -56,7 +56,7 @@ export default class Tiles {
         state.tiles.forEach((t: any, i) => {
             tiles.push([t.position, t.type])
             if (t.type === 5 && !this.trees.has(i)) {
-                const scale = Math.random() * 2 + 1
+                const scale = Math.random() * 4 + 3
                 const transform = {
                     position: vec3.mul(vec3.create(), t.position, [TILE_SIZE, 0, TILE_SIZE]),
                     scale: [scale, scale, scale],
@@ -68,7 +68,7 @@ export default class Tiles {
                 this.trees.delete(i)
             }
             if (t.type === 6 && !this.rocks.has(i)) {
-                const scale = Math.random() * 1 + 2
+                const scale = Math.random() * 2 + 2
                 const transform = {
                     position: vec3.mul(vec3.create(), t.position, [TILE_SIZE, 0, TILE_SIZE]),
                     scale: [scale, scale, scale],

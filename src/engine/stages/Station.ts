@@ -42,20 +42,18 @@ export default class Station extends Stage {
     }
 
     public tick(dt: number) {
-        super.tick(dt)
         this.loadingRot += dt * 100
 
         if (this.loading) {
             this.engine.camera.setTarget([0, 0, 0])
             this.engine.camera.setOffset([0, 0, 200])
-        } else {
-            this.engine.camera.setTarget([0, 0, 0])
-            this.engine.camera.setOffset([0, 50, 120])
+            this.engine.camera.lookAt = true
         }
 
         this.tiles.tick(dt)
         this.entityManager.tick(dt)
         this.effects.tick()
+        super.tick(dt)
     }
 
     public draw(dt: number) {

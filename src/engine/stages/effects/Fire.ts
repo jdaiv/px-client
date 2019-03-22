@@ -15,10 +15,10 @@ export default class Fire implements IEffect {
             dampening: vec3.fromValues(0.95, 1, 0.95),
             gravity: vec3.fromValues(0, 1, 0),
             velocity: [5, 20],
-            size: [2, 4],
+            size: [0.5, 1],
             lifetime: [1, 3],
             color: [255, 100, 0, 255],
-            spread: 1,
+            spread: 0.1,
             rotation: vec3.fromValues(0, 0, 90),
             shape: 'sphere',
             outline: false,
@@ -36,13 +36,10 @@ export default class Fire implements IEffect {
         this.emitter.cube[1] = 8
         this.emitter.cube[2] = 8
         this.emitter.spread = 100
-        this.emitter.emit(120)
-        while (t < 30) {
+        while (t < 15) {
             vec3.copy(this.emitter.position, target)
             this.emitter.color[1] = Math.floor(Math.random() * 120 + 80)
-            this.emitter.velocity[0] = 5
-            this.emitter.velocity[1] = 20
-            this.emitter.emit(2)
+            this.emitter.emit(10)
             t++
             yield false
         }

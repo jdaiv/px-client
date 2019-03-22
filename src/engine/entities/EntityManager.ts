@@ -33,9 +33,6 @@ export default class EntityManager {
                 this.playerPositions.set(id, pos)
             }
             vec3.lerp(pos.current, pos.current, pos.target, dt * 20)
-            if (this.state.activePlayer && this.state.activePlayer.id === id) {
-                this.engine.camera.setTarget([pos.current[0], 16, pos.current[2]])
-            }
 
             const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
             this.engine.overlay.setPlayerPos( p.id, nameTagPos)
@@ -52,6 +49,7 @@ export default class EntityManager {
     public drawPlayers() {
         const rotation = ZERO
         this.state.players.forEach((p, id) => {
+            if (id === this.state.activePlayer.id) return
             const pos = this.playerPositions.get(id)
             if (!pos) return
             const x = pos.current[0]

@@ -119,6 +119,7 @@ export default class Overlay {
         this.points.forEach(p => p.active = false)
         this.player = state.activePlayer
         state.players.forEach((x, id) => {
+            if (id === this.player.id) return
             const key = 'p' + id
             const point = this.getOrCreatePoint(key)
             point.player = true

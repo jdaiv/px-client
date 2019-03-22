@@ -50,7 +50,7 @@ export default class Terrain {
             }
         }
         map.forEach(t => {
-            solid[t[0][0]][t[0][1]] = t[1] !== 4
+            solid[t[0][0]][t[0][2]] = t[1] !== 4
         })
         for (let x = start[0]; x <= end[0]; x++) {
             for (let y = start[1]; y <= end[1]; y++) {
@@ -115,6 +115,24 @@ export default class Terrain {
                 u1, v0,
             )
 
+            if (edges[p[0]][p[2]][0]) {
+                verts.push(
+                    x1, y0, z0,
+                    x1, y1, z0,
+                    x0, y0, z0,
+                    x1, y1, z0,
+                    x0, y1, z0,
+                    x0, y0, z0,
+                )
+                uvs.push(
+                    edgeU0, edgeV1,
+                    edgeU0, edgeV0,
+                    edgeU1, edgeV1,
+                    edgeU0, edgeV0,
+                    edgeU1, edgeV0,
+                    edgeU1, edgeV1,
+                )
+            }
             if (edges[p[0]][p[2]][2]) {
                 verts.push(
                     x0, y0, z1,

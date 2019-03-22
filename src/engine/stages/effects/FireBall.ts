@@ -42,8 +42,8 @@ export default class FireBall implements IEffect {
         const source = vec3.fromValues(params.sourceX * TILE_SIZE, 0, params.sourceY * TILE_SIZE)
         const target = vec3.fromValues(params.targetX * TILE_SIZE, 2, params.targetY * TILE_SIZE)
 
-        while (t < 60) {
-            const x = t / 60
+        while (t < 45) {
+            const x = t / 45
             vec3.lerp(this.trailEmitter.position, source, target, x)
             this.trailEmitter.position[1] = (-1 * Math.pow(x, 2) + x) * 100 + 8
             this.trailEmitter.color[1] = Math.floor(Math.random() * 40 + 80)
