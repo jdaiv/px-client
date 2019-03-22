@@ -34,9 +34,11 @@ export default class Video {
     private hitTestData: Uint8Array
     private hitTestCallbacks: Map<string, any>
     private mouseActive: boolean
+    private captureMouse: boolean
     private mouseX: number
     private mouseY: number
     private activeMouseObject: string
+    private rotateCamera = vec3.create()
 
     private queue: RenderingQueue
 
@@ -75,6 +77,9 @@ export default class Video {
         this.el.addEventListener('click', this.mouseClick.bind(this))
         this.el.addEventListener('mouseenter', () => { this.mouseActive = true })
         this.el.addEventListener('mouseleave', () => { this.mouseActive = false })
+        this.el.addEventListener('contextmenu', (e) => { e.preventDefault() })
+        this.el.addEventListener('mousedown', (e) => { if (e.button === 2) this.captureMouse = true })
+        this.el.addEventListener('mouseup', (e) => { if (e.button === 2) this.captureMouse = false  })
 
         autorun(() => {
             SCALE = GameManager.instance.store.settings.quality
@@ -98,7 +103,7 @@ export default class Video {
                         position: vec3.create(),
                         rotation: vec3.create(),
                         scale: vec3.fromValues(1, 1, 1),
-                        sprite: false,
+                        sprite: 0,
                         frame: null
                     }
                 }
@@ -170,7 +175,7 @@ export default class Video {
         vec3.copy(qObj.position, position)
         vec3.copy(qObj.rotation, rotation)
         vec3.copy(qObj.scale, scale)
-        qObj.sprite = false
+        qObj.sprite = 0
         qObj.frame = null
         qObj.mouseData = mouseData
     }
@@ -190,7 +195,27 @@ export default class Video {
         qObj.texture = name
         vec3.copy(qObj.position, position)
         vec3.copy(qObj.rotation, rotation)
-        qObj.sprite = true
+        qObj.sprite = 1
+        qObj.frame = frame
+        qObj.mouseData = mouseData
+    }
+
+    public drawSpriteR(name: string, { position, rotation }: ITransform,
+                       material: string, frame: number, mouseData?: any) {
+        if (!this.resources.sprites.has(name)) {
+            name = 'error'
+        }
+        const q = this.queue.get(material).get('quad')
+        if (q.array.length === q.count) q.array.push({
+            position: vec3.create(),
+            rotation: vec3.create(),
+            scale: vec3.create()
+        })
+        const qObj = q.array[q.count++]
+        qObj.texture = name
+        vec3.copy(qObj.position, position)
+        vec3.copy(qObj.rotation, rotation)
+        qObj.sprite = 2
         qObj.frame = frame
         qObj.mouseData = mouseData
     }
@@ -232,7 +257,13 @@ export default class Video {
             mat4.lookAt(matrixV, cameraPos, camera.target, [0, 1, 0])
         } else {
             const target = vec4.fromValues(0, 0, 1, 0)
-            vec4.transformQuat(target, target, camera.rotation)
+            vec4.transformQuat(target, target,
+                quat.mul(quat.create(), camera.rotation,
+                    quat.fromEuler(quat.create(),
+                        this.rotateCamera[0],
+                        this.rotateCamera[1],
+                        this.rotateCamera[2]
+                    )))
             vec3.add(target as any, cameraPos, target as any)
             mat4.lookAt(matrixV, cameraPos, target as any, [0, 1, 0])
         }
@@ -272,8 +303,12 @@ export default class Video {
                         htMat.setTexture(image.texture.tex)
                         const mMat = mat4.create()
                         const rotation = quat.create()
+                        if (o.sprite === 1) {
+                            quat.copy(rotation, camera.rotation)
+                        } else {
+                            quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
+                        }
                         const scale = o.sprite ? image.spriteScale : o.scale
-                        quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
                         mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
                         const spriteData = vec2.create()
                         if (o.frame != null) {
@@ -329,8 +364,12 @@ export default class Video {
                     material.setTexture(image.texture.tex)
                     const mMat = mat4.create()
                     const rotation = quat.create()
+                    if (o.sprite === 1) {
+                        quat.copy(rotation, camera.rotation)
+                    } else {
+                        quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
+                    }
                     const scale = o.sprite ? image.spriteScale : o.scale
-                    quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
                     mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
                     const spriteData = vec2.create()
                     if (o.frame != null) {
@@ -364,11 +403,16 @@ export default class Video {
     }
 
     public mouseMove(evt: MouseEvent) {
-        if (typeof document.activeElement === typeof HTMLElement) {
-            (document.activeElement as HTMLElement).blur()
+        const x = Math.floor(evt.offsetX / SCALE)
+        const y = Math.floor(evt.offsetY / SCALE)
+        if (this.captureMouse) {
+            const diffX = this.mouseX - x
+            const diffY = this.mouseY - y
+            this.rotateCamera[1] -= diffX / 10
+            this.rotateCamera[0] += diffY / 10
         }
-        this.mouseX = Math.floor(evt.offsetX / SCALE)
-        this.mouseY = Math.floor(evt.offsetY / SCALE)
+        this.mouseX = x
+        this.mouseY = y
     }
 
     public mouseClick() {
@@ -387,6 +431,7 @@ export class GLTexture {
 
     constructor(image: TexImageSource, sprite: boolean = false) {
         this.tex = gl.createTexture()
+        sprite = true
         gl.bindTexture(gl.TEXTURE_2D, this.tex)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
         if (!GLTexture.isPowerOf2(image.width) || !GLTexture.isPowerOf2(image.height)) {

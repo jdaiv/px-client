@@ -3,7 +3,15 @@ import { action, IObservableArray, observable, ObservableMap } from 'mobx'
 
 type Listener = (arg0: GameState, zoneChanged: boolean) => void
 
+class Combat {
+    @observable public enabled = false
+    @observable public casting = false
+    @observable public activeSpell = ''
+}
+
 export default class GameState {
+
+    public combat = new Combat()
 
     @observable public valid = false
     @observable.shallow public activePlayer: any
@@ -49,6 +57,7 @@ export default class GameState {
             data.zone.npcs)
         this.valid = true
         this.combatInfo = data.zone.combatInfo
+        this.combat.enabled = this.combatInfo.inCombat
         this.definitions = data.defs
         this.zoneDebug = data.debugZone
         this.allZones = data.allZones

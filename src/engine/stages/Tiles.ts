@@ -140,6 +140,31 @@ export default class Tiles {
                 }
             }
         } else {
+            if (gm.state.combat.enabled && gm.state.combat.casting) {
+                const transform = {
+                    position: vec3.fromValues(1, -TILE_SIZE_HALF, 1),
+                    rotation: vec3.create(),
+                    scale: vec3.fromValues(1, 1, 1),
+                }
+                for (let x = gm.state.mapMinX - 1; x <= gm.state.mapMaxX + 1; x++) {
+                    for (let y = gm.state.mapMinY - 1; y <= gm.state.mapMaxY + 1; y++) {
+                        transform.position[0] = TILE_SIZE * x
+                        transform.position[2] = TILE_SIZE * y
+                        const p = vec3.clone(transform.position)
+                        this.engine.v.drawMesh('cube', transform, 'textured', 'grid', {
+                            draw: false,
+                            callback: (type: string) => {
+                                if (type === 'move') {
+                                    vec3.copy(this.sparkleEmitter.position, p)
+                                    this.hover = true
+                                } else if (type === 'click') {
+                                    gm.playerSpell(gm.state.combat.activeSpell, x, y)
+                                }
+                            }
+                        })
+                    }
+                }
+            }
             this.trees.forEach((t) => {
                 this.engine.v.drawMesh('tree', t, 'textured', 'colored')
             })

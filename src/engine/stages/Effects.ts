@@ -2,8 +2,12 @@ import Engine from '../Engine'
 import BloodSplatter from './effects/BloodSplatter'
 import Fire from './effects/Fire'
 import FireBall from './effects/FireBall'
+import Ice from './effects/Ice'
+import IceBolt from './effects/IceBolt'
 import IEffect from './effects/IEffect'
+import Lightning from './effects/Lightning'
 import ScreenShake from './effects/ScreenShake'
+import Shock from './effects/Shock'
 
 export default class Effects {
 
@@ -16,6 +20,10 @@ export default class Effects {
         this.effects.set('screen_shake', new ScreenShake(engine))
         this.effects.set('fireball', new FireBall(engine))
         this.effects.set('fire', new Fire(engine))
+        this.effects.set('icebolt', new IceBolt(engine))
+        this.effects.set('ice', new Ice(engine))
+        this.effects.set('lightning', new Lightning(engine))
+        this.effects.set('shock', new Shock(engine))
 
         this.runningEffects = new Map()
     }

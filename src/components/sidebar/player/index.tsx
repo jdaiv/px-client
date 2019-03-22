@@ -52,9 +52,10 @@ export default class Player extends Component<{ game?: GameStore }> {
                 skills.push(
                     <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
             }
+            const activeSpell = gs.combat.activeSpell
             for (const key in player.spells) {
                 const s = player.spells[key]
-                spells.push(<Spell spell={s} inCombat={inCombat} />)
+                spells.push(<Spell id={key} spell={s} inCombat={inCombat} activeSpell={activeSpell} />)
             }
         }
 
@@ -152,8 +153,16 @@ class Gear extends Component<{ item: any }> {
 }
 
 @observer
-class Spell extends Component<{ spell: any, inCombat: boolean }> {
-    private use = () => GameManager.instance.playerEquipItem(this.props.spell.name)
+class Spell extends Component<{ id: string, spell: any, inCombat: boolean, activeSpell: string }> {
+    private use = () => {
+        GameManager.instance.state.combat.casting = true
+        GameManager.instance.state.combat.activeSpell = this.props.id
+    }
+
+    private stop = () => {
+        GameManager.instance.state.combat.casting = false
+        GameManager.instance.state.combat.activeSpell = ''
+    }
 
     @observable public statsVisible = false
 
@@ -165,7 +174,7 @@ class Spell extends Component<{ spell: any, inCombat: boolean }> {
         this.statsVisible = false
     }
 
-    public render({ spell, inCombat }) {
+    public render({ id, spell, inCombat, activeSpell }) {
         const hover = (
             <ul class={style.stats}>
             <li>skill: {spell.skill}</li>
@@ -174,7 +183,11 @@ class Spell extends Component<{ spell: any, inCombat: boolean }> {
 
         const actions = []
         if (inCombat) {
-            actions.push(<button class={style.invAction} onClick={this.use}>use</button>)
+            if (activeSpell === id) {
+                actions.push(<button class={style.invAction} onClick={this.stop}>stop casting</button>)
+            } else {
+                actions.push(<button class={style.invAction} onClick={this.use}>cast</button>)
+            }
         }
         return (
             <div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>

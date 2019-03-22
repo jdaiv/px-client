@@ -46,7 +46,7 @@ export default class Station extends Stage {
 
         if (this.loading) {
             this.engine.camera.setTarget([0, 0, 0])
-            this.engine.camera.setOffset([0, 0, 200])
+            this.engine.camera.setOffset([0, 0, 100])
             this.engine.camera.lookAt = true
         }
 
@@ -60,7 +60,7 @@ export default class Station extends Stage {
         super.draw(dt)
 
         if (this.loading) {
-            this.engine.v.drawSprite('loading', {
+            this.engine.v.drawSpriteR('loading', {
                 position: [0, Math.sin(this.loadingRot / 1000) * 4, 0],
                 rotation: [0, this.loadingRot, Math.sin(this.loadingRot / 80) * 8],
             }, 'sprite', 0)
