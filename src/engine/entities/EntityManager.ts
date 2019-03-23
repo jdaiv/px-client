@@ -60,21 +60,19 @@ export default class EntityManager {
             const relativeDir = (DIRECTIONS.indexOf(p.facing) - aPD + 4) % 4
             // console.log(DIRECTIONS.indexOf(p.facing), aPD, relativeDir)
             const offsetS = relativeDir === 2 ? -1 : 0
-            const offsetX = aPD % 2 === 1 ? (aPD > 1 ? -0.5 : 0.5) : offsetS
-            const offsetZ = aPD % 2 === 0 ? (aPD > 1 ? 0.5 : -0.5) : offsetS
+            const offsetX = aPD % 2 === 1 ? (aPD > 1 || relativeDir === 0 ? -0.5 : 0.5) : offsetS
+            const offsetZ = aPD % 2 === 0 ? (aPD > 1 || relativeDir === 0 ? 0.5 : -0.5) : offsetS
             const hasSunglasses = p.slots.head && p.slots.head.type !== 'empty'
             const scaleX = relativeDir > 1 ? 1 : -1
             const scale = [relativeDir % 2 === 1 ? -scaleX : scaleX, 1, 1]
             if (vec3.distance(pos.current, pos.target) > 1) {
                 this.engine.v.drawSprite('poses', { position: pos.current, rotation, scale }, 'sprite', 1)
-                if (relativeDir !== 0)
-                    this.engine.v.drawSprite('faces',
-                        { position: [x + offsetX, 15, y + offsetZ], rotation, scale }, 'sprite', hasSunglasses ? 4 : 0)
+                this.engine.v.drawSprite('faces',
+                    { position: [x + offsetX, 15, y + offsetZ], rotation, scale }, 'sprite', hasSunglasses ? 4 : 0)
             } else {
                 this.engine.v.drawSprite('poses', { position: pos.current, rotation, scale }, 'sprite', 0)
-                if (relativeDir !== 0)
-                    this.engine.v.drawSprite('faces',
-                        { position: [x + offsetX, 16, y + offsetZ], rotation, scale }, 'sprite', hasSunglasses ? 4 : 0)
+                this.engine.v.drawSprite('faces',
+                    { position: [x + offsetX, 16, y + offsetZ], rotation, scale }, 'sprite', hasSunglasses ? 4 : 0)
             }
         })
     }
