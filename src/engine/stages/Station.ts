@@ -31,11 +31,13 @@ export default class Station extends Stage {
         this.tiles = new Tiles(engine)
         this.entityManager = new EntityManager(engine)
 
-        this.addEntity(new Player('player'))
+        const player = new Player('player')
+        this.addEntity(player)
 
         this.data = {}
         this.playerPositions = new Map()
         GameManager.instance.state.registerListener((state) => {
+            player.direction = state.activePlayer.facing
             this.loading = !state.valid
         })
         GameManager.instance.onEffect = this.effects.handleEffect

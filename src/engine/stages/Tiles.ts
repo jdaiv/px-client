@@ -24,7 +24,7 @@ export default class Tiles {
             dampening: vec3.fromValues(0.9, 0.9, 0.9),
             gravity: vec3.fromValues(0, 0, 0),
             size: [0.5, 1],
-            velocity: [10, 20],
+            velocity: [0, 5],
             lifetime: [0.25, 0.5],
             color: [0, 255, 0, 255],
             shape: 'square',
@@ -86,7 +86,7 @@ export default class Tiles {
     public tick(dt: number) {
         if (this.hover) {
             this.sparkleEmitter.position[1] = 0
-            this.sparkleEmitter.emit(2)
+            this.sparkleEmitter.emit(20)
         }
         this.hover = false
     }

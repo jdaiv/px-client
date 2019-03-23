@@ -14,7 +14,7 @@ export default class Shock implements IEffect {
         this.emitter = engine.particles.newEmitter({
             dampening: vec3.fromValues(0.8, 1, 0.8),
             gravity: vec3.fromValues(0, -200, 0),
-            velocity: [200, 400],
+            velocity: [10, 20],
             size: [0.5, 1],
             lifetime: [0.1, 0.5],
             color: [50, 0, 128, 255],

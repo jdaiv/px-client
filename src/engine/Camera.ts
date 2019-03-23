@@ -17,6 +17,7 @@ export default class Camera {
         vec3.lerp(this.shake, this.shake, this.zero, dt * 10)
 
         const shake = vec3.normalize(vec3.create(), [rand(2), rand(2), rand(2)])
+        vec3.scale(shake, shake, 0.1)
         vec3.multiply(shake, shake, this.shake)
         // shake[1] = 1
 

@@ -89,6 +89,12 @@ export default class GameManager {
         })
     }
 
+    public playerSetFacing(direction: string) {
+        this.socket.send('game_action', {
+            type: 'face', params: { direction }
+        })
+    }
+
     public playerEquipItem(id: number) {
         this.socket.send('game_action', {
             type: 'equip_item', params: { id }

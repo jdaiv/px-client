@@ -15,6 +15,12 @@ export default class EntityEditor extends Component<{ game?: GameStore }> {
         this.props.game.editor.activeEntity = (evt.currentTarget as HTMLInputElement).value
     }
 
+    private clearCorpses = (evt: Event) => {
+        GameManager.instance.editAction({
+            type: 'clear_corpses'
+        })
+    }
+
     private saveEnt = (evt: Event) => {
         evt.preventDefault()
         const form = evt.currentTarget as HTMLFormElement
@@ -87,6 +93,7 @@ export default class EntityEditor extends Component<{ game?: GameStore }> {
             <div>
                 <h3>entity</h3>
                 {inner}
+                <Button large={true} label="clear corpses" onClick={this.clearCorpses} />
             </div>
         )
     }

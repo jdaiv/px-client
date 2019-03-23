@@ -180,7 +180,7 @@ export default class Video {
         qObj.mouseData = mouseData
     }
 
-    public drawSprite(name: string, { position, rotation }: ITransform,
+    public drawSprite(name: string, { position, rotation, scale }: ITransform,
                       material: string, frame: number, mouseData?: any) {
         if (!this.resources.sprites.has(name)) {
             name = 'error'
@@ -195,12 +195,13 @@ export default class Video {
         qObj.texture = name
         vec3.copy(qObj.position, position)
         vec3.copy(qObj.rotation, rotation)
+        vec3.copy(qObj.scale, scale || [1, 1, 1])
         qObj.sprite = 1
         qObj.frame = frame
         qObj.mouseData = mouseData
     }
 
-    public drawSpriteR(name: string, { position, rotation }: ITransform,
+    public drawSpriteR(name: string, { position, rotation, scale }: ITransform,
                        material: string, frame: number, mouseData?: any) {
         if (!this.resources.sprites.has(name)) {
             name = 'error'
@@ -215,6 +216,7 @@ export default class Video {
         qObj.texture = name
         vec3.copy(qObj.position, position)
         vec3.copy(qObj.rotation, rotation)
+        vec3.copy(qObj.scale, scale || [1, 1, 1])
         qObj.sprite = 2
         qObj.frame = frame
         qObj.mouseData = mouseData
@@ -252,21 +254,25 @@ export default class Video {
         const cameraPos = vec3.add(vec3.create(),
             camera.offset,
             camera.target)
+        const cameraRM = mat4.create()
 
         if (camera.lookAt) {
             mat4.lookAt(matrixV, cameraPos, camera.target, [0, 1, 0])
         } else {
-            const target = vec4.fromValues(0, 0, 1, 0)
-            vec4.transformQuat(target, target,
-                quat.mul(quat.create(), camera.rotation,
-                    quat.fromEuler(quat.create(),
-                        this.rotateCamera[0],
-                        this.rotateCamera[1],
-                        this.rotateCamera[2]
-                    )))
-            vec3.add(target as any, cameraPos, target as any)
-            mat4.lookAt(matrixV, cameraPos, target as any, [0, 1, 0])
+            const m = mat4.create()
+            mat4.fromQuat(cameraRM, quat.mul(quat.create(), camera.rotation,
+                quat.fromEuler(quat.create(),
+                    this.rotateCamera[0],
+                    this.rotateCamera[1],
+                    this.rotateCamera[2]
+                )))
+            mat4.mul(matrixV, matrixV, cameraRM)
+            mat4.fromTranslation(m, cameraPos)
+            mat4.invert(m, m)
+            mat4.mul(matrixV, matrixV, m)
         }
+
+        quat.invert(camera.rotation, camera.rotation)
 
         mat4.mul(matrix, matrix, matrixV)
 
@@ -283,6 +289,10 @@ export default class Video {
         f()
 
         this.fbos[0].bind()
+
+        if (!this.captureMouse) {
+            vec3.lerp(this.rotateCamera, this.rotateCamera, [0, 0, 0], dt * 2)
+        }
 
         if (this.mouseActive) {
             this.clear()
@@ -303,12 +313,17 @@ export default class Video {
                         htMat.setTexture(image.texture.tex)
                         const mMat = mat4.create()
                         const rotation = quat.create()
+                        const scale = vec3.create()
                         if (o.sprite === 1) {
-                            quat.copy(rotation, camera.rotation)
+                        quat.copy(rotation, camera.rotation)
                         } else {
                             quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
                         }
-                        const scale = o.sprite ? image.spriteScale : o.scale
+                        if (o.sprite > 0) {
+                            vec3.mul(scale, o.scale, image.spriteScale)
+                        } else {
+                            vec3.copy(scale, o.scale)
+                        }
                         mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
                         const spriteData = vec2.create()
                         if (o.frame != null) {
@@ -364,12 +379,17 @@ export default class Video {
                     material.setTexture(image.texture.tex)
                     const mMat = mat4.create()
                     const rotation = quat.create()
+                    const scale = vec3.create()
                     if (o.sprite === 1) {
                         quat.copy(rotation, camera.rotation)
                     } else {
                         quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
                     }
-                    const scale = o.sprite ? image.spriteScale : o.scale
+                    if (o.sprite > 0) {
+                        vec3.mul(scale, o.scale, image.spriteScale)
+                    } else {
+                        vec3.copy(scale, o.scale)
+                    }
                     mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
                     const spriteData = vec2.create()
                     if (o.frame != null) {
@@ -408,8 +428,8 @@ export default class Video {
         if (this.captureMouse) {
             const diffX = this.mouseX - x
             const diffY = this.mouseY - y
-            this.rotateCamera[1] -= diffX / 10
-            this.rotateCamera[0] += diffY / 10
+            this.rotateCamera[1] += diffX / 2
+            this.rotateCamera[0] -= diffY / 2
         }
         this.mouseX = x
         this.mouseY = y

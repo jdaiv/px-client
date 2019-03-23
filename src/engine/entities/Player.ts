@@ -4,6 +4,8 @@ import Engine from '../Engine'
 import Entity from '../Entity'
 import { TILE_SIZE } from '../Terrain'
 
+export const DIRECTIONS = ['N', 'W', 'S', 'E']
+
 export default class Player extends Entity {
 
     public velocity = vec3.create()
@@ -11,6 +13,14 @@ export default class Player extends Entity {
     public rotation = 0
     public position = vec3.create()
     public rotationQ = quat.create()
+
+    public get direction(): string {
+        return DIRECTIONS[this.rotation % 4]
+    }
+
+    public set direction(d: string) {
+        this.rotation = DIRECTIONS.indexOf(d)
+    }
 
     public init(engine: Engine) {
         super.init(engine)
@@ -28,15 +38,23 @@ export default class Player extends Entity {
     }
 
     public tick(dt: number) {
-        const state = GameManager.instance.state
-        const player = state.activePlayer
-        if (player) {
+        const player = GameManager.instance.state.activePlayer
+        if (player && !GameManager.instance.store.editor.enabled) {
             const pos = [player.x * TILE_SIZE, 16, player.y * TILE_SIZE]
-            const rot = quat.fromEuler(quat.create(), 0, this.rotation * -90, 0)
+            const rot = quat.fromEuler(quat.create(), 0, this.rotation * 90 + 180, 0)
             vec3.lerp(this.position, this.position, pos, dt * 10)
             quat.slerp(this.rotationQ, this.rotationQ, rot, dt * 10)
             this.engine.camera.setTarget(this.position)
             this.engine.camera.setOffset([0, 0, 0])
+            this.engine.camera.setRotation(this.rotationQ)
+            this.engine.camera.lookAt = false
+        } else if (GameManager.instance.store.editor.enabled) {
+            this.rotation = 2
+            const pos = [player.x * TILE_SIZE, 100, player.y * TILE_SIZE]
+            const rot = quat.fromEuler(quat.create(), 90, 0, 0)
+            vec3.lerp(this.position, this.position, pos, dt * 10)
+            quat.slerp(this.rotationQ, this.rotationQ, rot, dt * 10)
+            this.engine.camera.setTarget(this.position)
             this.engine.camera.setRotation(this.rotationQ)
             this.engine.camera.lookAt = false
         }
@@ -67,9 +85,10 @@ export default class Player extends Entity {
             break
         }
         if (direction < 0) {
+            GameManager.instance.playerSetFacing(this.direction)
             return
         }
-        GameManager.instance.playerMove(['N', 'W', 'S', 'E'][(direction + this.rotation) % 4])
+        GameManager.instance.playerMove(DIRECTIONS[(direction + this.rotation) % 4])
     }
 
     public keyup = (evt: KeyboardEvent) => {
