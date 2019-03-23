@@ -127,42 +127,42 @@ export default class Overlay {
             point.changed = true
             point.source = x
         })
-        // state.entities.forEach((e, id) => {
-        //     const key = 'e' + id
-        //     let offset: number
-        //     switch (e.type) {
-        //     case 'sign':
-        //     case 'dummy':
-        //         offset = 8
-        //         break
-        //     case 'door':
-        //         offset = 12
-        //         break
-        //     case 'corpse':
-        //         offset = 4
-        //         break
-        //     default:
-        //         offset = 0
-        //     }
-        //     const point = this.getOrCreatePoint(key)
-        //     point.yOffset = offset
-        //     point.changed = true
-        //     point.source = e
-        // })
-        // state.items.forEach((x, id) => {
-        //     const key = 'i' + id
-        //     const point = this.getOrCreatePoint(key)
-        //     point.yOffset = 4
-        //     point.changed = true
-        //     point.source = x
-        // })
-        // state.npcs.forEach((x, id) => {
-        //     const key = 'n' + id
-        //     const point = this.getOrCreatePoint(key)
-        //     point.yOffset = 10
-        //     point.changed = true
-        //     point.source = x
-        // })
+        state.entities.forEach((e, id) => {
+            const key = 'e' + id
+            let offset: number
+            switch (e.type) {
+            case 'sign':
+            case 'dummy':
+                offset = 8
+                break
+            case 'door':
+                offset = 12
+                break
+            case 'corpse':
+                offset = 4
+                break
+            default:
+                offset = 0
+            }
+            const point = this.getOrCreatePoint(key)
+            point.yOffset = offset
+            point.changed = true
+            point.source = e
+        })
+        state.items.forEach((x, id) => {
+            const key = 'i' + id
+            const point = this.getOrCreatePoint(key)
+            point.yOffset = 4
+            point.changed = true
+            point.source = x
+        })
+        state.npcs.forEach((x, id) => {
+            const key = 'n' + id
+            const point = this.getOrCreatePoint(key)
+            point.yOffset = 10
+            point.changed = true
+            point.source = x
+        })
     }
 
     public createElement() {
@@ -193,7 +193,6 @@ export default class Overlay {
         transformed = vec3.transformMat4(transformed, transformed, this.matrix)
         transformed[0] = transformed[0] * this.width * 0.5 + this.widthHalf
         transformed[1] = transformed[1] * -this.height * 0.5 + this.heightHalf
-        console.log(transformed[2])
         return transformed
     }
 
@@ -233,8 +232,12 @@ export default class Overlay {
                 return
             }
 
-            vec3.lerp(p.currentPosition, current, target, dt * 20)
-            c.style.opacity = target[2] < 1 ? '1' : '0'
+            if (target[2] >= 1) {
+                c.style.opacity = 0
+            } else {
+                vec3.lerp(p.currentPosition, current, target, dt * 20)
+                c.style.opacity = 1
+            }
             c.style.left = p.currentPosition[0] + 'px'
             c.style.top = p.currentPosition[1] + 'px'
             c.style.zIndex = Math.floor(p.currentPosition[2])
