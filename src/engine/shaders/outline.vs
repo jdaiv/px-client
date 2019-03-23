@@ -11,9 +11,9 @@ attribute vec2 aTextureCoord;
 varying highp vec2 vTextureCoord;
 varying highp vec4 vVertexNormal;
 
-float width = 0.75;
-
 void main() {
+    vec4 pos = uVP_Matrix * uM_Matrix * aVertexPosition;
+    float width = max(0.25, min(pos.z / 100.0, 2.0));
     gl_Position = uVP_Matrix * uM_Matrix * (aVertexPosition + aVertexNormal * vec4(width, width, width, 0));
     vTextureCoord = aTextureCoord;
     vVertexNormal = aVertexNormal;
