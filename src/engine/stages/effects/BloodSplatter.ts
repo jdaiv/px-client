@@ -16,7 +16,7 @@ export default class BloodSplatter implements IEffect {
             size: [0.5, 1],
             lifetime: [5, 10],
             color: [200, 0, 0, 255],
-            bounce: 0.1,
+            bounce: 0,
             spread: 20,
             // rotation: vec3.fromValues(0, 0, 90),
         })

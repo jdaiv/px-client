@@ -54,9 +54,6 @@ export default class Video {
             antialias: false
         })
 
-        gl.getExtension('OES_standard_derivatives')
-        gl.getExtension('OES_texture_float')
-
         gl.enable(gl.DEPTH_TEST)
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         gl.enable(gl.CULL_FACE)
@@ -66,7 +63,7 @@ export default class Video {
             // 'post_rainbows',
             // 'post_wobble',
             'post_bloom',
-            'post_none',
+            // 'post_none',
         ]
 
         this.hitTestData = new Uint8Array(4)
@@ -409,9 +406,7 @@ export default class Video {
         })
 
         this.engine.terrain.drawWater(data)
-        this.engine.particles.draw(data, this.fbos[1])
-
-        return
+        this.engine.particles.draw(data, this.fbos[0])
 
         this.postStack.forEach((_, i) => {
             const fbo = this.fbos[i]
@@ -433,7 +428,7 @@ export default class Video {
         if (this.captureMouse) {
             const diffX = this.mouseX - x
             const diffY = this.mouseY - y
-            this.rotateCamera[1] += diffX / 2
+            this.rotateCamera[1] -= diffX / 2
             this.rotateCamera[0] -= diffY / 2
         }
         this.mouseX = x

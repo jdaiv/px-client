@@ -21,7 +21,7 @@ void main() {
         vec2(mod(index, uTexSize) + 0.5, floor(index / uTexSize) + 0.5),
         0.0, uTexSize, -1.0, 1.0
     );
-    gl_Position = vec4(coords, 0.5, 1.0);
+    gl_Position = vec4(coords, 0.0, 1.0);
     gl_PointSize = 1.0;
     vData = aData;
 }

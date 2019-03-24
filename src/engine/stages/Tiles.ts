@@ -50,13 +50,12 @@ export default class Tiles {
             dampening: vec3.fromValues(0.9, 0.9, 0.9),
             gravity: vec3.fromValues(0, 0, 0),
             size: [0.5, 1],
-            velocity: [0, 5],
-            lifetime: [0.25, 0.5],
-            color: [0, 255, 0, 255],
-            shape: 'square',
+            velocity: [0, 0],
+            lifetime: [3, 6],
+            color: [0, 255, 255, 255],
+            shape: 'cube',
             cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2),
-            rotation: vec3.fromValues(0, 0, 90),
-            outline: true,
+            outline: false,
             spread: 0.4,
         })
     }
@@ -97,19 +96,20 @@ export default class Tiles {
         this.engine.terrain.set(tiles, [state.mapMinX, state.mapMinY], [state.mapMaxX, state.mapMaxY])
     }
 
+    private foamTimer = 0
+
     public tick(dt: number) {
         const gm = GameManager.instance
-        if (this.engine.terrain.edges) {
+        if (this.engine.terrain.edges && this.foamTimer > 0.1) {
             const edges = this.engine.terrain.edges
             for (let x = gm.state.mapMinX; x <= gm.state.mapMaxX; x++) {
                 for (let y = gm.state.mapMinY; y <= gm.state.mapMaxY; y++) {
-                    const height = -4
-                    if (edges[x][y][0] && y > gm.state.mapMinY) {
-                        vec3.set(this.foamEmitter.cube, TILE_SIZE_HALF, 0, 0)
-                        vec3.set(this.foamEmitter.position, x * TILE_SIZE, height, y * TILE_SIZE - TILE_SIZE_HALF - 1)
-                        this.foamEmitter.emit(1)
-                        return
-                    }
+                    const height = 4
+                    // if (edges[x][y][0] && y > gm.state.mapMinY) {
+                    //     vec3.set(this.foamEmitter.cube, TILE_SIZE_HALF, 0, 0)
+                    //     vec3.set(this.foamEmitter.position, x * TILE_SIZE, height, y * TILE_SIZE - TILE_SIZE_HALF - 1)
+                    //     this.foamEmitter.emit(1)
+                    // }
                     // if (edges[x][y][1] && x < gm.state.mapMaxX) {
                     //     vec3.set(this.foamEmitter.cube, 0, 0, TILE_SIZE_HALF)
                     //     vec3.set(this.foamEmitter.position, x * TILE_SIZE + TILE_SIZE_HALF + 1, height, y * TILE_SIZE)
@@ -127,7 +127,9 @@ export default class Tiles {
                     // }
                 }
             }
+            this.foamTimer = 0
         }
+        this.foamTimer += dt
 
         if (this.hover) {
             this.sparkleEmitter.position[1] = 0
