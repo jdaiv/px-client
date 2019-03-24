@@ -2,7 +2,7 @@ import { mat4, vec3 } from 'gl-matrix'
 import Engine from './Engine'
 import { Material } from './Materials'
 import { SpriteResource } from './Resources'
-import { gl, GLFBO, GLMesh } from './Video'
+import { gl, GLMesh } from './Video'
 
 export const TEX_TILE_SIZE = 32
 export const TILE_SIZE = 16
@@ -17,6 +17,7 @@ export default class Terrain {
     public waterTexture: SpriteResource
     public material: Material
     public waterMaterial: Material
+    public edges: boolean[][][]
 
     private texWidth: number
     private texHeight: number
@@ -54,12 +55,14 @@ export default class Terrain {
         })
         for (let x = start[0]; x <= end[0]; x++) {
             for (let y = start[1]; y <= end[1]; y++) {
-                edges[x][y][0] = y === start[1] || !solid[x][y - 1]
-                edges[x][y][1] = x === end[0] || !solid[x + 1][y]
-                edges[x][y][2] = y === end[1] || !solid[x][y + 1]
-                edges[x][y][3] = x === start[0] || !solid[x - 1][y]
+                edges[x][y][0] = solid[x][y] && (y === start[1] || !solid[x][y - 1])
+                edges[x][y][1] = solid[x][y] && (x === end[0] || !solid[x + 1][y])
+                edges[x][y][2] = solid[x][y] && (y === end[1] || !solid[x][y + 1])
+                edges[x][y][3] = solid[x][y] && (x === start[0] || !solid[x - 1][y])
             }
         }
+
+        this.edges = edges
 
         return edges
     }
@@ -85,7 +88,7 @@ export default class Terrain {
         const edgeU1 = 2 * TEX_TILE_SIZE / this.texWidth
         const edgeV1 = 0
         const edges = this.calculateEdges(map, start, end)
-        map.forEach((t, i) => {
+        map.forEach(t => {
             if (t[1] === 4) return
             const p = t[0]
             x0 = p[0] * TILE_SIZE - TILE_SIZE_HALF

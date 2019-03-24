@@ -1,14 +1,10 @@
 import { mat4, vec2, vec4 } from 'gl-matrix'
-import Particles, { PARTICLE_COLOR_OFFSET, PARTICLE_POSITION_OFFSET,
-    PARTICLE_SCALE_OFFSET, PARTICLE_STRIDE } from './Particles'
 import errorFS from './shaders/error.fs'
 import errorVS from './shaders/error.vs'
 import hittestFS from './shaders/hittest.fs'
 // import hittestVS from './shaders/hittest.vs'
 import outlineFS from './shaders/outline.fs'
 import outlineVS from './shaders/outline.vs'
-import particleFS from './shaders/particle.fs'
-import particleVS from './shaders/particle.vs'
 import postVS from './shaders/post.vs'
 import postbloomFS from './shaders/post_bloom.fs'
 import postnoneFS from './shaders/post_none.fs'
@@ -108,14 +104,6 @@ const MATERIALS = {
         screenSize: false,
         time: true,
     },
-    particle: {
-        vs: particleVS,
-        fs: particleFS,
-        transform: true,
-        cull: 0,
-        particle: true,
-        manual: true,
-    },
     outline: {
         vs: outlineVS,
         fs: outlineFS,
@@ -201,9 +189,6 @@ export class Material {
     private vertexPosLoc: number
     private vertexNormalLoc: number
     private vertexUvLoc: number
-    private particlePosLoc: number
-    private particleSizeLoc: number
-    private particleColorLoc: number
     private numTris: number
 
     private vpMatLoc: WebGLUniformLocation
@@ -234,12 +219,6 @@ export class Material {
             this.textureOneLoc = gl.getUniformLocation(prog, 'uSampler')
         }
 
-        if (settings.particle) {
-            this.particlePosLoc = gl.getAttribLocation(prog, 'aParticlePosition')
-            this.particleSizeLoc = gl.getAttribLocation(prog, 'aParticleSize')
-            this.particleColorLoc = gl.getAttribLocation(prog, 'aParticleColor')
-        }
-
         if (settings.spriteData) {
             this.spriteDataLoc = gl.getUniformLocation(prog, 'uSpriteData')
         }
@@ -261,17 +240,11 @@ export class Material {
     }
 
     public end() {
-        if (this.settings.particle) {
-            gl.disableVertexAttribArray(this.particlePosLoc)
-            gl.disableVertexAttribArray(this.particleSizeLoc)
-            gl.disableVertexAttribArray(this.particleColorLoc)
-        } else {
-            gl.disableVertexAttribArray(this.vertexPosLoc)
-            if (this.settings.normals)
-                gl.disableVertexAttribArray(this.vertexNormalLoc)
-            if (this.settings.textured)
-                gl.disableVertexAttribArray(this.vertexUvLoc)
-        }
+        gl.disableVertexAttribArray(this.vertexPosLoc)
+        if (this.settings.normals)
+            gl.disableVertexAttribArray(this.vertexNormalLoc)
+        if (this.settings.textured)
+            gl.disableVertexAttribArray(this.vertexUvLoc)
     }
 
     public setGlobalUniforms(data: any) {
@@ -317,23 +290,6 @@ export class Material {
         this.numTris = numTris !== undefined ? numTris : (mesh.verts.length / 3)
     }
 
-    public bindParticles(p: Particles) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, p.glBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, p.buffer, gl.DYNAMIC_DRAW)
-
-        gl.vertexAttribPointer(this.particlePosLoc, 4, gl.FLOAT, false,
-            PARTICLE_STRIDE, PARTICLE_POSITION_OFFSET)
-        gl.enableVertexAttribArray(this.particlePosLoc)
-
-        gl.vertexAttribPointer(this.particleSizeLoc, 1, gl.FLOAT, false,
-            PARTICLE_STRIDE, PARTICLE_SCALE_OFFSET)
-        gl.enableVertexAttribArray(this.particleSizeLoc)
-
-        gl.vertexAttribPointer(this.particleColorLoc, 4, gl.UNSIGNED_BYTE, true,
-            PARTICLE_STRIDE, PARTICLE_COLOR_OFFSET)
-        gl.enableVertexAttribArray(this.particleColorLoc)
-    }
-
     public preDraw() {
         if (this.settings.cull === 0) gl.disable(gl.CULL_FACE)
         if (this.settings.cull === -1) gl.cullFace(gl.FRONT)
@@ -350,7 +306,7 @@ export class Material {
 
 }
 
-class Shader {
+export class Shader {
 
     public program: WebGLProgram
     private vs: WebGLShader

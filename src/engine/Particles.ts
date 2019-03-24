@@ -1,60 +1,29 @@
-import { quat, vec3 } from 'gl-matrix'
-import { Material } from './Materials'
-import { gl } from './Video'
+import { mat4, quat, vec3 } from 'gl-matrix'
+import { Shader } from './Materials'
+import pDrawFS from './shaders/particle.fs'
+import pDrawVS from './shaders/particle.vs'
+import pCreateFS from './shaders/particle_new.fs'
+import pCreateVS from './shaders/particle_new.vs'
+import pThinkFS from './shaders/particle_think.fs'
+import pThinkVS from './shaders/particle_think.vs'
+import { TILE_SIZE } from './Terrain'
+import { gl, GLFBO, GLMesh } from './Video'
 
-const MAX_PARTICLES = 100000
+const MAX_NEW_PARTICLES = 500
+const TEX_SIZE = 512
+export const PARTICLE_SIZE = 24
+const MAX_PARTICLES = TEX_SIZE * TEX_SIZE / PARTICLE_SIZE
 
-export const PARTICLE_STRIDE = (
-    4 * 4 + // position f32[4]
-    4 * 1 + // scale f32[1]
-    4 * 1 // color byte[4]
-)
-export const PARTICLE_POSITION_OFFSET = 0
-export const PARTICLE_SCALE_OFFSET = 16
-export const PARTICLE_COLOR_OFFSET = 20
-
-class Particle {
-    public active: boolean
-    public pause = false
-
-    public position = vec3.create()
-    public gravity = vec3.create()
-    public dampening = vec3.create()
-    public velocity = vec3.create()
-    public startSize = 1
-    public size = 1
-    public color = [0, 0, 0, 255]
-    public life = 0
-    public lifetime = 0
-    public bounce = -1
-
-    constructor() {
-        this.active = false
-    }
-
-    public tick(dt: number) {
-        if (!this.active) return
-        this.life -= dt
-        if (this.life <= 0) {
-            this.active = false
-            return
-        }
-        this.size = this.life / this.lifetime * this.startSize
-        this.color[3] = this.life / this.lifetime * 255
-        if (!this.pause) {
-            vec3.scaleAndAdd(this.velocity, this.velocity, this.gravity, dt)
-            vec3.mul(this.velocity, this.velocity, this.dampening)
-            vec3.scaleAndAdd(this.position, this.position, this.velocity, dt)
-            if (this.bounce >= 0 && this.position[1] < 0) {
-                this.position[1] *= -1
-                this.velocity[1] *= -1
-                vec3.scale(this.velocity, this.velocity, this.bounce)
-                if (vec3.len(this.velocity) < 1) {
-                    this.pause = true
-                }
-            }
-        }
-    }
+interface IParticle {
+    gravity: vec3
+    dampening: vec3
+    position: vec3
+    velocity: vec3
+    size: number
+    startSize: number
+    color: number[]
+    lifetime: number
+    bounce: number
 }
 
 function randN(min: number, max: number) {
@@ -118,7 +87,7 @@ export class Emitter implements IEmitterOpts {
             const p = this.particles.getParticle()
             p.gravity = this.gravity
             p.dampening = this.dampening
-            p.startSize = randN(this.size[0], this.size[1])
+            p.size = p.startSize = randN(this.size[0], this.size[1])
             vec3.copy(p.position, this.position)
             if (this.shape !== 'point') {
                 let offset: vec3
@@ -177,9 +146,7 @@ export class Emitter implements IEmitterOpts {
             p.color[0] = this.color[0]
             p.color[1] = this.color[1]
             p.color[2] = this.color[2]
-            p.life = p.lifetime = randN(this.lifetime[0], this.lifetime[1])
-            p.active = true
-            p.pause = false
+            p.lifetime = randN(this.lifetime[0], this.lifetime[1])
             p.bounce = this.bounce
             count--
             if (count <= 0) return
@@ -190,84 +157,381 @@ export class Emitter implements IEmitterOpts {
 
 export default class Particles {
 
-    private particles: Particle[]
-    private currentIdx: number = 0
+    private particles: IParticle[]
 
-    public material: Material
+    private drawMaterial: ParticleDrawMaterial
+    private createMaterial: ParticleCreateMaterial
+    private thinkMaterial: ParticleThinkMaterial
+    private textureOne: WebGLTexture
+    private framebufferOne: WebGLFramebuffer
+    private textureTwo: WebGLTexture
+    private framebufferTwo: WebGLFramebuffer
+    private flip = false
 
-    public buffer: ArrayBuffer
-    private bufView: DataView
+    public mesh: GLMesh
+
+    public buffer: Float32Array
     public activeParticles = 0
+    public offset = 0
+    public newBuffer: Float32Array
+    public newPointBuffer: Float32Array
 
     public glBuffer: WebGLBuffer
+    public glNewBuffer: WebGLBuffer
+    public glNewPointBuffer: WebGLBuffer
 
-    constructor(mat: Material) {
-        this.particles = new Array(MAX_PARTICLES)
-        for (let i = 0; i < MAX_PARTICLES; i++) {
-            this.particles[i] = new Particle()
+    constructor() {
+        this.particles = new Array(MAX_NEW_PARTICLES)
+        for (let i = 0; i < MAX_NEW_PARTICLES; i++) {
+            this.particles[i] = {
+                position: vec3.create(),
+                gravity: vec3.create(),
+                dampening: vec3.create(),
+                velocity: vec3.create(),
+                startSize: 1,
+                size: 1,
+                color: [0, 0, 0, 255],
+                lifetime: 0,
+                bounce: -1,
+            }
         }
 
-        this.material = mat
+        this.drawMaterial = new ParticleDrawMaterial(pDrawVS, pDrawFS)
+        this.createMaterial = new ParticleCreateMaterial(pCreateVS, pCreateFS)
+        this.thinkMaterial = new ParticleThinkMaterial(pThinkVS, pThinkFS)
         this.makeBuffers()
-        this.bufView = new DataView(this.buffer)
+
+        this.textureOne = gl.createTexture()
+        this.framebufferOne = gl.createFramebuffer()
+        this.textureTwo = gl.createTexture()
+        this.framebufferTwo = gl.createFramebuffer()
+
+        this.mesh = new GLMesh({
+            verts: [
+                -1, -1, 0,
+                1, 1, 0,
+                -1, 1, 0,
+                -1, -1, 0,
+                1, -1, 0,
+                1, 1, 0,
+            ],
+            uvs: [
+                0, 0,
+                1, 1,
+                0, 1,
+                0, 0,
+                1, 0,
+                1, 1,
+            ]
+        })
+        this.makeTexture(TEX_SIZE, TEX_SIZE)
     }
 
     private makeBuffers() {
-        // 6 verts in a quad
-        this.buffer = new ArrayBuffer(MAX_PARTICLES * PARTICLE_STRIDE)
+        this.newPointBuffer = new Float32Array(TEX_SIZE * TEX_SIZE)
+        this.newBuffer = new Float32Array(MAX_NEW_PARTICLES * PARTICLE_SIZE)
+
+        const border = 0
+        for (let x = border; x < TEX_SIZE - border; x++) {
+            for (let y = border; y < TEX_SIZE - border; y++) {
+                const idx = y * TILE_SIZE + x
+                this.newPointBuffer[idx] = idx
+            }
+        }
+
+        const particleIndices = new Float32Array(MAX_PARTICLES)
+        for (let i = 0; i < MAX_PARTICLES; i++) {
+            particleIndices[i] = i
+        }
+
         this.glBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.glBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, this.buffer, gl.DYNAMIC_DRAW)
+        gl.bufferData(gl.ARRAY_BUFFER, particleIndices, gl.STATIC_DRAW)
+        this.glNewBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.glNewBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, this.newBuffer, gl.DYNAMIC_DRAW)
+        this.glNewPointBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.glNewPointBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, this.newPointBuffer, gl.STATIC_DRAW)
+    }
+
+    public makeTexture(w: number, h: number) {
+        gl.bindTexture(gl.TEXTURE_2D, this.textureOne)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+            w, h,
+            0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+        gl.bindTexture(gl.TEXTURE_2D, this.textureTwo)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+            w, h,
+            0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
     }
 
     public newEmitter(opts: IEmitterOpts): Emitter {
         return new Emitter(this, opts)
     }
 
-    public getParticle(): Particle {
-        if (this.currentIdx >= MAX_PARTICLES) {
-            this.currentIdx = 0
+    public getParticle(): IParticle {
+        return this.particles[this.activeParticles++]
+    }
+
+    public draw(data: any, fbo: GLFBO) {
+        // console.log(this.activeParticles)
+        for (let i = 0; i < this.activeParticles; i++) {
+            const p = this.particles[i]
+            const offset = i * PARTICLE_SIZE
+            this.newBuffer[offset + 0] = p.gravity[0]
+            this.newBuffer[offset + 1] = p.gravity[1]
+            this.newBuffer[offset + 2] = p.gravity[2]
+            this.newBuffer[offset + 3] = p.dampening[0]
+            this.newBuffer[offset + 4] = p.dampening[1]
+            this.newBuffer[offset + 5] = p.dampening[2]
+            this.newBuffer[offset + 6] = p.position[0]
+            this.newBuffer[offset + 7] = p.position[1]
+            this.newBuffer[offset + 8] = p.position[2]
+            this.newBuffer[offset + 9] = p.velocity[0]
+            this.newBuffer[offset + 10] = p.velocity[1]
+            this.newBuffer[offset + 11] = p.velocity[2]
+            this.newBuffer[offset + 12] = p.startSize
+            this.newBuffer[offset + 13] = p.size
+            this.newBuffer[offset + 14] = p.color[0]
+            this.newBuffer[offset + 15] = p.color[1]
+            this.newBuffer[offset + 16] = p.color[2]
+            this.newBuffer[offset + 17] = p.color[3]
+            this.newBuffer[offset + 18] = p.lifetime
+            this.newBuffer[offset + 19] = p.bounce
         }
-        return this.particles[this.currentIdx++]
-    }
 
-    public tick(dt: number) {
-        const v = this.bufView
-        let idx = 0
-        this.particles.filter(p => p.active).forEach((p) => {
-            p.tick(dt)
+        gl.viewport(0, 0, TEX_SIZE, TEX_SIZE)
 
-            const pos = p.position
-            const size = p.size
-            const color = p.color
-            v.setFloat32(PARTICLE_STRIDE * idx, pos[0], true)
-            v.setFloat32(PARTICLE_STRIDE * idx + 4, pos[1], true)
-            v.setFloat32(PARTICLE_STRIDE * idx + 8, pos[2], true)
-            v.setFloat32(PARTICLE_STRIDE * idx + 12, 1, true)
-            v.setFloat32(PARTICLE_STRIDE * idx + PARTICLE_SCALE_OFFSET, size, true)
-            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 0, color[0])
-            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 1, color[1])
-            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 2, color[2])
-            v.setUint8(PARTICLE_STRIDE * idx + PARTICLE_COLOR_OFFSET + 3, color[3])
-            idx++
-        })
+        if (this.flip) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebufferTwo)
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+                gl.TEXTURE_2D, this.textureOne, 0)
+        } else {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebufferOne)
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+                gl.TEXTURE_2D, this.textureTwo, 0)
+        }
 
-        this.activeParticles = idx
-    }
+        const cT = this.thinkMaterial
+        cT.use()
+        if (this.flip) {
+            this.thinkMaterial.setTexture(this.textureTwo)
+        } else {
+            this.thinkMaterial.setTexture(this.textureOne)
+        }
+        cT.setGlobalUniforms(TEX_SIZE, data.dt)
+        cT.bindMesh(this.mesh)
+        cT.draw(6)
+        cT.end()
 
-    public draw(data: any) {
         if (this.activeParticles > 0) {
-            const m = this.material
-            m.use()
-            m.setGlobalUniforms(data)
-            m.bindParticles(this)
-            gl.enable(gl.BLEND)
-            gl.depthMask(false)
-            gl.drawArrays(gl.POINTS, 0, this.activeParticles)
-            gl.disable(gl.BLEND)
-            gl.depthMask(true)
-            m.end()
+            const cM = this.createMaterial
+            cM.use()
+            cM.setGlobalUniforms(TEX_SIZE, this.offset)
+            cM.bindParticlePoints(this.glNewPointBuffer)
+            cM.bindParticleData(this.glNewBuffer, this.newBuffer)
+            cM.draw(this.activeParticles * PARTICLE_SIZE)
+            cM.end()
+            this.offset = (this.offset + this.activeParticles * PARTICLE_SIZE) % (TEX_SIZE * TEX_SIZE)
+            this.activeParticles = 0
         }
+
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        fbo.texture = this.flip ? this.textureTwo : this.textureOne
+        fbo.render(data)
+
+        this.flip = !this.flip
+
+        return
+
+        gl.viewport(0, 0, data.width, data.height)
+
+        fbo.bind()
+        const m = this.drawMaterial
+        m.use()
+        m.setGlobalUniforms(data.vpMatrix, TEX_SIZE)
+        m.bindParticlePoints(this.glBuffer)
+        if (this.flip) {
+            m.setTexture(this.textureTwo)
+        } else {
+            m.setTexture(this.textureOne)
+        }
+        gl.enable(gl.BLEND)
+        gl.depthMask(false)
+        gl.drawArrays(gl.POINTS, 0, MAX_PARTICLES)
+        gl.disable(gl.BLEND)
+        gl.depthMask(true)
+        m.end()
+
+        this.flip = !this.flip
+    }
+
+}
+
+class ParticleCreateMaterial {
+
+    private shader: Shader
+
+    private pointLoc: number
+    private particleDataLoc: number
+    private offsetLoc: WebGLUniformLocation
+    private texSizeLoc: WebGLUniformLocation
+
+    constructor(vs: string, fs: string) {
+        this.shader = new Shader(vs, fs)
+        const prog = this.shader.program
+
+        this.pointLoc = gl.getAttribLocation(prog, 'aPoint')
+        this.particleDataLoc = gl.getAttribLocation(prog, 'aData')
+        this.offsetLoc = gl.getUniformLocation(prog, 'uOffset')
+        this.texSizeLoc = gl.getUniformLocation(prog, 'uTexSize')
+    }
+
+    public use() {
+        gl.useProgram(this.shader.program)
+    }
+
+    public end() {
+        gl.disableVertexAttribArray(this.pointLoc)
+        gl.disableVertexAttribArray(this.particleDataLoc)
+    }
+
+    public setGlobalUniforms(size: number, offset: number) {
+        gl.uniform1f(this.texSizeLoc, size)
+        gl.uniform1f(this.offsetLoc, offset)
+    }
+
+    public bindParticlePoints(buf: WebGLBuffer) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+        gl.vertexAttribPointer(this.pointLoc, 1, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(this.pointLoc)
+    }
+
+    public bindParticleData(buf: WebGLBuffer, data: Float32Array) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW)
+        gl.vertexAttribPointer(this.particleDataLoc, 1, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(this.particleDataLoc)
+    }
+
+    public draw(num: number) {
+       gl.drawArrays(gl.POINTS, 0, num)
+    }
+
+}
+
+class ParticleThinkMaterial {
+
+    private shader: Shader
+
+    private vertexPosLoc: number
+    private vertexUvLoc: number
+    private timeLoc: WebGLUniformLocation
+    private texSizeLoc: WebGLUniformLocation
+    private textureOneLoc: WebGLUniformLocation
+
+    constructor(vs: string, fs: string) {
+        this.shader = new Shader(vs, fs)
+        const prog = this.shader.program
+
+        this.vertexPosLoc = gl.getAttribLocation(prog, 'aVertexPosition')
+        this.vertexUvLoc = gl.getAttribLocation(prog, 'aTextureCoord')
+        this.timeLoc = gl.getUniformLocation(prog, 'uTime')
+        this.texSizeLoc = gl.getUniformLocation(prog, 'uTexSize')
+        this.textureOneLoc = gl.getUniformLocation(prog, 'uTexture')
+    }
+
+    public use() {
+        gl.useProgram(this.shader.program)
+    }
+
+    public end() {
+        gl.disableVertexAttribArray(this.vertexPosLoc)
+        gl.disableVertexAttribArray(this.vertexUvLoc)
+    }
+
+    public setGlobalUniforms(size: number, dt: number) {
+        gl.uniform1f(this.texSizeLoc, size)
+        gl.uniform1f(this.timeLoc, dt)
+    }
+
+    public bindMesh(mesh: GLMesh) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertBuffer)
+        gl.vertexAttribPointer(this.vertexPosLoc, 3, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(this.vertexPosLoc)
+        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvsBuffer)
+        gl.vertexAttribPointer(this.vertexUvLoc, 2, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(this.vertexUvLoc)
+    }
+
+    public setTexture(tex: WebGLTexture) {
+        gl.activeTexture(gl.TEXTURE0)
+        gl.bindTexture(gl.TEXTURE_2D, tex)
+        gl.uniform1i(this.textureOneLoc, 0)
+    }
+
+    public draw(num: number) {
+       gl.drawArrays(gl.TRIANGLES, 0, num)
+    }
+
+}
+
+class ParticleDrawMaterial {
+
+    private shader: Shader
+
+    private vpMatLoc: WebGLUniformLocation
+    private pointLoc: number
+    private texSizeLoc: WebGLUniformLocation
+    private textureOneLoc: WebGLUniformLocation
+
+    constructor(vs: string, fs: string) {
+        this.shader = new Shader(vs, fs)
+        const prog = this.shader.program
+
+        this.pointLoc = gl.getAttribLocation(prog, 'aPoint')
+        this.vpMatLoc = gl.getUniformLocation(prog, 'uVP_Matrix')
+        this.texSizeLoc = gl.getUniformLocation(prog, 'uTexSize')
+        this.textureOneLoc = gl.getUniformLocation(prog, 'uTexture')
+    }
+
+    public use() {
+        gl.useProgram(this.shader.program)
+    }
+
+    public end() {
+        gl.disableVertexAttribArray(this.pointLoc)
+    }
+
+    public setGlobalUniforms(matrix: mat4, size: number) {
+        gl.uniformMatrix4fv(this.vpMatLoc, false, matrix)
+        gl.uniform1f(this.texSizeLoc, size)
+    }
+
+    public bindParticlePoints(buf: WebGLBuffer) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+        gl.vertexAttribPointer(this.pointLoc, 1, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(this.pointLoc)
+    }
+
+    public setTexture(tex: WebGLTexture) {
+        gl.activeTexture(gl.TEXTURE0)
+        gl.bindTexture(gl.TEXTURE_2D, tex)
+        gl.uniform1i(this.textureOneLoc, 0)
+    }
+
+    public draw(num: number) {
+       gl.drawArrays(gl.POINTS, 0, num)
     }
 
 }

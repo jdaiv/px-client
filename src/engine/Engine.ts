@@ -31,7 +31,6 @@ export default class Engine {
         this.v = new Video(el, this)
         this.materials = MaterialManager.load()
         this.overlay = new Overlay(el)
-        this.particles = new Particles(this.materials.get('particle'))
         // this.synth = new Synth()
         this.resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)
@@ -40,6 +39,7 @@ export default class Engine {
                 this,
                 this.materials.get('terrain'),
                 this.resources.sprites.get('terrain'))
+            this.particles = new Particles(this.materials.get('particle'))
             this.v.initQueue()
             this.activeStage = new Station(this)
             this.start()
@@ -76,7 +76,7 @@ export default class Engine {
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
             this.activeStage.lateTick(this.dt)
-            this.particles.tick(this.dt)
+            // this.particles.tick()
             this.v.run(this.dt, this.time, () => this.activeStage.draw(this.dt))
             this.overlay.run(this.dt)
             // this.synth.tick(this.dt)
