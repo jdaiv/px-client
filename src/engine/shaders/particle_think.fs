@@ -27,7 +27,7 @@ float getIndex(float index) {
     return DecodeFloatRGBA(
         texture2D(uTexture,
             vec2(
-                mod(index, uTexSize) + 0.5,
+                floor(mod(index, uTexSize)) + 0.5,
                 floor((index) / uTexSize) + 0.5
             ) / uTexSize
         )
@@ -35,27 +35,38 @@ float getIndex(float index) {
 }
 
 void main() {
-    float index = floor(vTextureCoord.x * uTexSize + (vTextureCoord.y * uTexSize) * uTexSize);
+    float index = floor(vTextureCoord.x * uTexSize + floor(vTextureCoord.y * uTexSize) * uTexSize);
     float slot = mod(index, 32.0);
     float value = DecodeFloatRGBA(texture2D(uTexture, vTextureCoord));
     float bounce = getIndex(index - slot + 20.0);
+    float lifetime = getIndex(index - slot + 18.0);
+    float life = getIndex(index - slot + 19.0);
+    float yPos = getIndex(index - slot + 7.0);
 
-    if (slot > 8.0 && slot < 12.0) {
-        value = value - value * getIndex(index - 6.0) * uTime / 4.0 + getIndex(index - 9.0) * uTime;
-        if (bounce >= 0.0 && getIndex(index - slot + 7.0) <= 0.0) {
-            value *= slot == 10.0 ? -bounce : bounce;
+    if (lifetime <= 0.0) {
+        value = 0.0;
+    } else {
+        if (slot > 8.0 && slot < 12.0) {
+            value = (value + (getIndex(index - 9.0) * uTime) - value * ((1.0 - getIndex(index - 6.0)) * uTime * 10.0));
+            if (bounce >= 0.0 && yPos <= 0.1) {
+                value *= slot == 10.0 ? -bounce : bounce;
+            }
+        } else if (slot > 5.0 && slot < 9.0) {
+            value = value + getIndex(index + 3.0) * uTime;
+            if (bounce >= 0.0 && slot == 7.0 && value < 0.0) {
+                value = 0.0;
+            }
+        } else if (slot == 13.0) {
+            value = (
+                smoothstep(0.0, life, lifetime) *
+                1.0 - smoothstep(life - 0.05, life, lifetime)
+             ) * getIndex(index - 1.0);
+        } else if (slot == 17.0) {
+            value = mix(0.0, 1.0, lifetime / life) *
+                1.0 - smoothstep(life - life * 0.01, life, lifetime);
+        } else if (slot == 18.0) {
+            value -= uTime;
         }
-    } else if (slot > 5.0 && slot < 9.0) {
-        value = value + getIndex(index + 3.0) * uTime;
-        if (bounce >= 0.0 && slot == 7.0 && value < 0.0) {
-            value = 0.0;
-        }
-    } else if (slot == 13.0) {
-        value = getIndex(index - 1.0) * (getIndex(index + 5.0) / getIndex(index + 6.0));
-    } else if (slot == 17.0) {
-        value = (getIndex(index + 1.0) / getIndex(index + 2.0));
-    } else if (slot == 18.0) {
-        value = max(0.0, value - uTime);
     }
 
     gl_FragColor = EncodeFloatRGBA(value);

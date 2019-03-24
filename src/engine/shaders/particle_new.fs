@@ -14,11 +14,6 @@ vec4 EncodeFloatRGBA(float v) {
     );
 }
 
-float DecodeFloatRGBA(vec4 v) {
-    return ((v.x * 255.0 * 255.0 + v.y * 255.0) - 32000.0 +
-        ((v.z * 255.0 * 255.0 + v.w * 255.0) / 64000.0));
-}
-
 void main() {
     gl_FragColor = EncodeFloatRGBA(vData);
 }

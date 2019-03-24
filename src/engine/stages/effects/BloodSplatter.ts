@@ -10,14 +10,14 @@ export default class BloodSplatter implements IEffect {
 
     constructor(engine: Engine) {
         this.emitter = engine.particles.newEmitter({
-            dampening: vec3.fromValues(1, 1, 1),
-            gravity: vec3.fromValues(0, -20, 0),
-            velocity: [50, 80],
+            dampening: vec3.fromValues(0.6, 1, 0.6),
+            gravity: vec3.fromValues(0, -50, 0),
+            velocity: [-10, 10],
             size: [0.5, 1],
             lifetime: [5, 10],
-            color: [200, 0, 0, 255],
-            bounce: 0,
-            spread: 20,
+            color: [150, 0, 0, 255],
+            bounce: 0.5,
+            spread: 100,
             // rotation: vec3.fromValues(0, 0, 90),
         })
     }
@@ -44,8 +44,6 @@ export default class BloodSplatter implements IEffect {
         // this.emitter.emit(10)
 
         while (t < 60) {
-            this.emitter.velocity[0] = -6
-            this.emitter.velocity[1] = 6
             chunks.forEach((x, i) => {
                 const cPos = chunksPos[i]
                 x[1] -= 200 * 1 / 60
@@ -55,7 +53,9 @@ export default class BloodSplatter implements IEffect {
                     cPos[1] = 0
                     x[1] *= -0.5
                 }
-                this.emitter.emit(3)
+                this.emitter.size[0] = 1 * 1 - (t / 60)
+                this.emitter.size[1] = 2 * 1 - (t / 60)
+                this.emitter.emit(20)
             })
 
             t++

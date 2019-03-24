@@ -45,7 +45,7 @@ void main() {
         1
     );
     gl_Position = pos;
-    gl_PointSize = getOffset(13.0) * abs(500.0 / pos.z) * alive;
+    gl_PointSize = getOffset(13.0) * abs(200.0 / pos.z) * alive;
     particleColor = vec4(
         getOffset(14.0),
         getOffset(15.0),

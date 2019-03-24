@@ -10,7 +10,7 @@ import { TILE_SIZE } from './Terrain'
 import { gl, GLFBO, GLMesh } from './Video'
 
 const MAX_NEW_PARTICLES = 10000
-const TEX_SIZE = 1024
+const TEX_SIZE = 2048
 export const PARTICLE_SIZE = 32
 const MAX_PARTICLES = TEX_SIZE * TEX_SIZE / PARTICLE_SIZE
 
@@ -133,7 +133,6 @@ export class Emitter implements IEmitterOpts {
                         vec3.mul(offset, offset, this.cube)
                         break
                 }
-                vec3.transformQuat(offset, offset, this.angle)
                 vec3.add(p.position, p.position, offset)
             }
             vec3.set(p.velocity,
@@ -142,8 +141,8 @@ export class Emitter implements IEmitterOpts {
                 randN(-this.spread, this.spread)
             )
             vec3.normalize(p.velocity, p.velocity)
-            vec3.scale(p.velocity, p.velocity, randN(this.velocity[0], this.velocity[1]))
             vec3.transformQuat(p.velocity, p.velocity, this.angle)
+            vec3.scale(p.velocity, p.velocity, randN(this.velocity[0], this.velocity[1]))
             p.color[0] = this.color[0]
             p.color[1] = this.color[1]
             p.color[2] = this.color[2]
@@ -262,8 +261,8 @@ export default class Particles {
             const idx = i * 4
             blankTexture[idx + 0] = 125
             blankTexture[idx + 1] = 125
-            blankTexture[idx + 2] = 125
-            blankTexture[idx + 3] = 125
+            blankTexture[idx + 2] = 0
+            blankTexture[idx + 3] = 0
         }
 
         gl.bindTexture(gl.TEXTURE_2D, this.textureOne)
@@ -318,6 +317,9 @@ export default class Particles {
             this.newBuffer[offset + 18] =   p.lifetime
             this.newBuffer[offset + 19] =   p.life
             this.newBuffer[offset + 20] =   p.bounce
+            for (let j = 21; j < 32; j++) {
+                this.newBuffer[offset + j] = Math.random() * 10000
+            }
         }
 
         gl.viewport(0, 0, TEX_SIZE, TEX_SIZE)
