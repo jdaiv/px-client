@@ -1,4 +1,6 @@
 import { mat4, vec2, vec4 } from 'gl-matrix'
+import debugRayFS from './shaders/debug_ray.fs'
+import debugRayVS from './shaders/debug_ray.vs'
 import errorFS from './shaders/error.fs'
 import errorVS from './shaders/error.vs'
 import hittestFS from './shaders/hittest.fs'
@@ -32,6 +34,11 @@ const MATERIALS = {
 
         screenSize: false,
         time: true,
+    },
+    debugRay: {
+        vs: debugRayVS,
+        fs: debugRayFS,
+        transform: true,
     },
     hitTest: {
         vs: texturedVS,

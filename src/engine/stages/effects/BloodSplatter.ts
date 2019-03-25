@@ -55,6 +55,8 @@ export default class BloodSplatter implements IEffect {
                 }
                 this.emitter.size[0] = 1 * 1 - (t / 60)
                 this.emitter.size[1] = 2 * 1 - (t / 60)
+                this.emitter.velocity[0] = -15 * 1 - (t / 60)
+                this.emitter.velocity[1] = 15 * 1 - (t / 60)
                 this.emitter.emit(20)
             })
 

@@ -23,17 +23,17 @@ export default class FireBall implements IEffect {
             rotation: vec3.fromValues(0, 0, 90),
         })
         this.emitter = engine.particles.newEmitter({
-            dampening: vec3.fromValues(0.95, 1, 0.95),
-            gravity: vec3.fromValues(0, 1, 0),
-            velocity: [5, 20],
-            size: [2, 4],
+            dampening: vec3.fromValues(0.1, 0.6, 0.1),
+            gravity: vec3.fromValues(0, 50, 0),
+            velocity: [0, 80],
+            size: [4, 8],
             lifetime: [1, 3],
             color: [255, 100, 0, 255],
             spread: 1,
             rotation: vec3.fromValues(0, 0, 90),
-            shape: 'sphere',
+            shape: 'square',
             outline: false,
-            cube: vec3.fromValues(0, 8, 8)
+            cube: vec3.fromValues(8, 8, 1),
         })
     }
 
@@ -53,23 +53,9 @@ export default class FireBall implements IEffect {
         }
 
         vec3.copy(this.emitter.position, target)
-        this.emitter.velocity[0] = 20
-        this.emitter.velocity[1] = 60
-        this.emitter.cube[1] = 8
-        this.emitter.cube[2] = 8
-        this.emitter.spread = 100
-        this.emitter.emit(120)
         const shake = 8
         this.engine.camera.addShake([shake, shake, shake])
-        while (t < 90) {
-            vec3.copy(this.emitter.position, target)
-            this.emitter.color[1] = Math.floor(Math.random() * 120 + 80)
-            this.emitter.velocity[0] = 5
-            this.emitter.velocity[1] = 20
-            this.emitter.emit(2)
-            t++
-            yield false
-        }
+        this.trailEmitter.emit(100)
         yield true
     }
 

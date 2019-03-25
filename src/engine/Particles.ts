@@ -110,10 +110,15 @@ export class Emitter implements IEmitterOpts {
                             const rand = axis ? this.cube[1] : this.cube[0]
                             offset[axis ? sideTwo : sideOne] = randN(-rand, rand)
                         } else {
-                            offset = vec3.fromValues(
-                                0,
+                            const rand = [
                                 randN(-this.cube[0], this.cube[0]),
-                                randN(-this.cube[1], this.cube[1])
+                                randN(-this.cube[1], this.cube[1]),
+                                0
+                            ]
+                            offset = vec3.fromValues(
+                                rand[(0 + this.cube[2]) % 3],
+                                rand[(1 + this.cube[2]) % 3],
+                                rand[(2 + this.cube[2]) % 3]
                             )
                         }
                         break

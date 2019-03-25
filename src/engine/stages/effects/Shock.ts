@@ -22,7 +22,7 @@ export default class Shock implements IEffect {
             rotation: vec3.fromValues(0, 0, 90),
             shape: 'square',
             outline: false,
-            cube: vec3.fromValues(8, 4, 8),
+            cube: vec3.fromValues(8, 8, 1),
             bounce: 0.5
         })
     }

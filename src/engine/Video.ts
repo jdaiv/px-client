@@ -4,6 +4,7 @@ import GameManager from '../shared/GameManager'
 import Engine from './Engine'
 import { Material } from './Materials'
 import Resources from './Resources'
+import { TILE_SIZE_HALF } from './Terrain'
 
 let SCALE = 2
 const INIT_QUEUE_SIZE = 16
@@ -31,15 +32,14 @@ export default class Video {
     private fbos: GLFBO[] = []
     private postStack: string[]
 
-    private hitTestData: Uint8Array
-    private hitTestCallbacks: Map<string, any>
     private mouseActive: boolean
     private captureMouse: boolean
     private mouseX: number
     private mouseY: number
-    private activeMouseObject: string
+    private activeMouseObject: any
     private rotateCamera = vec3.create()
 
+    public data: any
     private queue: RenderingQueue
 
     constructor(el: Element, engine: Engine) {
@@ -65,9 +65,6 @@ export default class Video {
             'post_bloom',
             // 'post_none',
         ]
-
-        this.hitTestData = new Uint8Array(4)
-        this.hitTestCallbacks = new Map()
 
         this.resize = this.resize.bind(this)
         this.resize()
@@ -221,6 +218,34 @@ export default class Video {
         qObj.mouseData = mouseData
     }
 
+    public drawRay(origin: vec3, dir: vec3, length: number) {
+        const end = vec3.create()
+        vec3.scaleAndAdd(end, origin, dir, length)
+        this.drawLine(origin, end)
+    }
+
+    public drawLine(origin: vec3, end: vec3) {
+        const material = this.engine.materials.get('debugRay')
+        material.use()
+        material.setGlobalUniforms(this.data)
+        material.preDraw()
+
+        const vertBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from([
+            origin[0], origin[1], origin[2],
+            end[0], end[1], end[2],
+        ]), gl.DYNAMIC_DRAW)
+        material.bindMesh({vertBuffer} as GLMesh, 1)
+
+        gl.drawArrays(gl.LINES, 0, 2)
+
+        material.postDraw()
+        material.end()
+
+        gl.deleteBuffer(vertBuffer)
+    }
+
     public getFBO(mat: Material) {
         const fbo = new GLFBO(mat)
         this.fbos.push(fbo)
@@ -243,9 +268,10 @@ export default class Video {
         const camera = this.engine.camera.calculate(dt)
 
         const matrix = mat4.create()
+        const matrixP = mat4.create()
         const matrixV = mat4.create()
         mat4.identity(matrixV)
-        mat4.perspective(matrix,
+        mat4.perspective(matrixP,
             camera.fov * Math.PI / 180,
             this.width / this.height,
             0.1, 1000)
@@ -273,7 +299,7 @@ export default class Video {
 
         quat.invert(camera.rotation, camera.rotation)
 
-        mat4.mul(matrix, matrix, matrixV)
+        mat4.mul(matrix, matrixP, matrixV)
 
         this.engine.overlay.matrix = matrix
 
@@ -284,6 +310,7 @@ export default class Video {
             height: this.height,
             vpMatrix: matrix
         }
+        this.data = data
 
         this.clearQueue()
         f()
@@ -294,72 +321,61 @@ export default class Video {
             vec3.lerp(this.rotateCamera, this.rotateCamera, [0, 0, 0], dt * 2)
         }
 
-        if (this.mouseActive) {
-            this.clear()
+        this.clear()
 
-            const htMat = materials.get('hitTest')
-            htMat.use()
-            htMat.setGlobalUniforms(data)
-            htMat.preDraw()
-            const color = vec4.fromValues(255, 255, 255, 255)
-            const nullColor = vec4.fromValues(0, 0, 0, 255)
+        if (this.mouseActive) {
+            const matVi = mat4.invert(mat4.create(), matrixV)
+            const matPi = mat4.invert(mat4.create(), matrixP)
+
+            const x = (2.0 * this.mouseX) / this.width - 1.0
+            const y = 1.0 - (2.0 * this.mouseY) / this.height
+            const rayClip = vec4.fromValues(x, y, -1.0, 1.0)
+            const rayEye = vec4.transformMat4(vec4.create(), rayClip, matPi)
+            rayEye[2] = -1.0
+            rayEye[3] = 0.0
+            const rayWorld = vec4.transformMat4(vec4.create(), rayEye, matVi)
+            const rayDir = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2])
+            vec3.normalize(rayDir, rayDir)
+
+            vec3.inverse(rayDir, rayDir)
+
+            let depth = Infinity
+            let cb: any = null
+
             this.queue.forEach((q) => {
-                q.forEach((mq, modelKey) => {
-                    htMat.bindMesh(this.resources.models.get(modelKey).mesh)
+                q.forEach((mq) => {
                     for (let i = 0; i < mq.count; i++) {
                         const o = mq.array[i]
                         if (!o.mouseData) continue
-                        const image = this.resources.sprites.get(o.texture)
-                        htMat.setTexture(image.texture.tex)
-                        const mMat = mat4.create()
-                        const rotation = quat.create()
-                        const scale = vec3.create()
-                        if (o.sprite === 1) {
-                        quat.copy(rotation, camera.rotation)
-                        } else {
-                            quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
-                        }
-                        if (o.sprite > 0) {
-                            vec3.mul(scale, o.scale, image.spriteScale)
-                        } else {
-                            vec3.copy(scale, o.scale)
-                        }
-                        mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
-                        const spriteData = vec2.create()
-                        if (o.frame != null) {
-                            spriteData[0] = image.frames
-                            spriteData[1] = o.frame
-                        }
-                        htMat.setMeshUniforms(mMat, spriteData, o.mouseData ? color : nullColor)
-                        htMat.draw()
+                        const p = o.position
+                        const min = vec3.fromValues(-TILE_SIZE_HALF, -TILE_SIZE_HALF, -TILE_SIZE_HALF)
+                        const max = vec3.fromValues(TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF)
+                        vec3.add(min, min, p)
+                        vec3.add(max, max, p)
 
-                        this.hitTestCallbacks.set(color.join(','), o.mouseData)
+                        let tmin = -Infinity
+                        let tmax = Infinity
 
-                        color[0] -= 25
-                        if (color[0] < 0) {
-                            color[0] = 255
-                            color[1] -= 25
+                        for (let v = 0; v < 3; v++) {
+                            const t1 = (min[v] - cameraPos[v]) * rayDir[v]
+                            const t2 = (max[v] - cameraPos[v]) * rayDir[v]
+
+                            tmin = Math.max(tmin, Math.min(t1, t2))
+                            tmax = Math.min(tmax, Math.max(t1, t2))
                         }
-                        if (color[1] < 0) {
-                            color[1] = 255
-                            color[2] -= 25
+
+                        const intersection = tmax >= tmin
+                        if (intersection && tmin < depth) {
+                            depth = tmin
+                            cb = o.mouseData.callback
                         }
                     }
                 })
             })
-            htMat.postDraw()
-            htMat.end()
 
-            gl.readPixels(this.mouseX, this.height - this.mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.hitTestData)
-            const key = this.hitTestData.map(x => Math.floor(x / 5) * 5).join(',')
-            this.activeMouseObject = key
-            const cb = this.hitTestCallbacks.get(key)
-            if (cb) {
-                cb.callback('move')
-            }
+            if (cb) cb('move')
+            this.activeMouseObject = cb
         }
-
-        this.clear()
 
         this.engine.terrain.draw(data)
 
@@ -436,10 +452,9 @@ export default class Video {
     }
 
     public mouseClick() {
-        const cb = this.hitTestCallbacks.get(this.activeMouseObject)
+        const cb = this.activeMouseObject
         if (cb) {
-            console.log(this.activeMouseObject)
-            cb.callback('click')
+            cb('click')
         }
     }
 
