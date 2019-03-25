@@ -25,6 +25,7 @@ interface IParticle {
     lifetime: number
     life: number
     bounce: number
+    fadeTime: number
 }
 
 function randN(min: number, max: number) {
@@ -50,6 +51,7 @@ export interface IEmitterOpts {
     cube?: vec3
     rotation?: vec3
     outline?: boolean
+    fadeTime?: number
 }
 
 export class Emitter implements IEmitterOpts {
@@ -69,6 +71,7 @@ export class Emitter implements IEmitterOpts {
     public shape: 'cube' | 'square' | 'sphere' | 'point' = 'point'
     public cube: vec3
     public outline = false
+    public fadeTime = 0.01
 
     private angle = quat.create()
 
@@ -149,6 +152,7 @@ export class Emitter implements IEmitterOpts {
             p.color[3] = 255
             p.lifetime = p.life = randN(this.lifetime[0], this.lifetime[1])
             p.bounce = this.bounce
+            p.fadeTime = this.fadeTime
             count--
             if (count <= 0) return
         }
@@ -194,6 +198,7 @@ export default class Particles {
                 lifetime: 0,
                 life: 0,
                 bounce: -1,
+                fadeTime: 0.05,
             }
         }
 
@@ -317,13 +322,16 @@ export default class Particles {
             this.newBuffer[offset + 18] =   p.lifetime
             this.newBuffer[offset + 19] =   p.life
             this.newBuffer[offset + 20] =   p.bounce
-            for (let j = 21; j < 32; j++) {
+            this.newBuffer[offset + 21] =   p.fadeTime
+            for (let j = 22; j < 32; j++) {
                 this.newBuffer[offset + j] = Math.random() * 10000
             }
         }
 
         gl.viewport(0, 0, TEX_SIZE, TEX_SIZE)
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
+
+        gl.disable(gl.DEPTH_TEST)
 
         if (this.activeParticles > 0) {
             const cM = this.createMaterial
@@ -365,6 +373,7 @@ export default class Particles {
 
         gl.viewport(0, 0, data.width, data.height)
         fbo.bind()
+        gl.enable(gl.DEPTH_TEST)
 
         const m = this.drawMaterial
         m.use()

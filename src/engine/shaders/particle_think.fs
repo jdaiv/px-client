@@ -23,47 +23,48 @@ float DecodeFloatRGBA(vec4 v) {
         ((v.z * 255.0 * 255.0 + v.w * 255.0) / 64000.0));
 }
 
-float getIndex(float index) {
+float getSlot(float base, float index) {
     return DecodeFloatRGBA(
         texture2D(uTexture,
             vec2(
-                floor(mod(index, uTexSize)) + 0.5,
-                floor((index) / uTexSize) + 0.5
+                floor(base + index) + 0.5,
+                floor(vTextureCoord.y) + 0.5
             ) / uTexSize
         )
     );
 }
 
 void main() {
-    float index = floor(vTextureCoord.x * uTexSize + floor(vTextureCoord.y * uTexSize) * uTexSize);
+    float index = floor(vTextureCoord.x + floor(vTextureCoord.y) * uTexSize);
     float slot = mod(index, 32.0);
-    float value = DecodeFloatRGBA(texture2D(uTexture, vTextureCoord));
-    float bounce = getIndex(index - slot + 20.0);
-    float lifetime = getIndex(index - slot + 18.0);
-    float life = getIndex(index - slot + 19.0);
-    float yPos = getIndex(index - slot + 7.0);
+    float base = floor(vTextureCoord.x - slot);
+    float value = getSlot(base, slot);
+    float bounce = getSlot(base, 20.0);
+    float lifetime = getSlot(base, 18.0);
+    float life = getSlot(base, 19.0);
+    float yPos = getSlot(base, 7.0);
 
     if (lifetime <= 0.0) {
         value = 0.0;
     } else {
         if (slot > 8.0 && slot < 12.0) {
-            value = (value + (getIndex(index - 9.0) * uTime) - value * ((1.0 - getIndex(index - 6.0)) * uTime * 10.0));
+            value = (value + (getSlot(base, slot - 9.0) * uTime) - value * ((1.0 - getSlot(base, slot - 6.0)) * uTime * 10.0));
             if (bounce >= 0.0 && yPos <= 0.1) {
                 value *= slot == 10.0 ? -bounce : bounce;
             }
         } else if (slot > 5.0 && slot < 9.0) {
-            value = value + getIndex(index + 3.0) * uTime;
+            value = value + getSlot(base, slot + 3.0) * uTime;
             if (bounce >= 0.0 && slot == 7.0 && value < 0.0) {
                 value = 0.0;
             }
         } else if (slot == 13.0) {
             value = (
                 smoothstep(0.0, life, lifetime) *
-                1.0 - smoothstep(life - 0.05, life, lifetime)
-             ) * getIndex(index - 1.0);
+                1.0 - smoothstep(life - getSlot(base, 21.0), life, lifetime)
+             ) * getSlot(base, 12.0);
         } else if (slot == 17.0) {
             value = mix(0.0, 1.0, lifetime / life) *
-                1.0 - smoothstep(life - life * 0.01, life, lifetime);
+                1.0 - smoothstep(life - life * getSlot(base, 21.0), life, lifetime);
         } else if (slot == 18.0) {
             value -= uTime;
         }

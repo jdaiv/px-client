@@ -50,14 +50,15 @@ export default class Tiles {
             dampening: vec3.fromValues(0.9, 0.9, 0.9),
             gravity: vec3.fromValues(0, 0, 0),
             size: [0.1, 0.3],
-            velocity: [0, 1],
-            lifetime: [3, 6],
+            velocity: [0, 0.5],
+            lifetime: [2, 4],
             color: [100, 0, 255, 255],
             shape: 'cube',
-            cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2),
+            cube: vec3.fromValues(1 * TILE_SIZE, 0, 1 * TILE_SIZE),
             outline: false,
             rotation: vec3.fromValues(0, 0, 90),
-            spread: 0,
+            spread: 1,
+            fadeTime: 0.2
         })
     }
 
@@ -102,41 +103,14 @@ export default class Tiles {
     public tick(dt: number) {
         const gm = GameManager.instance
         if (this.engine.terrain.edges && this.foamTimer > 0.75) {
-            const edges = this.engine.terrain.edges
-            for (let x = gm.state.mapMinX; x <= gm.state.mapMaxX; x++) {
-                for (let y = gm.state.mapMinY; y <= gm.state.mapMaxY; y++) {
-                    const height = -4
-                    const offset = 2
-                    if (edges[x][y][0] && y > gm.state.mapMinY) {
-                        vec3.set(this.foamEmitter.cube, TILE_SIZE_HALF, 0, offset * 2)
-                        vec3.set(
-                            this.foamEmitter.position,
-                            x * TILE_SIZE, height, y * TILE_SIZE - TILE_SIZE_HALF - offset)
-                        this.foamEmitter.emit(1)
-                    }
-                    if (edges[x][y][1] && x < gm.state.mapMaxX) {
-                        vec3.set(this.foamEmitter.cube, offset * 2, 0, TILE_SIZE_HALF)
-                        vec3.set(
-                            this.foamEmitter.position,
-                            x * TILE_SIZE + TILE_SIZE_HALF + offset, height, y * TILE_SIZE)
-                        this.foamEmitter.emit(1)
-                    }
-                    if (edges[x][y][2] && y < gm.state.mapMaxY) {
-                        vec3.set(this.foamEmitter.cube, TILE_SIZE_HALF, 0, offset * 2)
-                        vec3.set(
-                            this.foamEmitter.position,
-                            x * TILE_SIZE, height, y * TILE_SIZE + TILE_SIZE_HALF + offset)
-                        this.foamEmitter.emit(1)
-                    }
-                    if (edges[x][y][3] && x > gm.state.mapMinX) {
-                        vec3.set(this.foamEmitter.cube, offset * 2, 0, TILE_SIZE_HALF)
-                        vec3.set(
-                            this.foamEmitter.position,
-                            x * TILE_SIZE - TILE_SIZE_HALF - offset, height, y * TILE_SIZE)
-                        this.foamEmitter.emit(1)
-                    }
-                }
-            }
+            const halfW = ((gm.state.mapMaxX - gm.state.mapMinX) / 2 + 0.5) * TILE_SIZE
+            const halfH = ((gm.state.mapMaxY - gm.state.mapMinY) / 2 + 0.5) * TILE_SIZE
+            this.foamEmitter.position[0] = (gm.state.mapMaxX + gm.state.mapMinX) * TILE_SIZE / 2
+            this.foamEmitter.position[1] = -4
+            this.foamEmitter.position[2] = (gm.state.mapMaxY + gm.state.mapMinY) * TILE_SIZE / 2
+            this.foamEmitter.cube[0] = halfW
+            this.foamEmitter.cube[2] = halfH
+            this.foamEmitter.emit(100)
             this.foamTimer = 0
         }
         this.foamTimer += dt
