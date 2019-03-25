@@ -29,7 +29,7 @@ export default class Tiles {
             lifetime: [0.25, 0.5],
             color: [0, 255, 0, 255],
             shape: 'square',
-            cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2),
+            cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, 2),
             rotation: vec3.fromValues(0, 0, 90),
             outline: true,
             spread: 0.4,
