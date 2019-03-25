@@ -41,7 +41,7 @@ export default class Tiles {
             velocity: [25, 50],
             lifetime: [0.5, 1.5],
             color: [0, 255, 0, 255],
-            cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2),
+            cube: vec3.fromValues(TILE_SIZE / 2, TILE_SIZE / 2, 1),
             rotation: vec3.fromValues(0, 0, 90),
             shape: 'square',
             spread: 0.1
