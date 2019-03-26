@@ -1,13 +1,13 @@
 import { quat, vec3 } from 'gl-matrix'
 import GameManager from '../../shared/GameManager'
 import Engine from '../Engine'
-import Entity from '../Entity'
 import { TILE_SIZE } from '../Terrain'
 
 export const DIRECTIONS = ['N', 'W', 'S', 'E']
 
-export default class Player extends Entity {
+export default class Player {
 
+    private engine: Engine
     public velocity = vec3.create()
     public keysDown: Map<string, boolean>
     public rotation = 0
@@ -22,8 +22,8 @@ export default class Player extends Entity {
         this.rotation = DIRECTIONS.indexOf(d)
     }
 
-    public init(engine: Engine) {
-        super.init(engine)
+    constructor(engine: Engine) {
+        this.engine = engine
         this.keysDown = new Map()
 
         window.addEventListener('keydown', this.keydown)
@@ -33,8 +33,6 @@ export default class Player extends Entity {
     public destroy() {
         window.removeEventListener('keydown', this.keydown)
         window.removeEventListener('keyup', this.keyup)
-
-        super.destroy()
     }
 
     public tick(dt: number) {
@@ -58,7 +56,6 @@ export default class Player extends Entity {
             this.engine.camera.setRotation(this.rotationQ)
             this.engine.camera.lookAt = false
         }
-        super.tick(dt)
     }
 
     public keydown = (evt: KeyboardEvent) => {

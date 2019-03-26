@@ -1,4 +1,3 @@
-import { action } from 'mobx'
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
 import GameStore from '../../shared/GameStore'

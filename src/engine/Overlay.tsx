@@ -3,7 +3,7 @@ import { Component, h, render } from 'preact'
 import GameManager from '../shared/GameManager'
 import GameState from '../shared/GameState'
 import style from './Overlay.css'
-import { TILE_SIZE } from './stages/Tiles'
+import { TILE_SIZE } from './stage/Tiles'
 
 export default class Overlay {
 

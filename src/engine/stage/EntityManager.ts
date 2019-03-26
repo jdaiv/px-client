@@ -2,8 +2,8 @@ import { vec3 } from 'gl-matrix'
 import GameManager from '../../shared/GameManager'
 import GameState from '../../shared/GameState'
 import Engine from '../Engine'
-import { TILE_SIZE } from '../stages/Tiles'
 import { DIRECTIONS } from './Player'
+import { TILE_SIZE } from './Tiles'
 
 const ZERO = vec3.create()
 const ONE = vec3.fromValues(1, 1, 1)

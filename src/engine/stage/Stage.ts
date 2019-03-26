@@ -1,13 +1,12 @@
 import { vec3 } from 'gl-matrix'
 import GameManager from '../../shared/GameManager'
 import Engine from '../Engine'
-import EntityManager from '../entities/EntityManager'
-import Player from '../entities/Player'
-import Stage from '../Stage'
 import Effects from './Effects'
+import EntityManager from './EntityManager'
+import Player from './Player'
 import Tiles from './Tiles'
 
-export default class Station extends Stage {
+export default class Stage {
 
     public data = null
     public loading = true
@@ -21,22 +20,23 @@ export default class Station extends Stage {
     public effects: Effects
     private tiles: Tiles
     private entityManager: EntityManager
+    private player: Player
+    private engine: Engine
 
     public playerPositions: Map<string, vec3>
 
     constructor(engine: Engine) {
-        super(engine)
+        this.engine = engine
         this.effects = new Effects(engine)
         this.tiles = new Tiles(engine)
         this.entityManager = new EntityManager(engine)
 
-        const player = new Player('player')
-        this.addEntity(player)
+        this.player = new Player(engine)
 
         this.data = {}
         this.playerPositions = new Map()
         GameManager.instance.state.registerListener((state) => {
-            player.direction = state.activePlayer.facing
+            this.player.direction = state.activePlayer.facing
             this.loading = !state.valid
         })
         GameManager.instance.onEffect = this.effects.handleEffect
@@ -54,12 +54,10 @@ export default class Station extends Stage {
         this.tiles.tick(dt)
         this.entityManager.tick(dt)
         this.effects.tick()
-        super.tick(dt)
+        this.player.tick(dt)
     }
 
-    public draw(dt: number) {
-        super.draw(dt)
-
+    public draw() {
         if (this.loading) {
             this.engine.v.drawSpriteR('loading', {
                 position: [0, Math.sin(this.loadingRot / 1000) * 4, 0],

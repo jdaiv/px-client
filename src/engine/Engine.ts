@@ -4,8 +4,7 @@ import { Material, MaterialManager } from './Materials'
 import Overlay from './Overlay'
 import Particles from './Particles'
 import Resources from './Resources'
-import Stage from './Stage'
-import Station from './stages/Station'
+import Stage from './stage/Stage'
 import Terrain from './Terrain'
 import Video from './Video'
 
@@ -41,7 +40,7 @@ export default class Engine {
                 this.resources.sprites.get('terrain'))
             this.particles = new Particles()
             this.v.initQueue()
-            this.activeStage = new Station(this)
+            this.activeStage = new Stage(this)
             this.start()
         })
     }
@@ -75,9 +74,7 @@ export default class Engine {
 
         if (this.activeStage) {
             this.activeStage.tick(this.dt)
-            this.activeStage.lateTick(this.dt)
-            // this.particles.tick()
-            this.v.run(this.dt, this.time, () => this.activeStage.draw(this.dt))
+            this.v.run(this.dt, this.time, () => this.activeStage.draw())
             this.overlay.run(this.dt)
             // this.synth.tick(this.dt)
         }
