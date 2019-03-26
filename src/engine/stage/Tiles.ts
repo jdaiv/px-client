@@ -2,7 +2,7 @@ import { vec3 } from 'gl-matrix'
 import GameManager from '../../shared/GameManager'
 import GameState from '../../shared/GameState'
 import Engine from '../Engine'
-import { Emitter } from '../rendering/Particles'
+import Emitter from '../rendering/particles/Emitter'
 import { TILE_SIZE_HALF } from '../rendering/Terrain'
 
 export const TILE_SIZE = 16
@@ -71,12 +71,13 @@ export default class Tiles {
         state.tiles.forEach((t: any, i) => {
             tiles.push([t.position, t.type])
             if (t.type === 5 && !this.trees.has(i)) {
-                const scale = Math.random() * 4 + 3
+                const scale = Math.random() * 5 + 2
                 const transform = {
                     position: vec3.mul(vec3.create(), t.position, [TILE_SIZE, 0, TILE_SIZE]),
-                    scale: [scale, scale, scale],
+                    scale: [scale + Math.random(), scale + Math.random(), scale + Math.random()],
                     rotation: [0, Math.random() * 360, 0],
                 }
+                vec3.add(transform.position, transform.position, [Math.random() * 8 - 4, 0, Math.random() * 8 - 4])
                 transform.position[1] = 0
                 this.trees.set(i, transform)
             } else if (t.type !== 5 && this.trees.has(i)) {
@@ -89,6 +90,7 @@ export default class Tiles {
                     scale: [scale, scale, scale],
                     rotation: [0, Math.random() * 360, 0],
                 }
+                vec3.add(transform.position, transform.position, [Math.random() * 4 - 2, 0, Math.random() * 4 - 2])
                 transform.position[1] = 0
                 this.rocks.set(i, transform)
             } else if (t.type !== 6 && this.rocks.has(i)) {
@@ -120,6 +122,10 @@ export default class Tiles {
             this.sparkleEmitter.emit(20)
         }
         this.hover = false
+
+        this.engine.terrain.texture = gm.store.editor.enabled ?
+            this.engine.resources.sprites.get('terrain-dev') :
+            this.engine.resources.sprites.get('terrain')
     }
 
     public draw() {

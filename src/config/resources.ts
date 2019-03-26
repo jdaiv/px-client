@@ -29,6 +29,8 @@ import * as spritestationdoorData from './sprites/station-door.json'
 import spritestationdoor from '../assets/sprites/station-door.png'
 import * as spritestationpostersData from './sprites/station-posters.json'
 import spritestationposters from '../assets/sprites/station-posters.png'
+import * as spriteterraindevData from './sprites/terrain-dev.json'
+import spriteterraindev from '../assets/sprites/terrain-dev.png'
 import * as spriteterrainData from './sprites/terrain.json'
 import spriteterrain from '../assets/sprites/terrain.png'
 import * as spritetestData from './sprites/test.json'
@@ -82,6 +84,7 @@ export const SPRITES = {
     'small-display': { file: spritesmalldisplay, data: spritesmalldisplayData },
     'station-door': { file: spritestationdoor, data: spritestationdoorData },
     'station-posters': { file: spritestationposters, data: spritestationpostersData },
+    'terrain-dev': { file: spriteterraindev, data: spriteterraindevData },
     'terrain': { file: spriteterrain, data: spriteterrainData },
     'test': { file: spritetest, data: spritetestData },
     'water': { file: spritewater, data: spritewaterData },
