@@ -2,8 +2,8 @@ import { vec3 } from 'gl-matrix'
 import GameManager from '../../shared/GameManager'
 import GameState from '../../shared/GameState'
 import Engine from '../Engine'
-import { Emitter } from '../Particles'
-import { TILE_SIZE_HALF } from '../Terrain'
+import { Emitter } from '../rendering/Particles'
+import { TILE_SIZE_HALF } from '../rendering/Terrain'
 
 export const TILE_SIZE = 16
 

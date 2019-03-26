@@ -1,7 +1,7 @@
 import { quat, vec3 } from 'gl-matrix'
 import GameManager from '../../shared/GameManager'
 import Engine from '../Engine'
-import { TILE_SIZE } from '../Terrain'
+import { TILE_SIZE } from '../rendering/Terrain'
 
 export const DIRECTIONS = ['N', 'W', 'S', 'E']
 

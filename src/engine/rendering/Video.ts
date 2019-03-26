@@ -1,9 +1,11 @@
 import { mat4, quat, vec2, vec3, vec4 } from 'gl-matrix'
 import { autorun } from 'mobx'
-import GameManager from '../shared/GameManager'
-import Engine from './Engine'
-import { Material } from './Materials'
-import Resources from './Resources'
+import GameManager from '../../shared/GameManager'
+import Engine from '../Engine'
+import Resources from '../Resources'
+import GLFBO from './GLFBO'
+import GLMesh from './GLMesh'
+import Material from './Material'
 import { TILE_SIZE_HALF } from './Terrain'
 
 let SCALE = 2
@@ -456,158 +458,6 @@ export default class Video {
         if (cb) {
             cb('click')
         }
-    }
-
-}
-
-export class GLTexture {
-
-    public tex: WebGLTexture
-
-    constructor(image: TexImageSource, sprite: boolean = false) {
-        this.tex = gl.createTexture()
-        sprite = true
-        gl.bindTexture(gl.TEXTURE_2D, this.tex)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
-        if (!GLTexture.isPowerOf2(image.width) || !GLTexture.isPowerOf2(image.height)) {
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        }
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, sprite ? gl.NEAREST : gl.LINEAR)
-        gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, sprite ? gl.NEAREST : gl.LINEAR)
-    }
-
-    public static isPowerOf2(value: number) {
-// tslint:disable-next-line: no-bitwise
-        return (value & (value - 1)) === 0
-    }
-
-}
-
-export class GLMesh {
-
-    public mode: number
-    public verts: Float32Array
-    public normals: Float32Array
-    public uvs: Float32Array
-
-    public vertBuffer: WebGLBuffer
-    public normalBuffer: WebGLBuffer
-    public uvsBuffer: WebGLBuffer
-
-    constructor(rawMesh: any, mode?: number) {
-        if (!mode) {
-            mode = gl.STATIC_DRAW
-        }
-        this.mode = mode
-        this.setVerts(rawMesh.verts)
-        this.setUVs(rawMesh.uvs)
-        if (rawMesh.normals) this.setNormals(rawMesh.normals)
-    }
-
-    public setVerts(verts: number[]) {
-        this.verts = new Float32Array(verts)
-        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
-        this.vertBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, this.verts, this.mode)
-    }
-
-    public setNormals(normals: number[]) {
-        this.normals = new Float32Array(normals)
-        if (this.normalBuffer) gl.deleteBuffer(this.normalBuffer)
-        this.normalBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, this.normals, this.mode)
-    }
-
-    public setUVs(uvs: number[]) {
-        this.uvs = new Float32Array(uvs)
-        if (this.uvsBuffer) gl.deleteBuffer(this.uvsBuffer)
-        this.uvsBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, this.uvs, this.mode)
-    }
-
-    public destroy() {
-        if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
-        if (this.normalBuffer) gl.deleteBuffer(this.normalBuffer)
-        if (this.uvsBuffer) gl.deleteBuffer(this.uvsBuffer)
-    }
-
-}
-
-export class GLFBO {
-
-    public material: Material
-    public texture: WebGLTexture
-    public buffer: WebGLFramebuffer
-    public renderBuffer: WebGLRenderbuffer
-
-    public mesh: GLMesh
-
-    constructor(material: Material) {
-        this.material = material
-        this.texture = gl.createTexture()
-        this.buffer = gl.createFramebuffer()
-        this.renderBuffer = gl.createRenderbuffer()
-
-        this.mesh = new GLMesh({
-            verts: [
-                -1, -1, 0,
-                1, 1, 0,
-                -1, 1, 0,
-                -1, -1, 0,
-                1, -1, 0,
-                1, 1, 0,
-            ],
-            uvs: [
-                0, 0,
-                1, 1,
-                0, 1,
-                0, 0,
-                1, 0,
-                1, 1,
-            ]
-        })
-    }
-
-    public resize(w: number, h: number) {
-        gl.bindTexture(gl.TEXTURE_2D, this.texture)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-            w, h,
-            0, gl.RGBA, gl.UNSIGNED_BYTE, null)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-
-        gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderBuffer)
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h)
-
-        gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderBuffer)
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, w, h)
-    }
-
-    public bind() {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.buffer)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
-            gl.TEXTURE_2D, this.texture, 0)
-        gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderBuffer)
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT,
-            gl.RENDERBUFFER, this.renderBuffer)
-    }
-
-    public render(data: any) {
-        const m = this.material
-        m.use()
-        m.setGlobalUniforms(data)
-        m.setTexture(this.texture)
-        m.bindMesh(this.mesh)
-        m.preDraw()
-        m.draw()
-        m.postDraw()
-        m.end()
     }
 
 }

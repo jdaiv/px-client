@@ -1,12 +1,13 @@
 // import Synth from './audio/Synth'
-import Camera from './Camera'
-import { Material, MaterialManager } from './Materials'
 import Overlay from './Overlay'
-import Particles from './Particles'
+import Camera from './rendering/Camera'
+import Material from './rendering/Material'
+import MaterialManager from './rendering/MaterialManager'
+import Particles from './rendering/Particles'
+import Terrain from './rendering/Terrain'
+import Video from './rendering/Video'
 import Resources from './Resources'
 import Stage from './stage/Stage'
-import Terrain from './Terrain'
-import Video from './Video'
 
 export default class Engine {
 
@@ -16,7 +17,7 @@ export default class Engine {
     public v: Video
     public particles: Particles
     public terrain: Terrain
-    public activeStage: Stage
+    public stage: Stage
     public overlay: Overlay
 
     public time: number
@@ -40,7 +41,7 @@ export default class Engine {
                 this.resources.sprites.get('terrain'))
             this.particles = new Particles()
             this.v.initQueue()
-            this.activeStage = new Stage(this)
+            this.stage = new Stage(this)
             this.start()
         })
     }
@@ -72,9 +73,9 @@ export default class Engine {
         this.dt = (t - this.time) / 1000
         this.time = t
 
-        if (this.activeStage) {
-            this.activeStage.tick(this.dt)
-            this.v.run(this.dt, this.time, () => this.activeStage.draw())
+        if (this.stage) {
+            this.stage.tick(this.dt)
+            this.v.run(this.dt, this.time, () => this.stage.draw())
             this.overlay.run(this.dt)
             // this.synth.tick(this.dt)
         }

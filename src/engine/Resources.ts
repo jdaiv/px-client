@@ -1,7 +1,8 @@
 import { vec3 } from 'gl-matrix'
 import { MODELS, SPRITES, TEXTURES } from '../config/resources'
+import GLMesh from './rendering/GLMesh'
+import GLTexture from './rendering/GLTexture'
 import Util from './Util'
-import { GLMesh, GLTexture } from './Video'
 
 export class SpriteResource {
 

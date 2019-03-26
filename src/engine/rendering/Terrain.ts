@@ -1,8 +1,9 @@
 import { mat4, vec3 } from 'gl-matrix'
-import Engine from './Engine'
-import { Material } from './Materials'
-import { SpriteResource } from './Resources'
-import { gl, GLMesh } from './Video'
+import Engine from '../Engine'
+import { SpriteResource } from '../Resources'
+import GLMesh from './GLMesh'
+import Material from './Material'
+import { gl } from './Video'
 
 export const TEX_TILE_SIZE = 32
 export const TILE_SIZE = 16

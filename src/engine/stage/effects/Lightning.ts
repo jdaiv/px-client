@@ -1,6 +1,6 @@
 import { vec3 } from 'gl-matrix'
 import Engine from '../../Engine'
-import { Emitter } from '../../Particles'
+import Emitter from '../../rendering/particles/Emitter'
 import { TILE_SIZE } from '../Tiles'
 import IEffect from './IEffect'
 
