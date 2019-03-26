@@ -55,6 +55,8 @@ import modelhouseData from '../assets/models/house.obj'
 import modelquadData from '../assets/models/quad.obj'
 import modelrocksData from '../assets/models/rocks.obj'
 import modelsignData from '../assets/models/sign.obj'
+import modelswordData from '../assets/models/sword.obj'
+import modelswordanimatedData from '../assets/models/sword_animated.obj'
 import modeltreeData from '../assets/models/tree.obj'
 
 export const MODELS = {
@@ -66,6 +68,8 @@ export const MODELS = {
     'quad': modelquadData,
     'rocks': modelrocksData,
     'sign': modelsignData,
+    'sword': modelswordData,
+    'sword_animated': modelswordanimatedData,
     'tree': modeltreeData,
 }
 export const SPRITES = {

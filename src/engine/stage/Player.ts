@@ -5,14 +5,23 @@ import { TILE_SIZE } from '../rendering/Terrain'
 
 export const DIRECTIONS = ['N', 'W', 'S', 'E']
 
+function lerp(a: number, b: number, t: number): number {
+    return a + t * (b - a)
+}
+
 export default class Player {
 
     private engine: Engine
     public velocity = vec3.create()
     public keysDown: Map<string, boolean>
     public rotation = 0
+    public rotationChange = 0
     public position = vec3.create()
     public rotationQ = quat.create()
+    public walkAmp = 0
+    public weaponPos = vec3.create()
+    public swordAttack = 0
+    private t = 0
 
     public get direction(): string {
         return DIRECTIONS[this.rotation % 4]
@@ -39,7 +48,9 @@ export default class Player {
         const player = GameManager.instance.state.activePlayer
         if (player && !GameManager.instance.store.editor.enabled) {
             const pos = [player.x * TILE_SIZE, 16, player.y * TILE_SIZE]
-            const rot = quat.fromEuler(quat.create(), 0, this.rotation * 90 + 180, 0)
+            const rotY = (this.rotation * 90 + 180)
+            const rot = quat.fromEuler(quat.create(), 0, rotY, 0)
+            this.walkAmp = lerp(this.walkAmp, vec3.dist(pos, this.position) > 0.5 ? 1 : 0, dt * 10)
             vec3.lerp(this.position, this.position, pos, dt * 10)
             quat.slerp(this.rotationQ, this.rotationQ, rot, dt * 10)
             this.engine.camera.setTarget(this.position)
@@ -56,6 +67,25 @@ export default class Player {
             this.engine.camera.setRotation(this.rotationQ)
             this.engine.camera.lookAt = false
         }
+        this.rotationChange = lerp(this.rotationChange, 0, dt * 10)
+        this.swordAttack = lerp(this.swordAttack, 0, dt * 10)
+        const targetPos = vec3.fromValues(
+            -8 + Math.cos(this.t * 4) * this.walkAmp + this.rotationChange * -10,
+            -16 + Math.sin(this.t * 8) * this.walkAmp,
+            -32 + Math.cos(this.t * 1) * this.walkAmp
+        )
+        this.weaponPos = vec3.lerp(this.weaponPos, this.weaponPos, targetPos, dt * 10)
+        this.t += dt
+    }
+
+    public draw() {
+        const transform = {
+            position: this.weaponPos,
+            rotation: [0 + 120 * this.swordAttack, 120 + 120 * this.swordAttack, -60 + 120 * this.swordAttack],
+            scale: [1, 1, 1]
+        }
+        this.engine.v.drawModelUI('sword', transform, 'outline', 'colored')
+        this.engine.v.drawModelUI('sword', transform, 'textured', 'colored')
     }
 
     public keydown = (evt: KeyboardEvent) => {
@@ -74,11 +104,16 @@ export default class Player {
         case 'KeyS':
             direction = 2
             break
+        case 'KeyF':
+            this.swordAttack = 1
+            break
         case 'KeyE':
             this.rotation = (this.rotation + 1) % 4
+            this.rotationChange++
             break
         case 'KeyQ':
             this.rotation = (this.rotation - 1 + 4) % 4
+            this.rotationChange--
             break
         }
         if (direction < 0) {

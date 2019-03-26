@@ -8,8 +8,10 @@ export default class BloodSplatter implements IEffect {
 
     private emitter: Emitter
     private splatEmitter: Emitter
+    public engine: Engine
 
     constructor(engine: Engine) {
+        this.engine = engine
         this.emitter = engine.particles.newEmitter({
             dampening: vec3.fromValues(0.6, 0.6, 0.6),
             gravity: vec3.fromValues(0, 0, 0),
@@ -52,6 +54,8 @@ export default class BloodSplatter implements IEffect {
             chunksPos[i] = vec3.clone(pos)
             vec3.scaleAndAdd(chunksPos[i], chunksPos[i], x, 5 / 60)
         }
+
+        this.engine.stage.player.swordAttack = 1
 
         vec3.copy(this.emitter.position, pos)
         // this.emitter.emit(10)

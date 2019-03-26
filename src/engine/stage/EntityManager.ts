@@ -58,7 +58,6 @@ export default class EntityManager {
             const pos = vec3.clone(pPos.current)
             pos[1] = 16
             const relativeDir = (DIRECTIONS.indexOf(p.facing) - aPD + 4) % 4
-            // console.log(DIRECTIONS.indexOf(p.facing), aPD, relativeDir)
             const offset = vec3.fromValues(
                 relativeDir % 2 ? 0 : (relativeDir === 0 ? -1 : 1),
                 0,
@@ -66,7 +65,6 @@ export default class EntityManager {
             )
             vec3.rotateY(offset, offset, [0, 0, 0],
                 ((aPD * 90) + aPD % 2 * 180) * Math.PI / 180)
-            console.log(aPD, relativeDir, offset)
             vec3.add(pos, pos, offset)
             const hasSunglasses = p.slots.head && p.slots.head.type !== 'empty'
             const scaleX = relativeDir > 1 ? 1 : -1

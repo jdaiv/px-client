@@ -11,10 +11,13 @@ import Shock from './effects/Shock'
 
 export default class Effects {
 
+    private engine: Engine
     private effects: Map<string, IEffect>
     private runningEffects: Map<IterableIterator<boolean>, boolean>
 
     constructor(engine: Engine) {
+        this.engine = engine
+
         this.effects = new Map()
         this.effects.set('wood_ex', new BloodSplatter(engine))
         this.effects.set('screen_shake', new ScreenShake(engine))

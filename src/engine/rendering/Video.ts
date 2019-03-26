@@ -43,6 +43,7 @@ export default class Video {
 
     public data: any
     private queue: RenderingQueue
+    private uiQueue = { count: 0, array: [] }
 
     constructor(el: Element, engine: Engine) {
         this.base = el
@@ -117,6 +118,7 @@ export default class Video {
         this.queue.forEach(q => {
             q.forEach(mq => mq.count = 0)
         })
+        this.uiQueue.count = 0
     }
 
     public resize() {
@@ -151,6 +153,30 @@ export default class Video {
         gl.clearColor(0, 0, 0, 0)
 // tslint:disable-next-line: no-bitwise
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT)
+    }
+
+    public drawModelUI(name: string, { position, rotation, scale }: ITransform,
+                       material: string, texture: string) {
+        if (!this.resources.sprites.has(texture)) {
+            texture = 'error'
+        }
+        if (!this.resources.models.has(name)) {
+            name = 'error'
+            material = 'error'
+        }
+        const q = this.uiQueue
+        if (q.array.length === q.count) q.array.push({
+            position: vec3.create(),
+            rotation: vec3.create(),
+            scale: vec3.create()
+        })
+        const qObj = q.array[q.count++]
+        qObj.material = material
+        qObj.model = name
+        qObj.texture = texture
+        vec3.copy(qObj.position, position)
+        vec3.copy(qObj.rotation, rotation)
+        vec3.copy(qObj.scale, scale)
     }
 
     public drawMesh(name: string, { position, rotation, scale }: ITransform,
@@ -425,6 +451,37 @@ export default class Video {
 
         this.engine.terrain.drawWater(data)
         this.engine.particles.draw(data, this.fbos[0])
+
+        const uiMatrix = mat4.perspective(mat4.create(),
+            50 * Math.PI / 180,
+            this.width / this.height,
+            0.1, 1000)
+
+        data.vpMatrix = uiMatrix
+        gl.clear(gl.DEPTH_BUFFER_BIT)
+        for (let i = 0; i < this.uiQueue.count; i++) {
+            const o = this.uiQueue.array[i]
+            const material = materials.get(o.material)
+            const model = this.resources.models.get(o.model).mesh
+            const image = this.resources.sprites.get(o.texture)
+            material.use()
+            material.setGlobalUniforms(data)
+            material.preDraw()
+            material.setTexture(image.texture.tex)
+            material.bindMesh(model)
+            const mMat = mat4.create()
+            const rotation = quat.create()
+            const scale = vec3.create()
+            quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
+            vec3.copy(scale, o.scale)
+            mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
+            const spriteData = vec2.create()
+            material.setMeshUniforms(mMat, spriteData)
+            material.draw()
+            material.postDraw()
+            material.end()
+        }
+        data.vpMatrix = matrix
 
         this.postStack.forEach((_, i) => {
             const fbo = this.fbos[i]

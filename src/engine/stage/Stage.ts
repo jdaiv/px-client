@@ -20,7 +20,7 @@ export default class Stage {
     public effects: Effects
     private tiles: Tiles
     private entityManager: EntityManager
-    private player: Player
+    public player: Player
     private engine: Engine
 
     public playerPositions: Map<string, vec3>
@@ -66,6 +66,7 @@ export default class Stage {
         } else {
             this.tiles.draw()
             this.entityManager.draw()
+            this.player.draw()
         }
     }
 
