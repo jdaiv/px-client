@@ -121,12 +121,9 @@ export default class Emitter implements IEmitterOpts {
                 }
                 vec3.add(p.position, p.position, offset)
             }
-            vec3.set(p.velocity,
-                1,
-                randN(-this.spread, this.spread),
-                randN(-this.spread, this.spread)
-            )
-            vec3.normalize(p.velocity, p.velocity)
+            vec3.set(p.velocity, 1, 0, 0)
+            vec3.rotateY(p.velocity, p.velocity, [0, 0, 0], randN(-this.spread, this.spread))
+            vec3.rotateZ(p.velocity, p.velocity, [0, 0, 0], randN(-this.spread, this.spread))
             vec3.transformQuat(p.velocity, p.velocity, this.angle)
             vec3.scale(p.velocity, p.velocity, randN(this.velocity[0], this.velocity[1]))
             p.color[0] = this.color[0]

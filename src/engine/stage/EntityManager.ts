@@ -53,27 +53,32 @@ export default class EntityManager {
         const aPD = DIRECTIONS.indexOf(aP.facing)
         this.state.players.forEach((p, id) => {
             if (id === aP.id) return
-            const pos = this.playerPositions.get(id)
-            if (!pos) return
-            const x = pos.current[0]
-            const y = pos.current[2]
+            const pPos = this.playerPositions.get(id)
+            if (!pPos) return
+            const pos = vec3.clone(pPos.current)
+            pos[1] = 16
             const relativeDir = (DIRECTIONS.indexOf(p.facing) - aPD + 4) % 4
             // console.log(DIRECTIONS.indexOf(p.facing), aPD, relativeDir)
-            const offsetS = relativeDir === 2 ? -1 : 0
-            const offsetX = aPD % 2 === 1 ? (aPD > 1 || relativeDir === 0 ? -0.5 : 0.5) : offsetS
-            const offsetZ = aPD % 2 === 0 ? (aPD > 1 || relativeDir === 0 ? 0.5 : -0.5) : offsetS
+            const offset = vec3.fromValues(
+                relativeDir % 2 ? 0 : (relativeDir === 0 ? -1 : 1),
+                0,
+                relativeDir > 0 ? -0.5 : 0.5
+            )
+            vec3.rotateY(offset, offset, [0, 0, 0],
+                ((aPD * 90) + aPD % 2 * 180) * Math.PI / 180)
+            console.log(aPD, relativeDir, offset)
+            vec3.add(pos, pos, offset)
             const hasSunglasses = p.slots.head && p.slots.head.type !== 'empty'
             const scaleX = relativeDir > 1 ? 1 : -1
             const scale = [relativeDir % 2 === 1 ? -scaleX : scaleX, 1, 1]
-            if (vec3.distance(pos.current, pos.target) > 1) {
-                this.engine.v.drawSprite('poses', { position: pos.current, rotation, scale }, 'sprite', 1)
-                this.engine.v.drawSprite('faces',
-                    { position: [x + offsetX, 15, y + offsetZ], rotation, scale }, 'sprite', hasSunglasses ? 4 : 0)
-            } else {
-                this.engine.v.drawSprite('poses', { position: pos.current, rotation, scale }, 'sprite', 0)
-                this.engine.v.drawSprite('faces',
-                    { position: [x + offsetX, 16, y + offsetZ], rotation, scale }, 'sprite', hasSunglasses ? 4 : 0)
+            let frame = 0
+            if (vec3.distance(pPos.current, pPos.target) > 1) {
+                pos[1] = 15
+                frame = 1
             }
+            this.engine.v.drawSprite('poses', { position: pPos.current, rotation, scale }, 'sprite', frame)
+            this.engine.v.drawSprite('faces',
+                { position: pos, rotation, scale }, 'sprite', hasSunglasses ? 4 : 0)
         })
     }
 
