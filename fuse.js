@@ -20,8 +20,6 @@ const texSources = './resources/**/*.+(aseprite|ase)';
 
 const resourceSources = [modelSources, texSources];
 
-const resources = './**/*.+(obj|png|ico|dae)';
-
 task('default', async context => {
     await context.clean();
     await context.development();
@@ -60,7 +58,7 @@ context(
                         inline: true
                     }), CSSModulesPlugin(), CSSPlugin()],
                     JSONPlugin(),
-                    RawPlugin(['.vs', '.fs', '.obj', '.dae']),
+                    RawPlugin(['.vs', '.fs']),
                     ImageBase64Plugin({
                         useDefault: false // setting this to true actually breaks defaults?
                     }),
@@ -115,8 +113,9 @@ context(
 
         buildModel(f) {
             const name = f.name.split('.')[0]
-            process.env.MODEL_EXPORT_PATH = `${modelExportPath}/${name}.dae`
-            execSync(`${blender} -b "${f.filepath}" --python convert_to_dae.py`)
+            process.env.MODEL_EXPORT_PATH = `${modelExportPath}/${name}.gltf`
+            execSync(`${blender} -b "${f.filepath}" --python convert_to_gltf.py`)
+            fs.renameSync(process.env.MODEL_EXPORT_PATH, process.env.MODEL_EXPORT_PATH + '.json')
         }
 
         buildSprite(f) {
@@ -135,8 +134,9 @@ context(
 
         buildResourceJSON(files) {
             const getName = n => {
+                const withExt = path.basename(n)
                 const full = path.basename(n, path.extname(n))
-                return { full, clean: full.replace(/[^A-Za-z0-9]/g, '') }
+                return { withExt, full, clean: full.replace(/[^A-Za-z0-9]/g, '') }
             }
             const modelNames = fs.readdirSync(modelExportPath).map(getName)
             const spriteNames = fs.readdirSync(`${baseExportPath}/sprites`).map(getName)
@@ -145,16 +145,16 @@ context(
             const imports =
                 spriteNames.map(n =>
                     `import * as sprite${n.clean}Data from './sprites/${n.full}.json'\n` +
-                    `import sprite${n.clean} from '../assets/sprites/${n.full}.png'`
+                    `import sprite${n.clean} from '../assets/sprites/${n.withExt}'`
                 )
                 .concat(
                     texNames.map(n =>
                         `import * as tex${n.clean}Data from './sprites/${n.full}.json'\n` +
-                        `import tex${n.clean} from '../assets/textures/${n.full}.png'`
+                        `import tex${n.clean} from '../assets/textures/${n.withExt}'`
                     )
                 )
                 .concat(
-                    modelNames.map(n => `import model${n.clean}Data from '../assets/models/${n.full}.dae'`)
+                    modelNames.map(n => `import model${n.clean}Data from '../assets/models/${n.withExt}'`)
                 )
 
             const models = modelNames.map(n =>

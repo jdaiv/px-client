@@ -47,30 +47,30 @@ import * as texhouseData from './sprites/house.json'
 import texhouse from '../assets/textures/house.png'
 import * as texsignData from './sprites/sign.json'
 import texsign from '../assets/textures/sign.png'
-import modelarcadecabData from '../assets/models/arcadecab.dae'
-import modelcubeData from '../assets/models/cube.dae'
-import modeldummyData from '../assets/models/dummy.dae'
-import modelerrorData from '../assets/models/error.dae'
-import modelhouseData from '../assets/models/house.dae'
-import modelquadData from '../assets/models/quad.dae'
-import modelrocksData from '../assets/models/rocks.dae'
-import modelsignData from '../assets/models/sign.dae'
-import modelswordData from '../assets/models/sword.dae'
-import modelswordanimatedData from '../assets/models/sword_animated.dae'
-import modeltreeData from '../assets/models/tree.dae'
+import modelarcadecabgltfData from '../assets/models/arcadecab.gltf.json'
+import modelcubegltfData from '../assets/models/cube.gltf.json'
+import modeldummygltfData from '../assets/models/dummy.gltf.json'
+import modelerrorgltfData from '../assets/models/error.gltf.json'
+import modelhousegltfData from '../assets/models/house.gltf.json'
+import modelquadgltfData from '../assets/models/quad.gltf.json'
+import modelrocksgltfData from '../assets/models/rocks.gltf.json'
+import modelsigngltfData from '../assets/models/sign.gltf.json'
+import modelswordgltfData from '../assets/models/sword.gltf.json'
+import modelswordanimatedgltfData from '../assets/models/sword_animated.gltf.json'
+import modeltreegltfData from '../assets/models/tree.gltf.json'
 
 export const MODELS = {
-    'arcadecab': modelarcadecabData,
-    'cube': modelcubeData,
-    'dummy': modeldummyData,
-    'error': modelerrorData,
-    'house': modelhouseData,
-    'quad': modelquadData,
-    'rocks': modelrocksData,
-    'sign': modelsignData,
-    'sword': modelswordData,
-    'sword_animated': modelswordanimatedData,
-    'tree': modeltreeData,
+    'arcadecab.gltf': modelarcadecabgltfData,
+    'cube.gltf': modelcubegltfData,
+    'dummy.gltf': modeldummygltfData,
+    'error.gltf': modelerrorgltfData,
+    'house.gltf': modelhousegltfData,
+    'quad.gltf': modelquadgltfData,
+    'rocks.gltf': modelrocksgltfData,
+    'sign.gltf': modelsigngltfData,
+    'sword.gltf': modelswordgltfData,
+    'sword_animated.gltf': modelswordanimatedgltfData,
+    'tree.gltf': modeltreegltfData,
 }
 export const SPRITES = {
     'bin': { file: spritebin, data: spritebinData },

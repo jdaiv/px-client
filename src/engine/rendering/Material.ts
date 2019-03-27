@@ -1,5 +1,8 @@
-import Shader from './Shader';
-import { gl } from './Video';
+import { mat4, vec2, vec4 } from 'gl-matrix'
+import GLMesh from './GLMesh'
+import GLTFMesh from './GLTFMesh'
+import Shader from './Shader'
+import { gl } from './Video'
 
 export default class Material {
 
@@ -19,6 +22,8 @@ export default class Material {
     private colorLoc: WebGLUniformLocation
     private timeLoc: WebGLUniformLocation
     private screenSizeLoc: WebGLUniformLocation
+
+    private boundMeshIsGLTF = false
 
     constructor(settings: any) {
         this.settings = settings
@@ -94,7 +99,7 @@ export default class Material {
         }
     }
 
-    public bindMesh(mesh: GLMesh, numTris?: number) {
+    public bindMesh(mesh: GLMesh | GLTFMesh, numTris?: number) {
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertBuffer)
         gl.vertexAttribPointer(this.vertexPosLoc, 3, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray(this.vertexPosLoc)
@@ -108,7 +113,11 @@ export default class Material {
             gl.vertexAttribPointer(this.vertexUvLoc, 2, gl.FLOAT, false, 0, 0)
             gl.enableVertexAttribArray(this.vertexUvLoc)
         }
-        this.numTris = numTris !== undefined ? numTris : (mesh.verts.length / 3)
+        this.boundMeshIsGLTF = mesh instanceof GLTFMesh
+        if (this.boundMeshIsGLTF) {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, (mesh as GLTFMesh).idxBuffer)
+        }
+        this.numTris = numTris !== undefined ? numTris : (mesh.numTris)
     }
 
     public preDraw() {
@@ -117,7 +126,13 @@ export default class Material {
     }
 
     public draw() {
-        if (this.numTris > 0) gl.drawArrays(gl.TRIANGLES, 0, this.numTris)
+        if (this.numTris > 0) {
+            if (this.boundMeshIsGLTF) {
+                gl.drawElements(gl.TRIANGLES, this.numTris, gl.UNSIGNED_SHORT, 0)
+            } else {
+                gl.drawArrays(gl.TRIANGLES, 0, this.numTris)
+            }
+        }
     }
 
     public postDraw() {

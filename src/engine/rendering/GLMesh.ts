@@ -1,4 +1,4 @@
-import { mat4 } from 'gl-matrix';
+import { mat4 } from 'gl-matrix'
 import { gl } from './Video'
 
 export default class GLMesh {
@@ -8,6 +8,7 @@ export default class GLMesh {
     public normals: Float32Array
     public uvs: Float32Array
     public matrix = mat4.identity(mat4.create())
+    public numTris = 0
 
     public vertBuffer: WebGLBuffer
     public normalBuffer: WebGLBuffer
@@ -18,13 +19,14 @@ export default class GLMesh {
             mode = gl.STATIC_DRAW
         }
         this.mode = mode
-        this.setVerts(rawMesh.verts)
-        this.setUVs(rawMesh.uvs)
+        if (rawMesh.verts) this.setVerts(rawMesh.verts)
+        if (rawMesh.uvs) this.setUVs(rawMesh.uvs)
         if (rawMesh.normals) this.setNormals(rawMesh.normals)
     }
 
     public setVerts(verts: number[]) {
         this.verts = new Float32Array(verts)
+        this.numTris = verts.length / 3
         if (this.vertBuffer) gl.deleteBuffer(this.vertBuffer)
         this.vertBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertBuffer)

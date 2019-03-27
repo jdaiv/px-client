@@ -1,11 +1,11 @@
 import { MODELS, SPRITES, TEXTURES } from '../config/resources'
-import ColladaResource from './resources/ColladaResource'
+import GLTFResource from './resources/GLTFResource'
 import SpriteResource from './resources/SpriteResource'
 
 export default class Resources {
 
     public sprites: Map<string, SpriteResource>
-    public models: Map<string, ColladaResource>
+    public models: Map<string, GLTFResource>
 
     constructor() {
         this.sprites = new Map()
@@ -49,10 +49,10 @@ export default class Resources {
 
         for (const key in MODELS) {
             const url = MODELS[key]
-            const mapKey = key
+            const mapKey = key.split('.')[0]
             console.log(`[engine/resources] loading model ${key}`)
             stats.total++
-            promises.push(ColladaResource.load(url).then((res) => {
+            promises.push(GLTFResource.load(url).then((res) => {
                 this.models.set(mapKey, res)
                 updateStats()
             }))

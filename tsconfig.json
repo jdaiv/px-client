@@ -17,8 +17,6 @@
   },
   "include": [
     "./src/**/*.json",
-    "./src/**/*.obj",
-    "./src/**/*.dae",
     "./src/**/*.tsx",
     "./src/**/*.ts"
   ]
