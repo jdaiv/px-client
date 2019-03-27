@@ -16,7 +16,8 @@
         "forin": false,
         "object-literal-sort-keys": false,
         "arrow-parens": false,
-        "no-console": false
+        "no-console": false,
+        "prefer-for-of": false
     },
     "rulesDirectory": [],
     "linterOptions": {

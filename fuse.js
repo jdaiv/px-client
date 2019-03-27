@@ -20,7 +20,7 @@ const texSources = './resources/**/*.+(aseprite|ase)';
 
 const resourceSources = [modelSources, texSources];
 
-const resources = './**/*.+(obj|png|ico)';
+const resources = './**/*.+(obj|png|ico|dae)';
 
 task('default', async context => {
     await context.clean();
@@ -33,7 +33,7 @@ task('dist', async context => {
 });
 
 task('resource_build', async context => {
-    await context.cleanBuilt();
+    // await context.cleanBuilt();
     context.makeResDirs();
     await context.copyResources();
 });
@@ -60,7 +60,7 @@ context(
                         inline: true
                     }), CSSModulesPlugin(), CSSPlugin()],
                     JSONPlugin(),
-                    RawPlugin(['.vs', '.fs', '.obj']),
+                    RawPlugin(['.vs', '.fs', '.obj', '.dae']),
                     ImageBase64Plugin({
                         useDefault: false // setting this to true actually breaks defaults?
                     }),
@@ -111,18 +111,12 @@ context(
             try {
                 fs.mkdirSync(baseExportPath, { recursive: true })
             } catch (e) {}
-            try {
-                fs.mkdirSync(modelExportPath)
-            } catch (e) {}
-            try {
-                fs.mkdirSync(spriteExportPath)
-            } catch (e) {}
         }
 
         buildModel(f) {
             const name = f.name.split('.')[0]
-            process.env.MODEL_EXPORT_PATH = `${modelExportPath}/${name}.obj`
-            execSync(`${blender} -b "${f.filepath}" --python convert_to_obj.py`)
+            process.env.MODEL_EXPORT_PATH = `${modelExportPath}/${name}.dae`
+            execSync(`${blender} -b "${f.filepath}" --python convert_to_dae.py`)
         }
 
         buildSprite(f) {
@@ -160,7 +154,7 @@ context(
                     )
                 )
                 .concat(
-                    modelNames.map(n => `import model${n.clean}Data from '../assets/models/${n.full}.obj'`)
+                    modelNames.map(n => `import model${n.clean}Data from '../assets/models/${n.full}.dae'`)
                 )
 
             const models = modelNames.map(n =>

@@ -1,3 +1,4 @@
+import { mat4 } from 'gl-matrix';
 import { gl } from './Video'
 
 export default class GLMesh {
@@ -6,6 +7,7 @@ export default class GLMesh {
     public verts: Float32Array
     public normals: Float32Array
     public uvs: Float32Array
+    public matrix = mat4.identity(mat4.create())
 
     public vertBuffer: WebGLBuffer
     public normalBuffer: WebGLBuffer

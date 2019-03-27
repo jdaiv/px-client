@@ -415,7 +415,8 @@ export default class Video {
             material.preDraw()
 
             q.forEach((mq, modelKey) => {
-                material.bindMesh(this.resources.models.get(modelKey).mesh)
+                const mesh = this.resources.models.get(modelKey).mesh
+                material.bindMesh(mesh)
                 for (let i = 0; i < mq.count; i++) {
                     const o = mq.array[i]
                     if (o.mouseData && !o.mouseData.draw) continue
@@ -435,6 +436,7 @@ export default class Video {
                         vec3.copy(scale, o.scale)
                     }
                     mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
+                    mat4.multiply(mMat, mMat, mesh.matrix)
                     const spriteData = vec2.create()
                     if (o.frame != null) {
                         spriteData[0] = image.frames
