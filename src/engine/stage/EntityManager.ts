@@ -114,6 +114,7 @@ export default class EntityManager {
             transform.position[0] = e.x * TILE_SIZE
             transform.position[1] = 0
             transform.position[2] = e.y * TILE_SIZE
+            transform.rotation[1] = e.rotation
             switch (e.type) {
             case 'door':
                 transform.position[1] = 12

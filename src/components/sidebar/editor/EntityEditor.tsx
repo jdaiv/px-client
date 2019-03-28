@@ -71,6 +71,7 @@ export default class EntityEditor extends Component<{ game?: GameStore }> {
                     <EditField label="name" name="name" type="string" value={ent.name} />
                     <EditField label="x" name="x" type="int" value={ent.x} />
                     <EditField label="y" name="y" type="int" value={ent.y} />
+                    <EditField label="rotation" name="rotation" type="int" value={ent.rotation} />
                     {fields}
                     <hr class={baseStyle.hr} />
                     <Button label="save" submit={true} large={true} />

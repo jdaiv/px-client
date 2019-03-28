@@ -1,5 +1,5 @@
 import { Component, h } from 'preact'
-import DefSelect from './DefSelect';
+import DefSelect from './DefSelect'
 import style from './style.css'
 
 export default class EditField extends Component<{ label: string, name: string, type: string, value: string }> {

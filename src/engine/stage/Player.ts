@@ -117,6 +117,8 @@ export default class Player {
             this.rotation = (this.rotation - 1 + 4) % 4
             this.rotationChange--
             break
+        default:
+            return
         }
         if (direction < 0) {
             GameManager.instance.playerSetFacing(this.direction)
