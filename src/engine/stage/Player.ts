@@ -68,24 +68,26 @@ export default class Player {
             this.engine.camera.lookAt = false
         }
         this.rotationChange = lerp(this.rotationChange, 0, dt * 10)
-        this.swordAttack = lerp(this.swordAttack, 0, dt * 10)
         const targetPos = vec3.fromValues(
-            -8 + Math.cos(this.t * 4) * this.walkAmp + this.rotationChange * -10,
-            -16 + Math.sin(this.t * 8) * this.walkAmp,
-            -32 + Math.cos(this.t * 1) * this.walkAmp
+            Math.cos(this.t * 4) * this.walkAmp + this.rotationChange * -10,
+            Math.sin(this.t * 8) * this.walkAmp,
+            Math.cos(this.t * 1) * this.walkAmp
         )
         this.weaponPos = vec3.lerp(this.weaponPos, this.weaponPos, targetPos, dt * 10)
         this.t += dt
+        this.swordAttack -= dt
     }
 
     public draw() {
         const transform = {
             position: this.weaponPos,
-            rotation: [0 + 120 * this.swordAttack, 120 + 120 * this.swordAttack, -60 + 120 * this.swordAttack],
+            rotation: [0, 0, 0],
             scale: [1, 1, 1]
         }
-        this.engine.v.drawModelUI('sword', transform, 'outline', 'colored')
-        this.engine.v.drawModelUI('sword', transform, 'textured', 'colored')
+        this.engine.v.drawModelUIAnimated('sword_animated', transform, 'outline', 'colored',
+            this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
+        this.engine.v.drawModelUIAnimated('sword_animated', transform, 'textured', 'colored',
+            this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
     }
 
     public keydown = (evt: KeyboardEvent) => {
@@ -105,7 +107,7 @@ export default class Player {
             direction = 2
             break
         case 'KeyF':
-            this.swordAttack = 1
+            this.swordAttack = 2
             break
         case 'KeyE':
             this.rotation = (this.rotation + 1) % 4

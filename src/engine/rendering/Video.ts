@@ -179,6 +179,34 @@ export default class Video {
         vec3.copy(qObj.scale, scale)
     }
 
+    public drawModelUIAnimated(name: string, { position, rotation, scale }: ITransform,
+                               material: string, texture: string, animation: string, time: number) {
+        if (!this.resources.sprites.has(texture)) {
+            texture = 'error'
+        }
+        if (!this.resources.models.has(name)) {
+            name = 'error'
+            material = 'error'
+        }
+        const q = this.uiQueue
+        if (q.array.length === q.count) q.array.push({
+            position: vec3.create(),
+            rotation: vec3.create(),
+            scale: vec3.create()
+        })
+        const qObj = q.array[q.count++]
+        qObj.material = material
+        qObj.model = name
+        qObj.texture = texture
+        vec3.copy(qObj.position, position)
+        vec3.copy(qObj.rotation, rotation)
+        vec3.copy(qObj.scale, scale)
+        qObj.animated = true
+        qObj.animation = animation
+        qObj.time = time
+        qObj.frame = null
+    }
+
     public drawMesh(name: string, { position, rotation, scale }: ITransform,
                     material: string, texture: string, mouseData?: any) {
         if (!this.resources.sprites.has(texture)) {
@@ -200,8 +228,37 @@ export default class Video {
         vec3.copy(qObj.rotation, rotation)
         vec3.copy(qObj.scale, scale)
         qObj.sprite = 0
+        qObj.animated = false
         qObj.frame = null
         qObj.mouseData = mouseData
+    }
+
+    public drawMeshAnimated(name: string, { position, rotation, scale }: ITransform,
+                            material: string, texture: string, animation: string, time: number) {
+        if (!this.resources.sprites.has(texture)) {
+            texture = 'error'
+        }
+        if (!this.resources.models.has(name)) {
+            name = 'error'
+            material = 'error'
+        }
+        const q = this.queue.get(material).get(name)
+        if (q.array.length === q.count) q.array.push({
+            position: vec3.create(),
+            rotation: vec3.create(),
+            scale: vec3.create()
+        })
+        const qObj = q.array[q.count++]
+        qObj.texture = texture
+        vec3.copy(qObj.position, position)
+        vec3.copy(qObj.rotation, rotation)
+        vec3.copy(qObj.scale, scale)
+        qObj.sprite = 0
+        qObj.animated = true
+        qObj.animation = animation
+        qObj.time = time
+        qObj.frame = null
+        qObj.mouseData = null
     }
 
     public drawSprite(name: string, { position, rotation, scale }: ITransform,
@@ -436,6 +493,9 @@ export default class Video {
                         vec3.copy(scale, o.scale)
                     }
                     mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
+                    if (o.animated) {
+                        mesh.setFrame(o.animation, o.time)
+                    }
                     mat4.multiply(mMat, mMat, mesh.matrix)
                     const spriteData = vec2.create()
                     if (o.frame != null) {
@@ -455,7 +515,7 @@ export default class Video {
         this.engine.particles.draw(data, this.fbos[0])
 
         const uiMatrix = mat4.perspective(mat4.create(),
-            50 * Math.PI / 180,
+            35 * Math.PI / 180,
             this.width / this.height,
             0.1, 1000)
 
@@ -477,6 +537,10 @@ export default class Video {
             quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
             vec3.copy(scale, o.scale)
             mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
+            if (o.animated) {
+                model.setFrame(o.animation, o.time)
+            }
+            mat4.multiply(mMat, mMat, model.matrix)
             const spriteData = vec2.create()
             material.setMeshUniforms(mMat, spriteData)
             material.draw()

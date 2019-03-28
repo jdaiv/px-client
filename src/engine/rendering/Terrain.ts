@@ -1,6 +1,6 @@
 import { mat4, vec3 } from 'gl-matrix'
 import Engine from '../Engine'
-import { SpriteResource } from '../Resources'
+import SpriteResource from '../resources/SpriteResource'
 import GLMesh from './GLMesh'
 import Material from './Material'
 import { gl } from './Video'
