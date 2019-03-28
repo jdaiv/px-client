@@ -115,14 +115,6 @@ export default class EntityManager {
             transform.position[1] = 0
             transform.position[2] = e.y * TILE_SIZE
             switch (e.type) {
-            case 'house':
-                transform.position[0] -= TILE_SIZE / 2
-                transform.position[2] -= TILE_SIZE / 2
-            case 'sign':
-            case 'dummy':
-                this.engine.v.drawMesh(e.type, transform, 'outline', e.type)
-                this.engine.v.drawMesh(e.type, transform, 'textured', e.type, mouseData)
-                break
             case 'door':
                 transform.position[1] = 12
                 this.engine.v.drawSprite('station-door', transform, 'sprite', 0, mouseData)
@@ -137,8 +129,21 @@ export default class EntityManager {
                     break
                 }
                 break
+            case 'item_spawner':
+                this.engine.v.drawMesh(e.type, transform, 'outline', 'colored')
+                this.engine.v.drawMesh(e.type, transform, 'textured', 'colored', mouseData)
+                break
+            case 'npc_spawner':
+            case 'item_modifier':
+                // this.engine.v.drawMesh('button', transform, 'outline', 'colored')
+                this.engine.v.drawMesh('button', transform, 'textured', 'colored', mouseData)
+                break
+            case 'house':
+                transform.position[0] -= TILE_SIZE / 2
+                transform.position[2] -= TILE_SIZE / 2
             default:
-                this.engine.v.drawMesh('error', transform, 'error', null, mouseData)
+                this.engine.v.drawMesh(e.type, transform, 'outline', e.type)
+                this.engine.v.drawMesh(e.type, transform, 'textured', e.type, mouseData)
                 break
             }
         })

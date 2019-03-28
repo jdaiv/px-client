@@ -133,7 +133,7 @@ export default class Overlay {
             switch (e.type) {
             case 'sign':
             case 'dummy':
-                offset = 8
+                offset = 16
                 break
             case 'door':
                 offset = 12
@@ -142,7 +142,7 @@ export default class Overlay {
                 offset = 4
                 break
             default:
-                offset = 0
+                offset = 12
             }
             const point = this.getOrCreatePoint(key)
             point.yOffset = offset
