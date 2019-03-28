@@ -76,6 +76,12 @@ export default class Player {
         this.weaponPos = vec3.lerp(this.weaponPos, this.weaponPos, targetPos, dt * 10)
         this.t += dt
         this.swordAttack -= dt
+
+        const newRotation = Math.floor((this.engine.v.rotateCamera[1] + 270 - 45) % 360 / 90)
+        if (newRotation !== this.rotation) {
+            this.rotation = newRotation
+            GameManager.instance.playerSetFacing(this.direction)
+        }
     }
 
     public draw() {
@@ -109,14 +115,14 @@ export default class Player {
         case 'KeyF':
             this.swordAttack = 2
             break
-        case 'KeyE':
-            this.rotation = (this.rotation + 1) % 4
-            this.rotationChange++
-            break
-        case 'KeyQ':
-            this.rotation = (this.rotation - 1 + 4) % 4
-            this.rotationChange--
-            break
+        // case 'KeyE':
+        //     this.rotation = (this.rotation + 1) % 4
+        //     this.rotationChange++
+        //     break
+        // case 'KeyQ':
+        //     this.rotation = (this.rotation - 1 + 4) % 4
+        //     this.rotationChange--
+        //     break
         default:
             return
         }

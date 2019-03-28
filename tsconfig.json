@@ -13,7 +13,17 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin",
+        "alwaysShowRuleFailuresAsWarnings": false,
+        "ignoreDefinitionFiles": true,
+        "configFile": "./tslint.json",
+        "suppressWhileTypeErrorsPresent": false,
+        "mockTypeScriptVersion": false
+      }
+    ]
   },
   "include": [
     "./src/**/*.json",

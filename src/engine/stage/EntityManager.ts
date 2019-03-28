@@ -61,10 +61,12 @@ export default class EntityManager {
             const offset = vec3.fromValues(
                 relativeDir % 2 ? 0 : (relativeDir === 0 ? -1 : 1),
                 0,
-                relativeDir > 0 ? -0.5 : 0.5
+                relativeDir > 0 ? 0.5 : -0.5
             )
             vec3.rotateY(offset, offset, [0, 0, 0],
-                ((aPD * 90) + aPD % 2 * 180) * Math.PI / 180)
+                (this.engine.v.rotateCamera[1]) * Math.PI / 180)
+            offset[0] *= -1
+            // console.log(offset)
             vec3.add(pos, pos, offset)
             const hasSunglasses = p.slots.head && p.slots.head.type !== 'empty'
             const scaleX = relativeDir > 1 ? 1 : -1

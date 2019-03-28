@@ -39,7 +39,7 @@ export default class Video {
     private mouseX: number
     private mouseY: number
     private activeMouseObject: any
-    private rotateCamera = vec3.create()
+    public rotateCamera = vec3.create()
 
     public data: any
     private queue: RenderingQueue
@@ -370,12 +370,11 @@ export default class Video {
             mat4.lookAt(matrixV, cameraPos, camera.target, [0, 1, 0])
         } else {
             const m = mat4.create()
-            mat4.fromQuat(cameraRM, quat.mul(quat.create(), camera.rotation,
-                quat.fromEuler(quat.create(),
-                    this.rotateCamera[0],
-                    this.rotateCamera[1],
-                    this.rotateCamera[2]
-                )))
+            quat.fromEuler(camera.rotation, this.rotateCamera[0], 0, 0)
+            quat.rotateY(camera.rotation, camera.rotation, this.rotateCamera[1] * Math.PI / 180)
+            mat4.fromQuat(cameraRM, camera.rotation)
+            // mat4.rotateX(cameraRM, cameraRM, this.rotateCamera[0] * Math.PI / 180)
+            // mat4.rotateY(cameraRM, cameraRM, this.rotateCamera[1] * Math.PI / 180)
             mat4.mul(matrixV, matrixV, cameraRM)
             mat4.fromTranslation(m, cameraPos)
             mat4.invert(m, m)
@@ -385,6 +384,8 @@ export default class Video {
         quat.invert(camera.rotation, camera.rotation)
 
         mat4.mul(matrix, matrixP, matrixV)
+
+        const spriteRotation = quat.fromEuler(quat.create(), 0, -this.rotateCamera[1], 0)
 
         this.engine.overlay.matrix = matrix
 
@@ -403,7 +404,7 @@ export default class Video {
         this.fbos[0].bind()
 
         if (!this.captureMouse) {
-            vec3.lerp(this.rotateCamera, this.rotateCamera, [0, 0, 0], dt * 2)
+            // vec3.lerp(this.rotateCamera, this.rotateCamera, [0, 0, 0], dt * 2)
         }
 
         this.clear()
@@ -483,7 +484,7 @@ export default class Video {
                     const rotation = quat.create()
                     const scale = vec3.create()
                     if (o.sprite === 1) {
-                        quat.copy(rotation, camera.rotation)
+                        quat.copy(rotation, spriteRotation)
                     } else {
                         quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
                     }
@@ -566,11 +567,11 @@ export default class Video {
     public mouseMove(evt: MouseEvent) {
         const x = Math.floor(evt.offsetX / SCALE)
         const y = Math.floor(evt.offsetY / SCALE)
-        if (this.captureMouse) {
-            const diffX = this.mouseX - x
-            const diffY = this.mouseY - y
-            this.rotateCamera[1] -= diffX / 2
-            this.rotateCamera[0] -= diffY / 2
+        if (document.pointerLockElement === this.el) {
+            this.rotateCamera[1] += evt.movementX / 6
+            this.rotateCamera[1] = (this.rotateCamera[1] < 0 ? this.rotateCamera[1] + 360 : this.rotateCamera[1]) % 360
+            this.rotateCamera[0] += evt.movementY / 6
+            this.rotateCamera[0] = Math.max(Math.min(this.rotateCamera[0], 90), -90)
         }
         this.mouseX = x
         this.mouseY = y
@@ -581,6 +582,7 @@ export default class Video {
         if (cb) {
             cb('click')
         }
+        this.el.requestPointerLock()
     }
 
 }
