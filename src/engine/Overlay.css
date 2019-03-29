@@ -4,57 +4,13 @@
     left: 0px;
     pointer-events: none;
     overflow: hidden;
+	background: url('../assets/sprites/crosshair.png') center center no-repeat;
 }
 
-.point {
+.box {
+    border: 2px solid #0f0;
     position: absolute;
-    color: white;
-    user-select: none;
-    white-space: nowrap;
-}
-
-.pointInner {
-    transform: translate(-50%, -50%);
-
-    background: rgba(0, 0, 0, 0.5);
-    /* padding: 0.5rem; */
-    border: 1px solid #0f0;
-    text-align: center;
-    pointer-events: all;
-
-    opacity: 1;
-    transition: opacity 200ms ease;
-}
-
-.pointInner > p {
-    margin: 0.25rem;
-    display: inline-block;
-}
-
-.hide {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.useBtn {
-    display: inline-block;
-    font: inherit;
-    outline: 0;
-    border: 0;
-    /* margin: 0.25rem; */
-    padding: 0.5rem;
-    /* width: calc(100% - 0.5rem); */
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 255, 0, 0.1);
+    padding: 2rem;
     color: #fff;
-    line-height: 1;
-    /* border: 1px solid #0f0; */
-    cursor: pointer;
-}
-
-.useBtn em {
-    color: #0f0;
-}
-
-.useBtn:hover {
-    background: #040;
 }

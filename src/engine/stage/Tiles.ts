@@ -130,7 +130,7 @@ export default class Tiles {
 
     public draw() {
         const gm = GameManager.instance
-        if (gm.store.editor.enabled) {
+        if (gm.store.editor.enabled || (gm.state.combat.enabled && gm.state.combat.casting)) {
             const transform = {
                 position: vec3.fromValues(1, -TILE_SIZE_HALF, 1),
                 rotation: vec3.create(),
@@ -141,67 +141,51 @@ export default class Tiles {
                     transform.position[0] = TILE_SIZE * x
                     transform.position[2] = TILE_SIZE * y
                     const p = vec3.clone(transform.position)
-                    this.engine.v.drawMesh('cube', transform, 'textured', 'grid', {
-                        draw: false,
-                        callback: (type: string) => {
-                            if (type === 'move') {
-                                vec3.copy(this.sparkleEmitter.position, p)
-                                this.hover = true
-                            } else if (type === 'click') {
-                                vec3.copy(this.clickEmitter.position, p)
-                                this.clickEmitter.position[1] = 0
-                                this.clickEmitter.emit(50)
-                                switch (gm.store.editor.mode) {
-                                    case 'zone':
+                    this.engine.interactions.addItem({
+                        aabb: {
+                            min: vec3.sub(vec3.create(), transform.position,
+                                [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF]),
+                            max: vec3.add(vec3.create(), transform.position,
+                                [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
+                        },
+                        hover: () => {
+                            vec3.copy(this.sparkleEmitter.position, p)
+                            this.hover = true
+                        },
+                        click: () => {
+                            if (!gm.store.editor.enabled) {
+                                gm.playerSpell(gm.state.combat.activeSpell, x, y)
+                                return
+                            }
+                            vec3.copy(this.clickEmitter.position, p)
+                            this.clickEmitter.position[1] = 0
+                            this.clickEmitter.emit(50)
+                            switch (gm.store.editor.mode) {
+                                case 'zone':
+                                    gm.editAction({
+                                        type: 'tile',
+                                        x, y,
+                                        to: gm.store.editor.activeTile
+                                    })
+                                    break
+                                case 'entity':
+                                    if (gm.store.editor.selectedEntity === -1) {
                                         gm.editAction({
-                                            type: 'tile',
-                                            x, y,
-                                            to: gm.store.editor.activeTile
+                                            type: 'entity_create',
+                                            ent: gm.store.editor.activeEntity,
+                                            x, y
                                         })
-                                        break
-                                    case 'entity':
-                                        if (gm.store.editor.selectedEntity === -1) {
-                                            gm.editAction({
-                                                type: 'entity_create',
-                                                ent: gm.store.editor.activeEntity,
-                                                x, y
-                                            })
-                                        } else {
-                                            gm.store.editor.selectedEntity = -1
-                                        }
-                                        break
-                                }
+                                    } else {
+                                        gm.store.editor.selectedEntity = -1
+                                    }
+                                    break
                             }
                         }
                     })
                 }
             }
-        } else {
-            if (gm.state.combat.enabled && gm.state.combat.casting) {
-                const transform = {
-                    position: vec3.fromValues(1, -TILE_SIZE_HALF, 1),
-                    rotation: vec3.create(),
-                    scale: vec3.fromValues(1, 1, 1),
-                }
-                for (let x = gm.state.mapMinX; x <= gm.state.mapMaxX; x++) {
-                    for (let y = gm.state.mapMinY; y <= gm.state.mapMaxY; y++) {
-                        transform.position[0] = TILE_SIZE * x
-                        transform.position[2] = TILE_SIZE * y
-                        const p = vec3.clone(transform.position)
-                        this.engine.v.drawMesh('cube', transform, 'textured', 'grid', {
-                            draw: false,
-                            callback: (type: string) => {
-                                if (type === 'move') {
-                                    vec3.copy(this.sparkleEmitter.position, p)
-                                    this.hover = true
-                                } else if (type === 'click') {
-                                    gm.playerSpell(gm.state.combat.activeSpell, x, y)
-                                }
-                            }
-                        })
-                    }
-                }
-            }
+        }
+        if (!gm.store.editor.enabled) {
             this.trees.forEach((t) => {
                 this.engine.v.drawMesh('tree', t, 'textured', 'colored')
             })

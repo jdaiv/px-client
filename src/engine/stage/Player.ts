@@ -57,6 +57,11 @@ export default class Player {
             this.engine.camera.setOffset([0, 0, 0])
             this.engine.camera.setRotation(this.rotationQ)
             this.engine.camera.lookAt = false
+            // vec3.set(this.engine.camera.offset,
+            //     0,
+            //     Math.sin(this.t * 8) * this.walkAmp,
+            //     0
+            // )
         } else if (GameManager.instance.store.editor.enabled) {
             this.rotation = 2
             const pos = [player.x * TILE_SIZE, 100, player.y * TILE_SIZE]
@@ -69,8 +74,8 @@ export default class Player {
         }
         this.rotationChange = lerp(this.rotationChange, 0, dt * 10)
         const targetPos = vec3.fromValues(
-            Math.cos(this.t * 4) * this.walkAmp + this.rotationChange * -10,
-            Math.sin(this.t * 8) * this.walkAmp,
+            Math.cos(this.t * 4) * this.walkAmp + this.engine.v.mouseDeltaX * -1,
+            Math.sin(this.t * 8) * this.walkAmp + this.engine.v.mouseDeltaY,
             Math.cos(this.t * 1) * this.walkAmp
         )
         this.weaponPos = vec3.lerp(this.weaponPos, this.weaponPos, targetPos, dt * 10)

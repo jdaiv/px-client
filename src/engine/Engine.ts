@@ -1,4 +1,5 @@
 // import Synth from './audio/Synth'
+import Interactions from './Interactions'
 import Overlay from './Overlay'
 import Camera from './rendering/Camera'
 import Material from './rendering/Material'
@@ -19,6 +20,7 @@ export default class Engine {
     public terrain: Terrain
     public stage: Stage
     public overlay: Overlay
+    public interactions: Interactions
 
     public time: number
     public dt: number
@@ -31,6 +33,7 @@ export default class Engine {
         this.v = new Video(el, this)
         this.materials = MaterialManager.load()
         this.overlay = new Overlay(el)
+        this.interactions = new Interactions()
         // this.synth = new Synth()
         this.resources.load(({ done, total }) => {
             console.log(`[engine/resources] loaded ${done}/${total}`)

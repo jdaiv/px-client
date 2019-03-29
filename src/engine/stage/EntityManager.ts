@@ -2,6 +2,7 @@ import { vec3 } from 'gl-matrix'
 import GameManager from '../../shared/GameManager'
 import GameState from '../../shared/GameState'
 import Engine from '../Engine'
+import { TILE_SIZE_HALF } from '../rendering/Terrain'
 import { DIRECTIONS } from './Player'
 import { TILE_SIZE } from './Tiles'
 
@@ -36,7 +37,7 @@ export default class EntityManager {
             vec3.lerp(pos.current, pos.current, pos.target, dt * 20)
 
             const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
-            this.engine.overlay.setPlayerPos( p.id, nameTagPos)
+            // this.engine.overlay.setPlayerPos( p.id, nameTagPos)
         })
     }
 
@@ -99,54 +100,74 @@ export default class EntityManager {
         }
         const editor = GameManager.instance.store.editor
 
-        this.state.entities.forEach((e, id) => {
-            let mouseData = null
-            if (editor.enabled && editor.mode === 'entity') {
-                mouseData = {
-                    draw: true,
-                    callback: (type: string) => {
-                        if (type === 'click') {
-                            console.log(e)
-                            editor.selectedEntity = id
-                        }
-                    }
-                }
-            }
+        const p = this.state.activePlayer
 
+        this.state.entities.forEach((e, id) => {
             transform.position[0] = e.x * TILE_SIZE
             transform.position[1] = 0
             transform.position[2] = e.y * TILE_SIZE
             transform.rotation[1] = e.rotation
+            if (editor.enabled && editor.mode === 'entity') {
+                this.engine.interactions.addItem({
+                    aabb: {
+                        min: vec3.sub(vec3.create(), transform.position,
+                            [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF]),
+                        max: vec3.add(vec3.create(), transform.position,
+                            [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
+                    },
+                    click: () => {
+                        console.log(e)
+                        editor.selectedEntity = id
+                    }
+                })
+            } else if (e.usable && Math.abs(e.x - p.x) <= 1 && Math.abs(e.y - p.y) <= 1) {
+                const aabb = {
+                    min: vec3.sub(vec3.create(), transform.position,
+                        [TILE_SIZE_HALF / 2, -TILE_SIZE_HALF, TILE_SIZE_HALF / 2]),
+                    max: vec3.add(vec3.create(), transform.position,
+                        [TILE_SIZE_HALF / 2, TILE_SIZE, TILE_SIZE_HALF / 2])
+                }
+                this.engine.interactions.addItem({
+                    aabb,
+                    hover: () => {
+                        this.engine.overlay.aabb = aabb
+                        this.engine.overlay.text = e.useText + ' ' + e.name
+                    },
+                    click: () => {
+                        GameManager.instance.playerUse(id)
+                    }
+                })
+            }
             switch (e.type) {
             case 'door':
                 transform.position[1] = 12
-                this.engine.v.drawSprite('station-door', transform, 'sprite', 0, mouseData)
+                this.engine.v.drawSprite('station-door', transform, 'sprite', 0)
                 break
             case 'corpse':
                 switch (e.fields.type) {
                 case 'player':
-                    this.engine.v.drawSprite('poses', transform, 'sprite', 7, mouseData)
+                    this.engine.v.drawSprite('poses', transform, 'sprite', 7)
                     break
                 case 'blob':
-                    this.engine.v.drawSprite('blob', transform, 'sprite', 2, mouseData)
+                    this.engine.v.drawSprite('blob', transform, 'sprite', 2)
                     break
                 }
                 break
             case 'item_spawner':
                 this.engine.v.drawMesh(e.type, transform, 'outline', 'colored')
-                this.engine.v.drawMesh(e.type, transform, 'textured', 'colored', mouseData)
+                this.engine.v.drawMesh(e.type, transform, 'textured', 'colored')
                 break
             case 'npc_spawner':
             case 'item_modifier':
                 // this.engine.v.drawMesh('button', transform, 'outline', 'colored')
-                this.engine.v.drawMesh('button', transform, 'textured', 'colored', mouseData)
+                this.engine.v.drawMesh('button', transform, 'textured', 'colored')
                 break
             case 'house':
                 transform.position[0] -= TILE_SIZE / 2
                 transform.position[2] -= TILE_SIZE / 2
             default:
                 this.engine.v.drawMesh(e.type, transform, 'outline', e.type)
-                this.engine.v.drawMesh(e.type, transform, 'textured', e.type, mouseData)
+                this.engine.v.drawMesh(e.type, transform, 'textured', e.type)
                 break
             }
         })

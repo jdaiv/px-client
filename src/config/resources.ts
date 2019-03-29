@@ -5,6 +5,8 @@ import * as spriteblobData from './sprites/blob.json'
 import spriteblob from '../assets/sprites/blob.png'
 import * as spritecoloredData from './sprites/colored.json'
 import spritecolored from '../assets/sprites/colored.png'
+import * as spritecrosshairData from './sprites/crosshair.json'
+import spritecrosshair from '../assets/sprites/crosshair.png'
 import * as spriteemotesData from './sprites/emotes.json'
 import spriteemotes from '../assets/sprites/emotes.png'
 import * as spriteerrorData from './sprites/error.json'
@@ -80,6 +82,7 @@ export const SPRITES = {
     'bin': { file: spritebin, data: spritebinData },
     'blob': { file: spriteblob, data: spriteblobData },
     'colored': { file: spritecolored, data: spritecoloredData },
+    'crosshair': { file: spritecrosshair, data: spritecrosshairData },
     'emotes': { file: spriteemotes, data: spriteemotesData },
     'error': { file: spriteerror, data: spriteerrorData },
     'faces': { file: spritefaces, data: spritefacesData },

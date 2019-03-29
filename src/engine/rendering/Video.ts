@@ -6,7 +6,6 @@ import Resources from '../Resources'
 import GLFBO from './GLFBO'
 import GLMesh from './GLMesh'
 import Material from './Material'
-import { TILE_SIZE_HALF } from './Terrain'
 
 let SCALE = 2
 const INIT_QUEUE_SIZE = 16
@@ -40,6 +39,8 @@ export default class Video {
     private mouseY: number
     private activeMouseObject: any
     public rotateCamera = vec3.create()
+    public mouseDeltaX = 0
+    public mouseDeltaY = 0
 
     public data: any
     private queue: RenderingQueue
@@ -208,7 +209,7 @@ export default class Video {
     }
 
     public drawMesh(name: string, { position, rotation, scale }: ITransform,
-                    material: string, texture: string, mouseData?: any) {
+                    material: string, texture: string) {
         if (!this.resources.sprites.has(texture)) {
             texture = 'error'
         }
@@ -230,7 +231,6 @@ export default class Video {
         qObj.sprite = 0
         qObj.animated = false
         qObj.frame = null
-        qObj.mouseData = mouseData
     }
 
     public drawMeshAnimated(name: string, { position, rotation, scale }: ITransform,
@@ -258,11 +258,10 @@ export default class Video {
         qObj.animation = animation
         qObj.time = time
         qObj.frame = null
-        qObj.mouseData = null
     }
 
     public drawSprite(name: string, { position, rotation, scale }: ITransform,
-                      material: string, frame: number, mouseData?: any) {
+                      material: string, frame: number) {
         if (!this.resources.sprites.has(name)) {
             name = 'error'
         }
@@ -279,11 +278,10 @@ export default class Video {
         vec3.copy(qObj.scale, scale || [1, 1, 1])
         qObj.sprite = 1
         qObj.frame = frame
-        qObj.mouseData = mouseData
     }
 
     public drawSpriteR(name: string, { position, rotation, scale }: ITransform,
-                       material: string, frame: number, mouseData?: any) {
+                       material: string, frame: number) {
         if (!this.resources.sprites.has(name)) {
             name = 'error'
         }
@@ -300,7 +298,6 @@ export default class Video {
         vec3.copy(qObj.scale, scale || [1, 1, 1])
         qObj.sprite = 2
         qObj.frame = frame
-        qObj.mouseData = mouseData
     }
 
     public drawRay(origin: vec3, dir: vec3, length: number) {
@@ -423,44 +420,11 @@ export default class Video {
             const rayDir = vec3.fromValues(rayWorld[0], rayWorld[1], rayWorld[2])
             vec3.normalize(rayDir, rayDir)
 
-            vec3.inverse(rayDir, rayDir)
-
-            let depth = Infinity
-            let cb: any = null
-
-            this.queue.forEach((q) => {
-                q.forEach((mq) => {
-                    for (let i = 0; i < mq.count; i++) {
-                        const o = mq.array[i]
-                        if (!o.mouseData) continue
-                        const p = o.position
-                        const min = vec3.fromValues(-TILE_SIZE_HALF, -TILE_SIZE_HALF, -TILE_SIZE_HALF)
-                        const max = vec3.fromValues(TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF)
-                        vec3.add(min, min, p)
-                        vec3.add(max, max, p)
-
-                        let tmin = -Infinity
-                        let tmax = Infinity
-
-                        for (let v = 0; v < 3; v++) {
-                            const t1 = (min[v] - cameraPos[v]) * rayDir[v]
-                            const t2 = (max[v] - cameraPos[v]) * rayDir[v]
-
-                            tmin = Math.max(tmin, Math.min(t1, t2))
-                            tmax = Math.min(tmax, Math.max(t1, t2))
-                        }
-
-                        const intersection = tmax >= tmin
-                        if (intersection && tmin < depth) {
-                            depth = tmin
-                            cb = o.mouseData.callback
-                        }
-                    }
-                })
+            this.engine.interactions.run({
+                origin: vec3.clone(cameraPos),
+                dir: vec3.clone(rayDir),
+                invDir: vec3.inverse(vec3.create(), rayDir)
             })
-
-            if (cb) cb('move')
-            this.activeMouseObject = cb
         }
 
         this.engine.terrain.draw(data)
@@ -565,23 +529,26 @@ export default class Video {
     }
 
     public mouseMove(evt: MouseEvent) {
-        const x = Math.floor(evt.offsetX / SCALE)
-        const y = Math.floor(evt.offsetY / SCALE)
         if (document.pointerLockElement === this.el) {
             this.rotateCamera[1] += evt.movementX / 6
             this.rotateCamera[1] = (this.rotateCamera[1] < 0 ? this.rotateCamera[1] + 360 : this.rotateCamera[1]) % 360
             this.rotateCamera[0] += evt.movementY / 6
             this.rotateCamera[0] = Math.max(Math.min(this.rotateCamera[0], 90), -90)
+            this.mouseDeltaX = evt.movementX / 6
+            this.mouseDeltaY = evt.movementY / 6
+            this.mouseX = this.width / 2
+            this.mouseY = this.height / 2
+            this.mouseActive = true
+        } else {
+            const x = Math.floor(evt.offsetX / SCALE)
+            const y = Math.floor(evt.offsetY / SCALE)
+            this.mouseX = x
+            this.mouseY = y
         }
-        this.mouseX = x
-        this.mouseY = y
     }
 
     public mouseClick() {
-        const cb = this.activeMouseObject
-        if (cb) {
-            cb('click')
-        }
+        this.engine.interactions.didClick = true
         this.el.requestPointerLock()
     }
 
