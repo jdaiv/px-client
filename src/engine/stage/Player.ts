@@ -80,7 +80,7 @@ export default class Player {
 
         const targetOffset = vec3.create()
         if (this.use) {
-            targetOffset[1] = -64
+            targetOffset[1] = -96
             this.use = false
         }
         vec3.lerp(this.weaponOffset, this.weaponOffset, targetOffset, dt * 10)
@@ -98,12 +98,12 @@ export default class Player {
             rotation: [0, 0, 0],
             scale: [1, 1, 1]
         }
-        transform.position[1] += 64
+        transform.position[1] += 96
         transform.position[1] *= -1
-        this.engine.v.drawModelUI('hand', transform, 'outline', 'colored')
+        this.engine.v.drawModelUI('hand', transform, 'outlineUI', 'colored')
         this.engine.v.drawModelUI('hand', transform, 'textured', 'colored')
         vec3.add(transform.position, this.weaponPos, this.weaponOffset)
-        this.engine.v.drawModelUIAnimated('sword_animated', transform, 'outline', 'colored',
+        this.engine.v.drawModelUIAnimated('sword_animated', transform, 'outlineUI', 'colored',
             this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
         this.engine.v.drawModelUIAnimated('sword_animated', transform, 'textured', 'colored',
             this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)

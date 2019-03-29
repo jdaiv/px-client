@@ -3,10 +3,9 @@ import debugRayFS from './shaders/debug_ray.fs'
 import debugRayVS from './shaders/debug_ray.vs'
 import errorFS from './shaders/error.fs'
 import errorVS from './shaders/error.vs'
-import hittestFS from './shaders/hittest.fs'
-// import hittestVS from './shaders/hittest.vs'
 import outlineFS from './shaders/outline.fs'
 import outlineVS from './shaders/outline.vs'
+import outlineUIVS from './shaders/outline_ui.vs'
 import postVS from './shaders/post.vs'
 import postbloomFS from './shaders/post_bloom.fs'
 import postnoneFS from './shaders/post_none.fs'
@@ -38,21 +37,6 @@ const MATERIALS = {
         vs: debugRayVS,
         fs: debugRayFS,
         transform: true,
-    },
-    hitTest: {
-        vs: texturedVS,
-        fs: hittestFS,
-        transform: true,
-
-        textured: true,
-        normals: true,
-        spriteData: true,
-        color: true,
-
-        screenSize: false,
-        time: true,
-
-        manual: true,
     },
     stencil: {
         vs: stencilVS,
@@ -112,6 +96,18 @@ const MATERIALS = {
     },
     outline: {
         vs: outlineVS,
+        fs: outlineFS,
+        transform: true,
+        cull: -1,
+
+        textured: true,
+        normals: true,
+
+        screenSize: false,
+        time: false,
+    },
+    outlineUI: {
+        vs: outlineUIVS,
         fs: outlineFS,
         transform: true,
         cull: -1,

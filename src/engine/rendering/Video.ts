@@ -485,8 +485,8 @@ export default class Video {
             0.1, 1000)
 
         data.vpMatrix = uiMatrix
+        gl.clear(gl.DEPTH_BUFFER_BIT)
         for (let i = 0; i < this.uiQueue.count; i++) {
-            gl.clear(gl.DEPTH_BUFFER_BIT)
             const o = this.uiQueue.array[i]
             const material = materials.get(o.material)
             const model = this.resources.models.get(o.model).mesh
