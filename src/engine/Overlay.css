@@ -5,12 +5,18 @@
     pointer-events: none;
     overflow: hidden;
 	background: url('../assets/sprites/crosshair.png') center center no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .box {
-    border: 2px solid #0f0;
-    position: absolute;
-    background: rgba(0, 255, 0, 0.1);
-    padding: 2rem;
-    color: #fff;
+    flex: 0 0 50%;
+    border: 1px solid #0f0;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.5rem;
+    color: #0f0;
+    text-align: center;
+    transform: translateY(128px);
+    transition: opacity ease 100ms;
 }

@@ -22,6 +22,8 @@ export default class Player {
     public weaponPos = vec3.create()
     public swordAttack = 0
     private t = 0
+    public use = false
+    private weaponOffset = vec3.create()
 
     public get direction(): string {
         return DIRECTIONS[this.rotation % 4]
@@ -57,13 +59,7 @@ export default class Player {
             this.engine.camera.setOffset([0, 0, 0])
             this.engine.camera.setRotation(this.rotationQ)
             this.engine.camera.lookAt = false
-            // vec3.set(this.engine.camera.offset,
-            //     0,
-            //     Math.sin(this.t * 8) * this.walkAmp,
-            //     0
-            // )
         } else if (GameManager.instance.store.editor.enabled) {
-            this.rotation = 2
             const pos = [player.x * TILE_SIZE, 100, player.y * TILE_SIZE]
             const rot = quat.fromEuler(quat.create(), 90, 0, 0)
             vec3.lerp(this.position, this.position, pos, dt * 10)
@@ -74,13 +70,20 @@ export default class Player {
         }
         this.rotationChange = lerp(this.rotationChange, 0, dt * 10)
         const targetPos = vec3.fromValues(
-            Math.cos(this.t * 4) * this.walkAmp + this.engine.v.mouseDeltaX * -1,
-            Math.sin(this.t * 8) * this.walkAmp + this.engine.v.mouseDeltaY,
+            Math.cos(this.t * 4) * this.walkAmp + this.engine.v.mouseDeltaX * -0.5,
+            Math.sin(this.t * 8) * this.walkAmp + this.engine.v.mouseDeltaY * 0.5,
             Math.cos(this.t * 1) * this.walkAmp
         )
         this.weaponPos = vec3.lerp(this.weaponPos, this.weaponPos, targetPos, dt * 10)
         this.t += dt
         this.swordAttack -= dt
+
+        const targetOffset = vec3.create()
+        if (this.use) {
+            targetOffset[1] = -64
+            this.use = false
+        }
+        vec3.lerp(this.weaponOffset, this.weaponOffset, targetOffset, dt * 10)
 
         const newRotation = Math.floor((this.engine.v.rotateCamera[1] + 270 - 45) % 360 / 90)
         if (newRotation !== this.rotation) {
@@ -91,10 +94,15 @@ export default class Player {
 
     public draw() {
         const transform = {
-            position: this.weaponPos,
+            position: vec3.add(vec3.create(), this.weaponPos, this.weaponOffset),
             rotation: [0, 0, 0],
             scale: [1, 1, 1]
         }
+        transform.position[1] += 64
+        transform.position[1] *= -1
+        this.engine.v.drawModelUI('hand', transform, 'outline', 'colored')
+        this.engine.v.drawModelUI('hand', transform, 'textured', 'colored')
+        vec3.add(transform.position, this.weaponPos, this.weaponOffset)
         this.engine.v.drawModelUIAnimated('sword_animated', transform, 'outline', 'colored',
             this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
         this.engine.v.drawModelUIAnimated('sword_animated', transform, 'textured', 'colored',

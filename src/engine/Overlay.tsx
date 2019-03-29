@@ -87,14 +87,14 @@ export default class Overlay {
                 if (transformed[1] > maxY) maxY = transformed[1]
             })
 
-            this.box.style.left = minX + 'px'
-            this.box.style.top = minY + 'px'
-            this.box.style.width = (maxX - minX) + 'px'
-            this.box.style.height = (maxY - minY) + 'px'
-            this.box.style.display = 'block'
-            this.box.textContent = this.text
+            // this.box.style.left = minX + 'px'
+            // this.box.style.top = minY + 'px'
+            // this.box.style.width = (maxX - minX) + 'px'
+            // this.box.style.height = (maxY - minY) + 'px'
+            this.box.style.opacity = '1'
+            this.box.innerHTML = this.text
         } else {
-            this.box.style.display = 'none'
+            this.box.style.opacity = '0'
         }
 
         this.aabb = null

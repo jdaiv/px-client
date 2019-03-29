@@ -79,18 +79,17 @@ export default class GLTFResource {
         ]
         this.src.nodes.forEach(n => {
             if (n.mesh !== 0) return
-
-            if (n.scale) {
-                vec3.copy(baseFrame[3], n.scale)
-                mat4.scale(m, m, n.scale)
+            if (n.translation) {
+                vec3.scaleAndAdd(baseFrame[1], baseFrame[1], n.translation, 8)
+                mat4.translate(m, m, baseFrame[1])
             }
             if (n.rotation) {
                 quat.copy(baseFrame[2], n.rotation)
                 mat4.multiply(m, m, mat4.fromQuat(mat4.create(), n.rotation))
             }
-            if (n.translation) {
-                vec3.scaleAndAdd(baseFrame[1], baseFrame[1], n.translation, 8)
-                mat4.translate(m, m, baseFrame[1])
+            if (n.scale) {
+                vec3.copy(baseFrame[3], n.scale)
+                mat4.scale(m, m, n.scale)
             }
         })
 

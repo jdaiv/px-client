@@ -132,6 +132,7 @@ export default class EntityManager {
                     hover: () => {
                         this.engine.overlay.aabb = aabb
                         this.engine.overlay.text = e.useText + ' ' + e.name
+                        if (e.type !== 'dummy') this.engine.stage.player.use = true
                     },
                     click: () => {
                         GameManager.instance.playerUse(id)

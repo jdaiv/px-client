@@ -54,6 +54,7 @@ import modelbuttongltfData from '../assets/models/button.gltf.json'
 import modelcubegltfData from '../assets/models/cube.gltf.json'
 import modeldummygltfData from '../assets/models/dummy.gltf.json'
 import modelerrorgltfData from '../assets/models/error.gltf.json'
+import modelhandgltfData from '../assets/models/hand.gltf.json'
 import modelhousegltfData from '../assets/models/house.gltf.json'
 import modelitemspawnergltfData from '../assets/models/item_spawner.gltf.json'
 import modelquadgltfData from '../assets/models/quad.gltf.json'
@@ -69,6 +70,7 @@ export const MODELS = {
     'cube.gltf': modelcubegltfData,
     'dummy.gltf': modeldummygltfData,
     'error.gltf': modelerrorgltfData,
+    'hand.gltf': modelhandgltfData,
     'house.gltf': modelhousegltfData,
     'item_spawner.gltf': modelitemspawnergltfData,
     'quad.gltf': modelquadgltfData,
