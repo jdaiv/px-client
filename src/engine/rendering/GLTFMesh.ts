@@ -1,5 +1,5 @@
-import { mat4, quat, vec3 } from 'gl-matrix'
-import GLTFResource, { AnimationFrame } from '../resources/GLTFResource'
+import { mat4, quat, vec3, vec4 } from 'gl-matrix'
+import GLTFResource from '../resources/GLTFResource'
 import { gl } from './Video'
 
 export default class GLTFMesh {
@@ -7,7 +7,6 @@ export default class GLTFMesh {
     public raw: GLTFResource
     public mode: number
     public matrix = mat4.identity(mat4.create())
-    public baseFrame: AnimationFrame
 
     public vertBuffer: WebGLBuffer
     public normalBuffer: WebGLBuffer
@@ -66,31 +65,32 @@ export default class GLTFMesh {
         let f1Idx = -1
         let f2Idx = 9999999
         anim.forEach((f, i) => {
-            if (f[0] <= time && i > f1Idx) f1Idx = i
-            if (f[0] >= time && i < f2Idx) f2Idx = i
+            if (f.time <= time && i > f1Idx) f1Idx = i
+            if (f.time >= time && i < f2Idx) f2Idx = i
         })
         const t = vec3.create()
         const r = quat.create()
         const s = vec3.fromValues(1, 1, 1)
         if (f1Idx < 0 && f2Idx >= 9999999) {
             mat4.identity(frame)
-        } else if (f2Idx >= 9999999) {
-            const f = anim[f1Idx]
-            vec3.copy(t, f[1])
-            quat.copy(r, f[2])
-            vec3.copy(s, f[3])
+        } else if (f2Idx >= 9999999 || f1Idx === f2Idx) {
+            const f = anim[f1Idx].point
+            vec3.copy(t, f[0])
+            quat.copy(r, f[1])
+            vec3.copy(s, f[2])
         } else if (f1Idx < 0) {
-            const f = anim[f2Idx]
-            vec3.copy(t, f[1])
-            quat.copy(r, f[2])
-            vec3.copy(s, f[3])
+            const f = anim[f2Idx].point
+            vec3.copy(t, f[0])
+            quat.copy(r, f[1])
+            vec3.copy(s, f[2])
         } else {
             const f1 = anim[f1Idx]
             const f2 = anim[f2Idx]
-            const dt = (time - f1[0]) / (f2[0] - f1[0])
-            vec3.lerp(t, f1[1], f2[1], dt)
-            quat.slerp(r, f1[2], f2[2], dt)
-            vec3.lerp(s, f1[3], f2[3], dt)
+            const dt = (time - f1.time) / (f2.time - f1.time)
+            vec3.lerp(t, f1.point[0], f2.point[0], dt)
+            quat.slerp(r, f1.point[1], f2.point[1], dt)
+            vec3.lerp(s, f1.point[2], f2.point[2], dt)
+            quat.normalize(r, r)
         }
         mat4.fromRotationTranslationScale(frame, r, t, s)
         this.matrix = frame

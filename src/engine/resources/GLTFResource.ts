@@ -41,8 +41,13 @@ export class GLTFBuffer {
 
 }
 
-export type AnimationFrame = [number, vec3, quat, vec3]
-type AnimationFrames = AnimationFrame[]
+export interface IAnimationFrame {
+    time: number
+    // in: [vec3, quat, vec3]
+    point: [vec3, quat, vec3]
+    // out: [vec3, quat, vec3]
+}
+type AnimationFrames = IAnimationFrame[]
 
 export default class GLTFResource {
 
@@ -53,7 +58,6 @@ export default class GLTFResource {
     public animations: Map<string, AnimationFrames>
 
     constructor(src: any) {
-        console.log(src)
         this.src = src
 
         const byteStrs = this.src.buffers.map(b => atob(b.uri.split(',')[1]))
@@ -74,21 +78,15 @@ export default class GLTFResource {
 
         // build matrix
         const m = this.mesh.matrix
-        const baseFrame: AnimationFrame = [
-            0, vec3.create(), quat.create(), vec3.fromValues(1, 1, 1)
-        ]
         this.src.nodes.forEach(n => {
             if (n.mesh !== 0) return
             if (n.translation) {
-                vec3.scaleAndAdd(baseFrame[1], baseFrame[1], n.translation, 8)
-                mat4.translate(m, m, baseFrame[1])
+                mat4.translate(m, m, vec3.scale(vec3.create(), n.translation, 8))
             }
             if (n.rotation) {
-                quat.copy(baseFrame[2], n.rotation)
                 mat4.multiply(m, m, mat4.fromQuat(mat4.create(), n.rotation))
             }
             if (n.scale) {
-                vec3.copy(baseFrame[3], n.scale)
                 mat4.scale(m, m, n.scale)
             }
         })
@@ -115,32 +113,34 @@ export default class GLTFResource {
                     const s = a.samplers[c.sampler]
                     outBufs[i] = new Float32Array(this.buffers[s.output].buffer)
                 })
-                const animation = new Array<[number, vec3, quat, vec3]>()
-                inBuf.forEach((time, i) => {
-// tslint:disable-next-line: no-shadowed-variable
-                    const m = mat4.create()
-                    mat4.identity(m)
-                    const s = vec3.create()
-                    const r = quat.create()
-                    const t = vec3.create()
+                console.log(outBufs)
+                const animation = new Array<IAnimationFrame>()
+                inBuf.forEach((time, idx) => {
+                    const frame: IAnimationFrame = {
+                        time,
+                        point: [vec3.create(), quat.create(), vec3.fromValues(1, 1, 1)]
+                    }
+                    const s = frame.point[2]
+                    const r = frame.point[1]
+                    const t = frame.point[0]
                     if (has.s >= 0) {
                         const buf = outBufs[has.s]
-                        const o = i * 3 * 3 + 3
+                        const o = (idx) * 3
                         vec3.set(s, buf[o], buf[o + 1], buf[o + 2])
                     }
                     if (has.r >= 0) {
                         const buf = outBufs[has.r]
-                        const o = i * 4 * 3 + 4
+                        const o = (idx) * 4
                         quat.set(r, buf[o], buf[o + 1], buf[o + 2], buf[o + 3])
                     }
                     if (has.t >= 0) {
                         const buf = outBufs[has.t]
-                        const o = i * 3 * 3 + 3
-                        vec3.set(t, buf[o] * 8, buf[o + 1] * 8, buf[o + 2] * 8)
+                        const o = (idx) * 3
+                        vec3.set(t, buf[o], buf[o + 1], buf[o + 2])
+                        vec3.scale(t, t, 8)
                     }
-                    animation.push([time, t, r, s])
+                    animation.push(frame)
                 })
-                console.log(animation)
                 this.animations.set(a.name, animation)
             })
         }
