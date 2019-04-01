@@ -22,12 +22,6 @@ export default class Player extends Component<{ game?: GameStore }> {
 
         const gs = game.state
         const player = game.state.activePlayer
-        const ci = gs.combatInfo
-        let inCombat = false
-
-        if (gs.combatInfo && gs.combatInfo.inCombat) {
-            inCombat = true
-        }
 
         if (player) {
             level = player.level
@@ -55,22 +49,26 @@ export default class Player extends Component<{ game?: GameStore }> {
             const activeSpell = gs.combat.activeSpell
             for (const key in player.spells) {
                 const s = player.spells[key]
-                spells.push(<Spell id={key} spell={s} inCombat={inCombat} activeSpell={activeSpell} />)
+                spells.push(<Spell id={key} spell={s} inCombat={gs.inCombat} activeSpell={activeSpell} />)
             }
         }
 
         const combatInfo = []
-        if (inCombat) {
+        if (gs.inCombat) {
             combatInfo.push(<h2>combat!</h2>)
-            combatInfo.push(<p class={style.invItem}>in combat: {ci.inCombat.toString()}</p>)
-            combatInfo.push(<p class={style.invItem}>waiting: {ci.waiting.toString()}</p>)
-            combatInfo.push(<p class={style.invItem}>turn: {ci.turn}</p>)
+            combatInfo.push(<p class={style.invItem}>in combat: {gs.inCombat.toString()}</p>)
+            // combatInfo.push(<p class={style.invItem}>waiting: {ci.waiting.toString()}</p>)
+            // combatInfo.push(<p class={style.invItem}>turn: {ci.turn}</p>)
             combatInfo.push(<p class={style.invItem}>combatants:</p>)
-            ci.combatants.forEach((c, i) => {
+            gs.combatants.forEach((c, i) => {
                 const actor = c.isPlayer ?  gs.players.get(c.id) : gs.npcs.get(c.id)
                 if (!actor) return
                 combatInfo.push(
-                <p class={style.invItem}>({i === ci.current ? '+' : ' '}) {actor.name} - {c.timer}</p>)
+                    <p class={style.invItem}>
+                        ({c.initiative === gs.currentInitiative ? '>' : ' '}&nbsp;
+                        {c.initiative}) {actor.name} - {c.timer}
+                    </p>
+                )
             })
         }
 

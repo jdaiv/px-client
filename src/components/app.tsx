@@ -30,7 +30,7 @@ export default class App extends Component {
                         <Sidebar />
                         <div class={style.gameArea}>
                             <ContentPortal />
-                            {/* <ActionBar /> */}
+                            <ActionBar />
                         </div>
                     </div>
                 </Provider>

@@ -1,8 +1,8 @@
 import { vec3 } from 'gl-matrix'
 
 export interface IAABB {
-    min: vec3
-    max: vec3
+    min: vec3 | number[]
+    max: vec3 | number[]
 }
 
 export interface IUsable {

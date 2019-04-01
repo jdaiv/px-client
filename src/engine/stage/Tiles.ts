@@ -130,7 +130,7 @@ export default class Tiles {
 
     public draw() {
         const gm = GameManager.instance
-        if (gm.store.editor.enabled || (gm.state.combat.enabled && gm.state.combat.casting)) {
+        if (gm.store.editor.enabled || (gm.state.inCombat && gm.state.combat.casting)) {
             const transform = {
                 position: vec3.fromValues(1, -TILE_SIZE_HALF, 1),
                 rotation: vec3.create(),

@@ -15,7 +15,6 @@ export default class GameState {
 
     @observable public valid = false
     @observable.shallow public activePlayer: any
-    @observable.shallow public combatInfo: any
     @observable.shallow public definitions: any
     @observable.shallow public zoneDebug: any
     @observable.shallow public allZones: any
@@ -32,6 +31,10 @@ export default class GameState {
     @observable public mapMinY = 0
     @observable public mapMaxY = 0
 
+    @observable public inCombat = false
+    @observable public currentInitiative = 0
+    public combatants: IObservableArray<any>
+
     private listeners = new Array<Listener>()
 
     constructor() {
@@ -40,6 +43,7 @@ export default class GameState {
         this.items = observable.map(null, { deep: false })
         this.npcs = observable.map(null, { deep: false })
         this.tiles = observable.array(null, { deep: false })
+        this.combatants = observable.array(null, { deep: false })
     }
 
     public registerListener(fn: Listener) {
@@ -56,8 +60,10 @@ export default class GameState {
             data.zone.items,
             data.zone.npcs)
         this.valid = true
-        this.combatInfo = data.zone.combatInfo
-        this.combat.enabled = this.combatInfo.inCombat
+        this.inCombat = data.zone.inCombat
+        this.currentInitiative = data.zone.currentInitiative
+        this.combatants = data.zone.combatants
+        this.combatants.sort((a, b) => b.initiative - a.initiative)
         this.definitions = data.defs
         this.zoneDebug = data.debugZone
         this.allZones = data.allZones

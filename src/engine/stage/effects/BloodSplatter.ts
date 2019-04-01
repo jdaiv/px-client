@@ -55,7 +55,7 @@ export default class BloodSplatter implements IEffect {
             vec3.scaleAndAdd(chunksPos[i], chunksPos[i], x, 5 / 60)
         }
 
-        this.engine.stage.player.swordAttack = 1.85
+        this.engine.stage.player.swordAttack = 2
 
         vec3.copy(this.emitter.position, pos)
         // this.emitter.emit(10)

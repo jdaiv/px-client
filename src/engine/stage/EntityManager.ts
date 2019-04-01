@@ -36,7 +36,7 @@ export default class EntityManager {
             }
             vec3.lerp(pos.current, pos.current, pos.target, dt * 20)
 
-            const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
+            // const nameTagPos = vec3.add(vec3.create(), pos.current, [0, 24, 0])
             // this.engine.overlay.setPlayerPos( p.id, nameTagPos)
         })
     }
@@ -85,10 +85,30 @@ export default class EntityManager {
 
     public drawNPCs() {
         const rotation = ZERO
-        this.state.npcs.forEach((p, id) => {
+        const p = this.state.activePlayer
+        this.state.npcs.forEach((n, id) => {
+            const position = [n.x * TILE_SIZE, 0, n.y * TILE_SIZE]
             this.engine.v.drawSprite('blob',
-                { position: [p.x * TILE_SIZE, 0, p.y * TILE_SIZE], rotation },
+                { position, rotation },
                 'sprite', Math.floor(this.engine.time / 1000) % 2)
+            if (Math.abs(n.x - p.x) <= 1 && Math.abs(n.y - p.y) <= 1) {
+                const aabb = {
+                    min: vec3.sub(vec3.create(), position,
+                        [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF]),
+                    max: vec3.add(vec3.create(), position,
+                        [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
+                }
+                this.engine.interactions.addItem({
+                    aabb,
+                    hover: () => {
+                        this.engine.overlay.aabb = aabb
+                        this.engine.overlay.text = 'attack ' + n.name
+                    },
+                    click: () => {
+                        GameManager.instance.playerAttack(id)
+                    }
+                })
+            }
         })
     }
 
@@ -175,13 +195,32 @@ export default class EntityManager {
     }
 
     public drawItems() {
+        const p = this.state.activePlayer
         this.state.items.forEach((i, id) => {
             const transform = {
                 position: [i.x * TILE_SIZE, 4, i.y * TILE_SIZE],
                 scale: [0.5, 0.5, 0.5],
                 rotation: ZERO
             }
-            this.engine.v.drawMesh('quad', transform, 'sprite', 'item-bag')
+            this.engine.v.drawSprite('item-bag', transform, 'sprite', 0)
+            if (Math.abs(i.x - p.x) <= 1 && Math.abs(i.y - p.y) <= 1) {
+                const aabb = {
+                    min: vec3.sub(vec3.create(), transform.position,
+                        [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF]),
+                    max: vec3.add(vec3.create(), transform.position,
+                        [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
+                }
+                this.engine.interactions.addItem({
+                    aabb,
+                    hover: () => {
+                        this.engine.overlay.aabb = aabb
+                        this.engine.overlay.text = 'take ' + i.name
+                    },
+                    click: () => {
+                        GameManager.instance.playerTakeItem(id)
+                    }
+                })
+            }
         })
     }
 

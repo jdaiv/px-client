@@ -1,9 +1,5 @@
 .header {
-	position: fixed;
-	left: 0.5rem;
-	right: 0.5rem;
-	top: 0.5rem;
-	height: 3rem;
+	flex: 0 0 3rem;
 	display: flex;
 	padding: 0;
 	color: #0f0;
