@@ -39,7 +39,7 @@ export default class Terrain {
         this.transform = mat4.fromTranslation(mat4.create(), [0, 0, 0])
     }
 
-    private calculateEdges(map: Array<[vec3, number]>, start: number[], end: number[]): boolean[][][] {
+    private calculateEdges(map: any, start: number[], end: number[]): boolean[][][] {
         const solid = new Array<boolean[]>()
         const edges = new Array<boolean[][]>()
         for (let x = start[0]; x <= end[0]; x++) {
@@ -52,7 +52,7 @@ export default class Terrain {
             }
         }
         map.forEach(t => {
-            solid[t[0][0]][t[0][2]] = t[1] !== 4
+            solid[t.x][t.y] = t.id !== 4
         })
         for (let x = start[0]; x <= end[0]; x++) {
             for (let y = start[1]; y <= end[1]; y++) {
@@ -68,7 +68,7 @@ export default class Terrain {
         return edges
     }
 
-    public set(map: Array<[vec3, number]>, start: number[], end: number[]) {
+    public set(map: any[], start: number[], end: number[]) {
         const verts: number[] = []
         const uvs: number[] = []
         const waterVerts: number[] = []
@@ -90,12 +90,11 @@ export default class Terrain {
         const edgeV1 = 0
         const edges = this.calculateEdges(map, start, end)
         map.forEach(t => {
-            if (t[1] === 4) return
-            const p = t[0]
-            x0 = p[0] * TILE_SIZE - TILE_SIZE_HALF
-            z0 = p[2] * TILE_SIZE - TILE_SIZE_HALF
-            x1 = p[0] * TILE_SIZE + TILE_SIZE_HALF
-            z1 = p[2] * TILE_SIZE + TILE_SIZE_HALF
+            if (t.id === 4) return
+            x0 = t.x * TILE_SIZE - TILE_SIZE_HALF
+            z0 = t.y * TILE_SIZE - TILE_SIZE_HALF
+            x1 = t.x * TILE_SIZE + TILE_SIZE_HALF
+            z1 = t.y * TILE_SIZE + TILE_SIZE_HALF
             verts.push(
                 x0, y, z0,
                 x0, y, z1,
@@ -104,8 +103,8 @@ export default class Terrain {
                 x1, y, z1,
                 x1, y, z0,
             )
-            const texY = Math.floor(t[1] / this.tilesX)
-            const texX = Math.floor(t[1] % this.tilesX)
+            const texY = Math.floor(t.id / this.tilesX)
+            const texX = Math.floor(t.id % this.tilesX)
             u0 = texX * TEX_TILE_SIZE / this.texWidth
             v0 = texY
             u1 = (texX + 1) * TEX_TILE_SIZE / this.texWidth
@@ -119,7 +118,7 @@ export default class Terrain {
                 u1, v0,
             )
 
-            if (edges[p[0]][p[2]][0]) {
+            if (edges[t.x][t.y][0]) {
                 verts.push(
                     x1, y0, z0,
                     x1, y1, z0,
@@ -137,7 +136,7 @@ export default class Terrain {
                     edgeU1, edgeV1,
                 )
             }
-            if (edges[p[0]][p[2]][2]) {
+            if (edges[t.x][t.y][2]) {
                 verts.push(
                     x0, y0, z1,
                     x0, y1, z1,
@@ -155,7 +154,7 @@ export default class Terrain {
                     edgeU1, edgeV1,
                 )
             }
-            if (edges[p[0]][p[2]][1]) {
+            if (edges[t.x][t.y][1]) {
                 verts.push(
                     x1, y0, z1,
                     x1, y1, z1,
@@ -173,7 +172,7 @@ export default class Terrain {
                     edgeU1, edgeV1,
                 )
             }
-            if (edges[p[0]][p[2]][3]) {
+            if (edges[t.x][t.y][3]) {
                 verts.push(
                     x0, y0, z0,
                     x0, y1, z0,

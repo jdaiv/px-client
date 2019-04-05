@@ -18,6 +18,10 @@ export default class ZoneEditor extends Component<{ game?: GameStore }> {
 
     private updateName = (evt: Event) => {
         evt.preventDefault()
+        GameManager.instance.editAction({
+            type: 'zone_rename',
+            name: ((evt.target as Element).querySelector('[name="name"]') as HTMLInputElement).value
+        })
     }
 
     private newZone = () => {
@@ -46,7 +50,7 @@ export default class ZoneEditor extends Component<{ game?: GameStore }> {
                 <Button large={true} label="new zone" onClick={this.newZone} />
                 <h3>current zone</h3>
                 <form onSubmit={this.updateName}>
-                    <input placeholder="zone name" value={game.state.zoneName} />
+                    <input name="name" placeholder="zone name" value={game.state.zoneName} />
                     <Button submit={true} large={true} label="update" />
                 </form>
                 <h3>select tile</h3>

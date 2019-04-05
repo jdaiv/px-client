@@ -98,16 +98,16 @@ export default class EntityManager {
                     max: vec3.add(vec3.create(), position,
                         [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
                 }
-                this.engine.interactions.addItem({
+                this.engine.interactions.addItem(
                     aabb,
-                    hover: () => {
+                    () => {
                         this.engine.overlay.aabb = aabb
                         this.engine.overlay.text = 'attack ' + n.name
                     },
-                    click: () => {
+                    () => {
                         GameManager.instance.playerAttack(id)
                     }
-                })
+                )
             }
         })
     }
@@ -128,18 +128,18 @@ export default class EntityManager {
             transform.position[2] = e.y * TILE_SIZE
             transform.rotation[1] = e.rotation
             if (editor.enabled && editor.mode === 'entity') {
-                this.engine.interactions.addItem({
-                    aabb: {
+                this.engine.interactions.addItem(
+                    {
                         min: vec3.sub(vec3.create(), transform.position,
                             [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF]),
                         max: vec3.add(vec3.create(), transform.position,
                             [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
                     },
-                    click: () => {
+                    () => {
                         console.log(e)
                         editor.selectedEntity = id
                     }
-                })
+                )
             } else if (e.usable && Math.abs(e.x - p.x) <= 1 && Math.abs(e.y - p.y) <= 1) {
                 const aabb = {
                     min: vec3.sub(vec3.create(), transform.position,
@@ -147,17 +147,17 @@ export default class EntityManager {
                     max: vec3.add(vec3.create(), transform.position,
                         [TILE_SIZE_HALF / 2, TILE_SIZE, TILE_SIZE_HALF / 2])
                 }
-                this.engine.interactions.addItem({
+                this.engine.interactions.addItem(
                     aabb,
-                    hover: () => {
+                    () => {
                         this.engine.overlay.aabb = aabb
                         this.engine.overlay.text = e.useText + ' ' + e.name
                         if (e.type !== 'dummy') this.engine.stage.player.use = true
                     },
-                    click: () => {
+                    () => {
                         GameManager.instance.playerUse(id)
                     }
-                })
+                )
             }
             switch (e.type) {
             case 'door':
@@ -210,16 +210,16 @@ export default class EntityManager {
                     max: vec3.add(vec3.create(), transform.position,
                         [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
                 }
-                this.engine.interactions.addItem({
+                this.engine.interactions.addItem(
                     aabb,
-                    hover: () => {
+                    () => {
                         this.engine.overlay.aabb = aabb
                         this.engine.overlay.text = 'take ' + i.name
                     },
-                    click: () => {
+                    () => {
                         GameManager.instance.playerTakeItem(id)
                     }
-                })
+                )
             }
         })
     }

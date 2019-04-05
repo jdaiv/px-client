@@ -19,10 +19,10 @@ export default class GameState {
     @observable.shallow public zoneDebug: any
     @observable.shallow public allZones: any
 
-    public entities: ObservableMap<number, any>
+    public entities: Map<number, any>
     public players: ObservableMap<number, any>
-    public items: ObservableMap<number, any>
-    public npcs: ObservableMap<number, any>
+    public items: Map<number, any>
+    public npcs: Map<number, any>
     public tiles: IObservableArray<any>
     private oldZoneName = ''
     @observable public zoneName = ''
@@ -38,10 +38,10 @@ export default class GameState {
     private listeners = new Array<Listener>()
 
     constructor() {
-        this.entities = observable.map(null, { deep: false })
+        this.entities = new Map()
         this.players = observable.map(null, { deep: false })
-        this.items = observable.map(null, { deep: false })
-        this.npcs = observable.map(null, { deep: false })
+        this.items = new Map()
+        this.npcs = new Map()
         this.tiles = observable.array(null, { deep: false })
         this.combatants = observable.array(null, { deep: false })
     }
@@ -72,18 +72,14 @@ export default class GameState {
     }
 
     public setTiles(map: any) {
-        const newTiles = []
-
         this.mapMinX = 0
         this.mapMaxX = 0
         this.mapMinY = 0
         this.mapMaxY = 0
 
-        for (const key in map) {
-            const t = map[key]
-            const coords = key.split(',')
-            const x = Math.floor(parseInt(coords[0], 10))
-            const y = Math.floor(parseInt(coords[1], 10))
+        map.forEach(t => {
+            const x = t.x
+            const y = t.y
             if (x < this.mapMinX) {
                 this.mapMinX = x
             }
@@ -96,12 +92,8 @@ export default class GameState {
             if (y > this.mapMaxY) {
                 this.mapMaxY = y
             }
-            newTiles.push({
-                type: t.id,
-                position: vec3.fromValues(x, 1, y)
-            })
-        }
-        this.tiles.replace(newTiles)
+        })
+        this.tiles.replace(map)
     }
 
     public set(activePlayer: any, players: any, ents: any, items: any, npcs: any) {
@@ -111,9 +103,9 @@ export default class GameState {
 
         this.activePlayer = activePlayer
         readInto(players, this.players)
-        readInto(ents, this.entities)
-        readInto(items, this.items)
-        readInto(npcs, this.npcs)
+        this.entities = new Map(ents.map((x: any) => [x.id, x]))
+        this.items = new Map(items.map((x: any) => [x.id, x]))
+        this.npcs = new Map(npcs.map((x: any) => [x.id, x]))
     }
 
 }

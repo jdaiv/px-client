@@ -427,6 +427,8 @@ export default class Video {
             })
         }
 
+        this.engine.interactions.clearItems()
+
         this.engine.terrain.draw(data)
 
         this.queue.forEach((q, matKey) => {
