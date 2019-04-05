@@ -10,7 +10,7 @@
     width: 100%;
     justify-content: stretch;
     overflow: visible;
-    position: relative;
+    /* position: relative; */
 }
 
 .invItem > p {
@@ -43,14 +43,15 @@
 }
 
 .stats {
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
 	background: #010;
 	border: 1px solid #0f0;
 	font-size: 1rem;
 	padding: 0.5rem;
     z-index: 10;
-    width: 100%;
+    width: 16rem;
     margin: 0;
 }
 

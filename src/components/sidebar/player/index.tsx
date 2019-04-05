@@ -104,16 +104,25 @@ class Gear extends Component<{ item: any }> {
         if (item.stats && Object.keys(item.stats).length > 0) {
             stats.push(<li><em>- stats -</em></li>)
             for (const stat in item.stats) {
-                stats.push(<li>&nbsp;&nbsp;{stat}: {item.stats[stat]}</li>)
+                if (item.stats[stat] !== 0) {
+                    stats.push(<li>&nbsp;&nbsp;{stat}: {item.stats[stat]}</li>)
+                }
             }
         }
-        const hover = (
-            <ul class={style.stats}>
-                <li>quality: {item.quality}</li>
-                <li>value: {item.price || '0'}g</li>
-                {stats}
-            </ul>
-        )
+        let hover = null
+        if (item.type !== 'empty' && this.statsVisible) {
+            const box = this.base.getBoundingClientRect()
+            hover = (
+                <ul
+                    class={style.stats}
+                    style={`transform: translate(${box.left}px, ${box.bottom + 4}px)`}
+                >
+                    <li>quality: {item.quality}</li>
+                    <li>value: {item.price || '0'}g</li>
+                    {stats}
+                </ul>
+            )
+        }
         if (item.specials && Object.keys(item.specials).length > 0) {
             stats.push(<li><em>- special -</em></li>)
             for (const s in item.specials) {
@@ -133,7 +142,7 @@ class Gear extends Component<{ item: any }> {
         }
         return (
             <div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
-                {item.type !== 'empty' && this.statsVisible ? hover : null}
+                {hover}
                 <p>
                     {item.key ? `${item.key}: ` : ''}
                     <ItemLabel item={item} />
@@ -167,11 +176,18 @@ class Spell extends Component<{ id: string, spell: any, inCombat: boolean, activ
     }
 
     public render({ id, spell, inCombat, activeSpell }) {
-        const hover = (
-            <ul class={style.stats}>
-            <li>skill: {spell.skill}</li>
-            </ul>
-        )
+        let hover = null
+        if (this.statsVisible) {
+            const box = this.base.getBoundingClientRect()
+            hover = (
+                <ul
+                    class={style.stats}
+                    style={`transform: translate(${box.left}px, ${box.bottom + 4}px)`}
+                >
+                    <li>skill: {spell.skill}</li>
+                </ul>
+            )
+        }
 
         const actions = []
         if (inCombat) {
@@ -183,7 +199,7 @@ class Spell extends Component<{ id: string, spell: any, inCombat: boolean, activ
         }
         return (
             <div class={style.invItem} onMouseOver={this.showStats} onMouseOut={this.hideStats}>
-                {this.statsVisible ? hover : null}
+                {hover}
                 <p>
                     L{spell.level} {spell.name}
                 </p>

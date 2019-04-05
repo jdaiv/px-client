@@ -1,8 +1,8 @@
 import { inject, observer } from 'mobx-preact'
 import { Component, h } from 'preact'
-import GameManager from '../../../shared/GameManager'
-import GameStore from '../../../shared/GameStore'
-import Button from '../../shared/Button'
+import GameManager from '../../shared/GameManager'
+import GameStore from '../../shared/GameStore'
+import Button from '../shared/Button'
 import style from './style.css'
 
 @inject('game')

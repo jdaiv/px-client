@@ -3,6 +3,7 @@ import { Component, h } from 'preact'
 import GameManager from '../shared/GameManager'
 import style from '../style/index.css'
 import ActionBar from './action_bar'
+import Chat from './chat'
 import ContentPortal from './content_portal'
 import Header from './header'
 import Sidebar from './sidebar'
@@ -27,6 +28,8 @@ export default class App extends Component {
                 <Provider game={gameManager.store}>
                     <div class={style.container}>
                         <Header />
+                        <Chat />
+                        <Sidebar />
                         <div class={style.gameArea}>
                             <ContentPortal />
                             <ActionBar />

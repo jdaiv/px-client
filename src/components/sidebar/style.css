@@ -1,14 +1,15 @@
 .sidebar {
+	position: absolute;
 	width: 24rem;
 	padding: 0;
+	top: 4rem;
+	right: 1rem;
+	z-index: 100;
 }
 
 .inner {
 	display: flex;
 	flex-direction: column;
-	background: #000;
-	padding: 0 0.5rem;
-	height: 100%;
 }
 
 .content {
@@ -16,7 +17,11 @@
 	flex: 1;
 	display: flex;
 	width: 100%;
-	padding: 0.5rem;
+	padding: 1rem;
+	background: #000;
+	max-height: calc(100vh - 16rem);
+	border: 1px solid #0f0;
+	border-top: 0;
 }
 
 .content::-webkit-scrollbar {
