@@ -21,8 +21,8 @@ interface ITransform {
 
 export default class Video {
 
-    private width: number
-    private height: number
+    public width: number
+    public height: number
 
     private base: Element
     private el: HTMLCanvasElement

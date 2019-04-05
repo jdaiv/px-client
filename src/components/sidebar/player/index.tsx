@@ -13,7 +13,6 @@ import style from './style.css'
 export default class Player extends Component<{ game?: GameStore }> {
     public render({ game }) {
         let level: number
-        let health = []
         const stats = []
         const equipped = []
         const bag = []
@@ -25,10 +24,6 @@ export default class Player extends Component<{ game?: GameStore }> {
 
         if (player) {
             level = player.level
-            health = [
-                <StatBar key="hp" label="HP" min={player.hp} max={player.maxHP} />,
-                <StatBar key="ap" label="AP" min={player.ap} max={player.maxAP} />
-            ]
             for (const key in player.stats) {
                 if (player.stats[key] > 0)
                     stats.push(<p class={style.invItem}>{key}: {player.stats[key]}</p>)
@@ -41,11 +36,11 @@ export default class Player extends Component<{ game?: GameStore }> {
                 bag.push(
                     <Gear item={{ ...player.inventory[key], bag: true }} />)
             }
-            for (const key in player.skills) {
-                const s = player.skills[key]
-                skills.push(
-                    <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
-            }
+            // for (const key in player.skills) {
+            //     const s = player.skills[key]
+            //     skills.push(
+            //         <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
+            // }
             const activeSpell = gs.combat.activeSpell
             for (const key in player.spells) {
                 const s = player.spells[key]
@@ -76,11 +71,10 @@ export default class Player extends Component<{ game?: GameStore }> {
             <div>
                 <h2 class={style.heading}>player: {game.user.username}</h2>
                 <p>level {level} player</p>
-                {health}
                 <ToggleSection title="stats">{stats}</ToggleSection>
                 <ToggleSection title="equipped" open={true}>{equipped}</ToggleSection>
                 <ToggleSection title="bag">{bag}</ToggleSection>
-                <ToggleSection title="skills">{skills}</ToggleSection>
+                {/* <ToggleSection title="skills">{skills}</ToggleSection> */}
                 <ToggleSection title="spells">{spells}</ToggleSection>
                 {combatInfo}
             </div >

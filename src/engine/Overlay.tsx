@@ -18,10 +18,6 @@ export default class Overlay {
     public text: string
 
     constructor(el: HTMLElement) {
-        this.resize = this.resize.bind(this)
-        this.resize()
-        window.addEventListener('resize', this.resize)
-
         this.base = el
         this.el = document.createElement('div')
         this.el.className = style.overlay
@@ -34,21 +30,7 @@ export default class Overlay {
         console.log('[engine/overlay] initialised')
     }
 
-    public resize() {
-        console.log('[engine/overlay] resizing')
-        setTimeout(() => {
-            const box = this.base.getBoundingClientRect()
-            this.width = Math.floor(box.width)
-            this.height = Math.floor(box.height)
-            this.widthHalf = this.width / 2
-            this.heightHalf = this.height / 2
-            this.el.style.width = this.width + 'px'
-            this.el.style.height = this.height + 'px'
-        })
-    }
-
     public destroy() {
-        window.removeEventListener('resize', this.resize)
         this.el.remove()
         console.log('[engine/overlay] destroyed')
     }

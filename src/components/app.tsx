@@ -25,9 +25,8 @@ export default class App extends Component {
         return (
             <div class={style.app}>
                 <Provider game={gameManager.store}>
-                    <Header />
                     <div class={style.container}>
-                        <Sidebar />
+                        <Header />
                         <div class={style.gameArea}>
                             <ContentPortal />
                             <ActionBar />

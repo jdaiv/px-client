@@ -2,6 +2,8 @@
     position: absolute;
     top: 0px;
     left: 0px;
+    right: 0px;
+    bottom: 0px;
     pointer-events: none;
     overflow: hidden;
 	background: url('../assets/sprites/crosshair.png') center center no-repeat;

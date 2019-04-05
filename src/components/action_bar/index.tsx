@@ -19,8 +19,10 @@ export default class ActionBar extends Component<{ game?: GameStore }> {
 
         return (
             <div class={style.bar}>
-                <StatBar key="hp" label="HP" min={player.hp} max={player.maxHP} />
-                <StatBar key="ap" label="AP" min={player.ap} max={player.maxAP} />
+                <StatBar label="HP" min={player.hp} max={player.maxHP} color={[255, 0, 0]} />
+                <div style="flex: 1" />
+                <StatBar label="AP" min={player.ap} max={player.maxAP} color={[0, 255, 0]} />
+                <StatBar label="MP" min={player.mp || 0} max={player.maxMP || 0} color={[0, 0, 255]} />
             </div>
         )
     }
