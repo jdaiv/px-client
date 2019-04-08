@@ -32,7 +32,7 @@ export default class ActionBar extends Component<{ game?: GameStore }> {
                     &nbsp;
                 </div>
                 <div
-                    class={style.spellBtn + ' ' + (game.state.combat.activeSpell === 'ice_bolt' ? style.active : '')}
+                    class={style.spellBtn + ' ' + (game.state.combat.activeSpell === 'icebolt' ? style.active : '')}
                     style={`background-image: url(${SPRITES.icebolt.file})`}
                 >
                     &nbsp;

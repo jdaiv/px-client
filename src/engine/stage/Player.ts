@@ -149,7 +149,7 @@ export default class Player {
             break
         case 'Digit3':
             gm.state.combat.casting = true
-            gm.state.combat.activeSpell = 'ice_bolt'
+            gm.state.combat.activeSpell = 'icebolt'
             break
         case 'Digit4':
             gm.state.combat.casting = true
