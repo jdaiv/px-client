@@ -37,7 +37,6 @@ export default class Video {
     private captureMouse: boolean
     private mouseX: number
     private mouseY: number
-    private activeMouseObject: any
     public rotateCamera = vec3.create()
     public mouseDeltaX = 0
     public mouseDeltaY = 0
@@ -348,6 +347,7 @@ export default class Video {
         }
 
         const camera = this.engine.camera.calculate(dt)
+        camera.fov = GameManager.instance.store.settings.fov
 
         const matrix = mat4.create()
         const matrixP = mat4.create()
@@ -531,13 +531,14 @@ export default class Video {
     }
 
     public mouseMove(evt: MouseEvent) {
+        const sens = GameManager.instance.store.settings.mouseSensitivity
         if (document.pointerLockElement === this.el) {
-            this.rotateCamera[1] += evt.movementX / 6
+            this.rotateCamera[1] += evt.movementX * sens
             this.rotateCamera[1] = (this.rotateCamera[1] < 0 ? this.rotateCamera[1] + 360 : this.rotateCamera[1]) % 360
-            this.rotateCamera[0] += evt.movementY / 6
+            this.rotateCamera[0] += evt.movementY * sens
             this.rotateCamera[0] = Math.max(Math.min(this.rotateCamera[0], 90), -90)
-            this.mouseDeltaX = evt.movementX / 6
-            this.mouseDeltaY = evt.movementY / 6
+            this.mouseDeltaX = evt.movementX * sens
+            this.mouseDeltaY = evt.movementY * sens
             this.mouseX = this.width / 2
             this.mouseY = this.height / 2
             this.mouseActive = true

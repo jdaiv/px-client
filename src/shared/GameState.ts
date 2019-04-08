@@ -1,4 +1,3 @@
-import { vec3 } from 'gl-matrix'
 import { action, IObservableArray, observable, ObservableMap } from 'mobx'
 
 type Listener = (arg0: GameState, zoneChanged: boolean) => void

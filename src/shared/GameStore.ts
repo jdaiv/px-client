@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx'
+import { action, observable, reaction } from 'mobx'
 import GameState from './GameState'
 
 class UserObject {
@@ -16,7 +16,38 @@ class ConnectionInfo {
 }
 
 class GameSettings {
-    @observable public quality: number = 2
+    @observable public quality: number = 4
+    @observable public mouseSensitivity: number = 0.25
+    @observable public fov: number = 90
+
+    constructor() {
+        reaction(() => this.quality, this.saveSettings, {delay: 500})
+        reaction(() => this.mouseSensitivity, this.saveSettings, {delay: 500})
+        reaction(() => this.fov, this.saveSettings, {delay: 500})
+
+        const loaded = window.localStorage.getItem('settings')
+        try {
+            const loadedObj = JSON.parse(loaded)
+            if (loadedObj.quality) {
+                this.quality = loadedObj.quality
+            }
+            if (loadedObj.mouseSensitivity) {
+                this.mouseSensitivity = loadedObj.mouseSensitivity
+            }
+            if (loadedObj.fov) {
+                this.fov = loadedObj.fov
+            }
+        } catch (e) {
+            console.log('Error loading settings: ', e)
+        }
+    }
+
+    public saveSettings = () => {
+        window.localStorage.setItem('settings', JSON.stringify({
+            quality: this.quality,
+            mouseSensitivity: this.mouseSensitivity
+        }))
+    }
 }
 
 class EditorSettings {
@@ -56,8 +87,6 @@ export default class GameStore {
     public editor = new EditorSettings()
     public chatLog = new ChatLog()
     public state: GameState
-
-    @observable public activeUseSlot = 'empty'
 
     constructor(state: GameState) {
         this.state = state

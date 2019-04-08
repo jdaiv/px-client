@@ -82,7 +82,7 @@ export default class Tiles {
             } else if (t.id !== 5 && this.trees.has(i)) {
                 this.trees.delete(i)
             }
-            if (t.type === 6 && !this.rocks.has(i)) {
+            if (t.id === 6 && !this.rocks.has(i)) {
                 const scale = Math.random() * 2 + 2
                 const transform = {
                     position: vec3.fromValues(TILE_SIZE * t.x, 0, TILE_SIZE * t.y),
@@ -92,7 +92,7 @@ export default class Tiles {
                 vec3.add(transform.position, transform.position, [Math.random() * 4 - 2, 0, Math.random() * 4 - 2])
                 transform.position[1] = 0
                 this.rocks.set(i, transform)
-            } else if (t.type !== 6 && this.rocks.has(i)) {
+            } else if (t.id !== 6 && this.rocks.has(i)) {
                 this.rocks.delete(i)
             }
         })

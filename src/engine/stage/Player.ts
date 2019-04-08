@@ -52,13 +52,19 @@ export default class Player {
             const pos = [player.x * TILE_SIZE, 16, player.y * TILE_SIZE]
             const rotY = (this.rotation * 90 + 180)
             const rot = quat.fromEuler(quat.create(), 0, rotY, 0)
-            this.walkAmp = lerp(this.walkAmp, vec3.dist(pos, this.position) > 0.5 ? 1 : 0, dt * 10)
-            vec3.lerp(this.position, this.position, pos, dt * 10)
+            this.walkAmp = lerp(this.walkAmp, vec3.dist(pos, this.position) > 2 ? 1 : 0, dt * 10)
+            vec3.lerp(this.position, this.position, pos, dt * 4)
             quat.slerp(this.rotationQ, this.rotationQ, rot, dt * 10)
             this.engine.camera.setTarget(this.position)
             this.engine.camera.setOffset([0, 0, 0])
             this.engine.camera.setRotation(this.rotationQ)
             this.engine.camera.lookAt = false
+
+            this.engine.camera.offset = vec3.fromValues(
+                Math.cos(this.t * 4) * this.walkAmp * 0.5,
+                Math.sin(this.t * 8) * this.walkAmp * 0.5,
+                0
+            )
         } else if (GameManager.instance.store.editor.enabled) {
             const pos = [player.x * TILE_SIZE, 100, player.y * TILE_SIZE]
             const rot = quat.fromEuler(quat.create(), 90, 0, 0)
@@ -70,12 +76,13 @@ export default class Player {
         }
         this.rotationChange = lerp(this.rotationChange, 0, dt * 10)
         const targetPos = vec3.fromValues(
-            Math.cos(this.t * 4) * this.walkAmp + this.engine.v.mouseDeltaX * -0.5,
-            Math.sin(this.t * 8) * this.walkAmp + this.engine.v.mouseDeltaY * 0.5,
+            Math.cos(this.t * 4) * this.walkAmp * 0.5 + this.engine.v.mouseDeltaX * -0.5,
+            Math.sin(this.t * 8) * this.walkAmp * 0.5 + this.engine.v.mouseDeltaY * 0.5,
             Math.cos(this.t * 1) * this.walkAmp
         )
-        this.weaponPos = vec3.lerp(this.weaponPos, this.weaponPos, targetPos, dt * 10)
-        this.t += dt
+        // this.walkAmp = this.walkAmp + dt * (0 - this.walkAmp)
+        this.weaponPos = vec3.lerp(this.weaponPos, this.weaponPos, targetPos, dt * 20)
+        this.t += dt * this.walkAmp * 2
         this.swordAttack -= dt
 
         const targetOffset = vec3.create()
