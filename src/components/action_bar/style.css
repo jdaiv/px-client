@@ -6,7 +6,7 @@
 	display: flex;
 	z-index: 50;
 	padding: 2rem;
-	align-items: flex-start;
+	align-items: center;
 	/* justify-content: space-around; */
 	opacity: 0.95;
 }
@@ -19,4 +19,23 @@
 
 .bar > *:last-child {
 	margin-right: 0rem;
+}
+
+.spellBtn {
+	flex: 0 0 66px;
+	width: 66px;
+	height: 66px;
+	outline: 0;
+	border: 1px solid #0f0;
+	background: none;
+	background-size: 64px 64px;
+	background-position: center center;
+	image-rendering: pixelated;
+}
+
+.active {
+	border-width: 4px;
+	flex: 0 0 72px;
+	width: 72px;
+	height: 72px;
 }

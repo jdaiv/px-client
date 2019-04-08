@@ -86,9 +86,8 @@ export default class Player {
         this.swordAttack -= dt
 
         const targetOffset = vec3.create()
-        if (this.use) {
+        if (this.use || GameManager.instance.state.combat.casting) {
             targetOffset[1] = -96
-            this.use = false
         }
         vec3.lerp(this.weaponOffset, this.weaponOffset, targetOffset, dt * 10)
 
@@ -107,16 +106,21 @@ export default class Player {
         }
         transform.position[1] += 96
         transform.position[1] *= -1
-        this.engine.v.drawModelUI('hand', transform, 'outlineUI', 'colored')
-        this.engine.v.drawModelUI('hand', transform, 'textured', 'colored')
+        this.engine.v.drawModelUI(!this.use && GameManager.instance.state.combat.casting ? 'hand_cast' : 'hand',
+            transform, 'outlineUI', 'colored')
+        this.engine.v.drawModelUI(!this.use && GameManager.instance.state.combat.casting ? 'hand_cast' : 'hand',
+            transform, 'textured', 'colored')
         vec3.add(transform.position, this.weaponPos, this.weaponOffset)
         this.engine.v.drawModelUIAnimated('sword_animated', transform, 'outlineUI', 'colored',
             this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
         this.engine.v.drawModelUIAnimated('sword_animated', transform, 'textured', 'colored',
             this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
+
+        this.use = false
     }
 
     public keydown = (evt: KeyboardEvent) => {
+        const gm = GameManager.instance
         this.keysDown.set(evt.code, true)
         let direction = -1
         switch (evt.code) {
@@ -135,14 +139,22 @@ export default class Player {
         case 'KeyF':
             this.swordAttack = 2
             break
-        // case 'KeyE':
-        //     this.rotation = (this.rotation + 1) % 4
-        //     this.rotationChange++
-        //     break
-        // case 'KeyQ':
-        //     this.rotation = (this.rotation - 1 + 4) % 4
-        //     this.rotationChange--
-        //     break
+        case 'Digit1':
+            gm.state.combat.casting = false
+            gm.state.combat.activeSpell = ''
+            break
+        case 'Digit2':
+            gm.state.combat.casting = true
+            gm.state.combat.activeSpell = 'fireball'
+            break
+        case 'Digit3':
+            gm.state.combat.casting = true
+            gm.state.combat.activeSpell = 'ice_bolt'
+            break
+        case 'Digit4':
+            gm.state.combat.casting = true
+            gm.state.combat.activeSpell = 'thunderbolt'
+            break
         default:
             return
         }

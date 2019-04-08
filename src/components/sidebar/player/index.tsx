@@ -36,11 +36,11 @@ export default class Player extends Component<{ game?: GameStore }> {
                 bag.push(
                     <Gear item={{ ...player.inventory[key], bag: true }} />)
             }
-            // for (const key in player.skills) {
-            //     const s = player.skills[key]
-            //     skills.push(
-            //         <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
-            // }
+            for (const key in player.skills) {
+                const s = player.skills[key]
+                skills.push(
+                    <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
+            }
             const activeSpell = gs.combat.activeSpell
             for (const key in player.spells) {
                 const s = player.spells[key]
@@ -55,7 +55,7 @@ export default class Player extends Component<{ game?: GameStore }> {
             // combatInfo.push(<p class={style.invItem}>waiting: {ci.waiting.toString()}</p>)
             // combatInfo.push(<p class={style.invItem}>turn: {ci.turn}</p>)
             combatInfo.push(<p class={style.invItem}>combatants:</p>)
-            gs.combatants.forEach((c, i) => {
+            gs.combatants.forEach((c: any) => {
                 const actor = c.isPlayer ?  gs.players.get(c.id) : gs.npcs.get(c.id)
                 if (!actor) return
                 combatInfo.push(
@@ -74,8 +74,8 @@ export default class Player extends Component<{ game?: GameStore }> {
                 <ToggleSection title="stats">{stats}</ToggleSection>
                 <ToggleSection title="equipped" open={true}>{equipped}</ToggleSection>
                 <ToggleSection title="bag">{bag}</ToggleSection>
-                {/* <ToggleSection title="skills">{skills}</ToggleSection> */}
-                <ToggleSection title="spells">{spells}</ToggleSection>
+                <ToggleSection title="skills">{skills}</ToggleSection>
+                {/* <ToggleSection title="spells">{spells}</ToggleSection> */}
                 {combatInfo}
             </div >
         )
