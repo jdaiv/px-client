@@ -15,7 +15,7 @@ export default class Lightning implements IEffect {
             dampening: vec3.fromValues(0.8, 0.8, 0.8),
             gravity: vec3.fromValues(0, 0, 0),
             velocity: [10, 20],
-            size: [0.5, 1],
+            size: [4, 8],
             lifetime: [0.25, 0.5],
             color: [50, 0, 128, 255],
             spread: 10,

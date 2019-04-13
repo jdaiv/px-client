@@ -44,10 +44,20 @@ export default class Effects {
     }
 
     public handleEffect = (data: any) => {
-        if (this.effects.has(data.type)) {
-            const effect = this.effects.get(data.type).run(data)
-            this.runningEffects.set(effect, true)
-            // effect.next()
+        if (data.single) {
+            if (this.effects.has(data.type)) {
+                const effect = this.effects.get(data.type).run(data)
+                this.runningEffects.set(effect, true)
+                // effect.next()
+            }
+        } else {
+            data.effects.forEach(eff => {
+                if (this.effects.has(eff.effect)) {
+                    const effect = this.effects.get(eff.effect).run(eff)
+                    this.runningEffects.set(effect, true)
+                    // effect.next()
+                }
+            })
         }
     }
 

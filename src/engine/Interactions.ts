@@ -54,8 +54,6 @@ export default class Interactions {
     }
 
     public run(ray: IRay) {
-        console.log(this.count)
-
         let depth = Infinity
         let item: IUsable = null
 

@@ -15,7 +15,7 @@ export default class Shock implements IEffect {
             dampening: vec3.fromValues(0.8, 1, 0.8),
             gravity: vec3.fromValues(0, -200, 0),
             velocity: [10, 20],
-            size: [0.5, 1],
+            size: [4, 8],
             lifetime: [0.1, 0.5],
             color: [50, 0, 128, 255],
             spread: 0.2,
@@ -29,7 +29,7 @@ export default class Shock implements IEffect {
 
     public * run(params: any) {
         let t = 0
-        const target = vec3.fromValues(params.x * TILE_SIZE, 0, params.y * TILE_SIZE)
+        const target = vec3.fromValues(params.targetX * TILE_SIZE, 0, params.targetY * TILE_SIZE)
 
         vec3.copy(this.emitter.position, target)
         while (t < 5) {

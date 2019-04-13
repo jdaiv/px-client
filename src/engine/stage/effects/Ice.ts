@@ -15,7 +15,7 @@ export default class Ice implements IEffect {
             dampening: vec3.fromValues(1, 1, 1),
             gravity: vec3.fromValues(0, 0, 0),
             velocity: [0, 0],
-            size: [0.5, 1],
+            size: [6, 12],
             lifetime: [1, 3],
             color: [20, 255, 255, 255],
             spread: 10,
@@ -28,7 +28,7 @@ export default class Ice implements IEffect {
 
     public * run(params: any) {
         let t = 0
-        const target = vec3.fromValues(params.x * TILE_SIZE, 2, params.y * TILE_SIZE)
+        const target = vec3.fromValues(params.targetX * TILE_SIZE, 2, params.targetY * TILE_SIZE)
 
         vec3.copy(this.emitter.position, target)
         while (t < 25) {

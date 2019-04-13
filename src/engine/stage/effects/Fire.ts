@@ -15,7 +15,7 @@ export default class Fire implements IEffect {
             dampening: vec3.fromValues(0.1, 0.6, 0.1),
             gravity: vec3.fromValues(0, 20, 0),
             velocity: [0, 80],
-            size: [2, 4],
+            size: [4, 8],
             lifetime: [0.5, 3],
             color: [255, 100, 0, 255],
             spread: 1,
@@ -28,7 +28,7 @@ export default class Fire implements IEffect {
 
     public * run(params: any) {
         let t = 0
-        const target = vec3.fromValues(params.x * TILE_SIZE, -2, params.y * TILE_SIZE)
+        const target = vec3.fromValues(params.targetX * TILE_SIZE, -2, params.targetY * TILE_SIZE)
 
         vec3.copy(this.emitter.position, target)
         this.emitter.velocity[1] = 80
