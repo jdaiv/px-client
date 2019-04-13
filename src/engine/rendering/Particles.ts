@@ -12,10 +12,10 @@ import pThinkVS from './shaders/particle_think.vs'
 import { TILE_SIZE } from './Terrain'
 import { gl } from './Video'
 
-const MAX_NEW_PARTICLES = 10000
-const TEX_SIZE = 2048
-export const PARTICLE_SIZE = 32
+const TEX_SIZE = 256
+export const PARTICLE_SIZE = 8
 const MAX_PARTICLES = TEX_SIZE * TEX_SIZE / PARTICLE_SIZE
+const MAX_NEW_PARTICLES = 10000
 
 interface IParticle {
     gravity: vec3
@@ -49,7 +49,7 @@ export default class Particles {
     public activeParticles = 0
     public offset = 0
     public newBuffer: Float32Array
-    public newPointBuffer: Float32Array
+    public newPointBuffer: Int32Array
 
     public glBuffer: WebGLBuffer
     public glNewBuffer: WebGLBuffer
@@ -104,14 +104,15 @@ export default class Particles {
     }
 
     private makeBuffers() {
-        this.newPointBuffer = new Float32Array(TEX_SIZE * TEX_SIZE)
-        this.newBuffer = new Float32Array(MAX_NEW_PARTICLES * PARTICLE_SIZE)
+        this.newPointBuffer = new Int32Array(TEX_SIZE * TEX_SIZE * 2)
+        this.newBuffer = new Float32Array(MAX_NEW_PARTICLES * PARTICLE_SIZE * 4)
 
         const border = 0
         for (let x = border; x < TEX_SIZE - border; x++) {
             for (let y = border; y < TEX_SIZE - border; y++) {
                 const idx = y * TILE_SIZE + x
-                this.newPointBuffer[idx] = idx
+                this.newPointBuffer[idx] = x
+                this.newPointBuffer[idx + 1] = y
             }
         }
 
@@ -132,32 +133,25 @@ export default class Particles {
     }
 
     public makeTexture(w: number, h: number) {
-        const blankTexture = new Uint8Array(w * h * 4)
-        for (let i = 0; i < w * h; i++) {
-            const idx = i * 4
-            blankTexture[idx + 0] = 125
-            blankTexture[idx + 1] = 125
-            blankTexture[idx + 2] = 0
-            blankTexture[idx + 3] = 0
-        }
+        const blankTexture = new Float32Array(w * h * 4)
 
         gl.bindTexture(gl.TEXTURE_2D, this.textureOne)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F,
             w, h,
-            0, gl.RGBA, gl.UNSIGNED_BYTE, blankTexture)
+            0, gl.RGBA, gl.FLOAT, blankTexture)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 
         gl.bindTexture(gl.TEXTURE_2D, this.textureTwo)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F,
             w, h,
-            0, gl.RGBA, gl.UNSIGNED_BYTE, blankTexture)
+            0, gl.RGBA, gl.FLOAT, blankTexture)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     }
 
     public newEmitter(opts: IEmitterOpts): Emitter {
@@ -165,38 +159,56 @@ export default class Particles {
     }
 
     public getParticle(): IParticle {
+        if (this.activeParticles >= MAX_NEW_PARTICLES) {
+            this.activeParticles = 0
+        }
         return this.particles[this.activeParticles++]
     }
 
     public draw(data: any, fbo: GLFBO) {
         for (let i = 0; i < this.activeParticles; i++) {
             const p = this.particles[i]
-            const offset = i * PARTICLE_SIZE
-            this.newBuffer[offset + 0] =    p.gravity[0]
-            this.newBuffer[offset + 1] =    p.gravity[1]
-            this.newBuffer[offset + 2] =    p.gravity[2]
-            this.newBuffer[offset + 3] =    p.dampening[0]
-            this.newBuffer[offset + 4] =    p.dampening[1]
-            this.newBuffer[offset + 5] =    p.dampening[2]
-            this.newBuffer[offset + 6] =    p.position[0]
-            this.newBuffer[offset + 7] =    p.position[1]
-            this.newBuffer[offset + 8] =    p.position[2]
-            this.newBuffer[offset + 9] =    p.velocity[0]
-            this.newBuffer[offset + 10] =   p.velocity[1]
-            this.newBuffer[offset + 11] =   p.velocity[2]
-            this.newBuffer[offset + 12] =   p.startSize
-            this.newBuffer[offset + 13] =   p.size
-            this.newBuffer[offset + 14] =   p.color[0] / 255
-            this.newBuffer[offset + 15] =   p.color[1] / 255
-            this.newBuffer[offset + 16] =   p.color[2] / 255
-            this.newBuffer[offset + 17] =   p.color[3] / 255
-            this.newBuffer[offset + 18] =   p.lifetime
-            this.newBuffer[offset + 19] =   p.life
-            this.newBuffer[offset + 20] =   p.bounce
-            this.newBuffer[offset + 21] =   p.fadeTime
-            for (let j = 22; j < 32; j++) {
-                this.newBuffer[offset + j] = Math.random() * 10000
-            }
+            const offset = i * PARTICLE_SIZE * 4
+            // slot 0
+            this.newBuffer[offset + 0] =     p.lifetime
+            this.newBuffer[offset + 1] =     p.life
+            this.newBuffer[offset + 2] =     p.startSize
+            this.newBuffer[offset + 3] =     p.size
+            // slot 1
+            this.newBuffer[offset + 4] =     p.gravity[0]
+            this.newBuffer[offset + 5] =     p.gravity[1]
+            this.newBuffer[offset + 6] =     p.gravity[2]
+            this.newBuffer[offset + 7] =     0
+            // slot 2
+            this.newBuffer[offset + 8] =     p.dampening[0]
+            this.newBuffer[offset + 9] =     p.dampening[1]
+            this.newBuffer[offset + 10] =    p.dampening[2]
+            this.newBuffer[offset + 11] =    0
+            // slot 3
+            this.newBuffer[offset + 12] =    p.position[0]
+            this.newBuffer[offset + 13] =    p.position[1]
+            this.newBuffer[offset + 14] =    p.position[2]
+            this.newBuffer[offset + 15] =    1
+            // slot 4
+            this.newBuffer[offset + 16] =    p.velocity[0]
+            this.newBuffer[offset + 17] =    p.velocity[1]
+            this.newBuffer[offset + 18] =    p.velocity[2]
+            this.newBuffer[offset + 19] =    0
+            // slot 5
+            this.newBuffer[offset + 20] =    p.color[0]
+            this.newBuffer[offset + 21] =    p.color[1]
+            this.newBuffer[offset + 22] =    p.color[2]
+            this.newBuffer[offset + 23] =    p.color[3]
+            // slot 6
+            this.newBuffer[offset + 24] =    p.bounce
+            this.newBuffer[offset + 25] =    p.fadeTime
+            this.newBuffer[offset + 26] =    Math.random() * 10000
+            this.newBuffer[offset + 27] =    Math.random() * 10000
+            // slot 7
+            this.newBuffer[offset + 28] =    Math.random() * 10000
+            this.newBuffer[offset + 29] =    Math.random() * 10000
+            this.newBuffer[offset + 30] =    Math.random() * 10000
+            this.newBuffer[offset + 31] =    Math.random() * 10000
         }
 
         gl.viewport(0, 0, TEX_SIZE, TEX_SIZE)
@@ -238,8 +250,8 @@ export default class Particles {
             this.thinkMaterial.setTexture(this.textureOne)
         }
         cT.setGlobalUniforms(TEX_SIZE, data.dt)
-        cT.bindMesh(this.mesh)
-        cT.draw(6)
+        cT.bindParticlePoints(this.glNewPointBuffer)
+        cT.draw(MAX_PARTICLES)
         cT.end()
 
         gl.viewport(0, 0, data.width, data.height)

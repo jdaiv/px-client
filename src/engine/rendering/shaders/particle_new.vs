@@ -1,12 +1,14 @@
+#version 300 es
+
 precision mediump float;
 
 uniform float uTexSize;
 uniform float uOffset;
 
-attribute float aPoint;
-attribute highp float aData;
+in ivec2 aPoint;
+in highp vec4 aData;
 
-varying highp float vData;
+out highp vec4 vData;
 
 vec2 map(vec2 s, float a1, float a2, float b1, float b2) {
     return vec2(
@@ -16,9 +18,8 @@ vec2 map(vec2 s, float a1, float a2, float b1, float b2) {
 }
 
 void main() {
-    float index = mod(floor(aPoint + uOffset), uTexSize * uTexSize);
     vec2 coords = map(
-        vec2(mod(index, uTexSize) + 0.5, floor(index / uTexSize) + 0.5),
+        vec2(aPoint) + vec2(0.5),
         0.0, uTexSize, -1.0, 1.0
     );
     gl_Position = vec4(coords, 0.0, 1.0);

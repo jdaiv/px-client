@@ -38,15 +38,15 @@ export class ParticleCreateMaterial {
 
     public bindParticlePoints(buf: WebGLBuffer) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-        gl.vertexAttribPointer(this.pointLoc, 1, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray(this.pointLoc)
+        gl.vertexAttribIPointer(this.pointLoc, 2, gl.INT, 0, 0)
     }
 
     public bindParticleData(buf: WebGLBuffer, data: Float32Array) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
         gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW)
-        gl.vertexAttribPointer(this.particleDataLoc, 1, gl.FLOAT, false, 4, 0)
         gl.enableVertexAttribArray(this.particleDataLoc)
+        gl.vertexAttribPointer(this.particleDataLoc, 4, gl.FLOAT, false, 0, 0)
     }
 
     public draw(num: number) {
@@ -59,21 +59,19 @@ export class ParticleThinkMaterial {
 
     private shader: Shader
 
-    private vertexPosLoc: number
-    private vertexUvLoc: number
     private timeLoc: WebGLUniformLocation
     private texSizeLoc: WebGLUniformLocation
     private textureOneLoc: WebGLUniformLocation
+    private pointLoc: number
 
     constructor(vs: string, fs: string) {
         this.shader = new Shader(vs, fs)
         const prog = this.shader.program
 
-        this.vertexPosLoc = gl.getAttribLocation(prog, 'aVertexPosition')
-        this.vertexUvLoc = gl.getAttribLocation(prog, 'aTextureCoord')
         this.timeLoc = gl.getUniformLocation(prog, 'uTime')
         this.texSizeLoc = gl.getUniformLocation(prog, 'uTexSize')
         this.textureOneLoc = gl.getUniformLocation(prog, 'uTexture')
+        this.pointLoc = gl.getAttribLocation(prog, 'aPoint')
     }
 
     public use() {
@@ -81,8 +79,7 @@ export class ParticleThinkMaterial {
     }
 
     public end() {
-        gl.disableVertexAttribArray(this.vertexPosLoc)
-        gl.disableVertexAttribArray(this.vertexUvLoc)
+        gl.disableVertexAttribArray(this.pointLoc)
     }
 
     public setGlobalUniforms(size: number, dt: number) {
@@ -90,13 +87,10 @@ export class ParticleThinkMaterial {
         gl.uniform1f(this.timeLoc, dt)
     }
 
-    public bindMesh(mesh: GLMesh) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertBuffer)
-        gl.vertexAttribPointer(this.vertexPosLoc, 3, gl.FLOAT, false, 0, 0)
-        gl.enableVertexAttribArray(this.vertexPosLoc)
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvsBuffer)
-        gl.vertexAttribPointer(this.vertexUvLoc, 2, gl.FLOAT, false, 0, 0)
-        gl.enableVertexAttribArray(this.vertexUvLoc)
+    public bindParticlePoints(buf: WebGLBuffer) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+        gl.enableVertexAttribArray(this.pointLoc)
+        gl.vertexAttribIPointer(this.pointLoc, 2, gl.INT, 0, 0)
     }
 
     public setTexture(tex: WebGLTexture) {
@@ -106,7 +100,7 @@ export class ParticleThinkMaterial {
     }
 
     public draw(num: number) {
-       gl.drawArrays(gl.TRIANGLES, 0, num)
+       gl.drawArrays(gl.POINTS, 0, num)
     }
 
 }

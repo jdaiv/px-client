@@ -9,13 +9,13 @@ export default class Shader {
     private vsSource: string
     private fsSource: string
 
-    constructor(vs: string, fs: string) {
+    constructor(vs: string, fs: string, customLogic?: (WebGLProgram) => void) {
         this.vsSource = vs
         this.fsSource = fs
-        this.linkShader()
+        this.linkShader(customLogic)
     }
 
-    public linkShader() {
+    public linkShader(customLogic?: (WebGLProgram) => void) {
         this.vs = this.load(gl.VERTEX_SHADER, this.vsSource)
         this.fs = this.load(gl.FRAGMENT_SHADER, this.fsSource)
 
@@ -26,6 +26,11 @@ export default class Shader {
         this.program = gl.createProgram()
         gl.attachShader(this.program, this.vs)
         gl.attachShader(this.program, this.fs)
+
+        if (customLogic) {
+            customLogic(this.program)
+        }
+
         gl.linkProgram(this.program)
 
         if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {

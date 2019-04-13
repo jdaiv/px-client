@@ -1,7 +1,10 @@
+#version 300 es
+
 precision highp float;
 
-varying vec4 particleColor;
+in vec4 particleColor;
+out vec4 color;
 
 void main() {
-    gl_FragColor = particleColor;
+    color = particleColor;
 }

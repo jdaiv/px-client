@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@types/gl-matrix": "^2.4.5",
+    "@types/webgl2": "^0.0.4",
     "gl-matrix": "^3.0.0",
     "mobx": "^5.9.0",
     "mobx-preact": "^3.0.0",

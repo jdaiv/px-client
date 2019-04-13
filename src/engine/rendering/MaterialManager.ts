@@ -11,8 +11,6 @@ import postbloomFS from './shaders/post_bloom.fs'
 import postnoneFS from './shaders/post_none.fs'
 import postrainbowsFS from './shaders/post_rainbows.fs'
 import postwobbleFS from './shaders/post_wobble.fs'
-import stencilFS from './shaders/stencil.fs'
-import stencilVS from './shaders/stencil.vs'
 import terrainFS from './shaders/terrain.fs'
 import terrainVS from './shaders/terrain.vs'
 import texturedFS from './shaders/textured.fs'
@@ -37,12 +35,6 @@ const MATERIALS = {
         vs: debugRayVS,
         fs: debugRayFS,
         transform: true,
-    },
-    stencil: {
-        vs: stencilVS,
-        fs: stencilFS,
-        transform: true,
-        manual: true,
     },
     textured: {
         vs: texturedVS,

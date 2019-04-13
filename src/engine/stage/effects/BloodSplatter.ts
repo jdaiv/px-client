@@ -39,7 +39,7 @@ export default class BloodSplatter implements IEffect {
     public * run(params: any) {
         let t = 0
         const pos = vec3.fromValues(params.x * TILE_SIZE, 8, params.y * TILE_SIZE)
-        const numChunks = 10
+        const numChunks = 50
         const chunks = new Array(numChunks)
         const chunksPos = new Array(numChunks)
         for (let i = 0; i < numChunks; i++) {
@@ -80,7 +80,7 @@ export default class BloodSplatter implements IEffect {
                 this.emitter.size[1] = 2 * (1 - duration) + 0.25
                 this.emitter.velocity[0] = -10 * Math.pow(1 - duration, 4) - 2
                 this.emitter.velocity[1] = 10 * Math.pow(1 - duration, 4) + 2
-                this.emitter.emit(20)
+                this.emitter.emit(100)
             })
 
             t++

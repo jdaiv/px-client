@@ -24,11 +24,14 @@ export default class Material {
     private screenSizeLoc: WebGLUniformLocation
 
     private boundMeshIsGLTF = false
+    private vao: WebGLVertexArrayObject
 
     constructor(settings: any) {
         this.settings = settings
         this.shader = new Shader(settings.vs, settings.fs)
         const prog = this.shader.program
+
+        this.vao = gl.createVertexArray()
 
         this.vertexPosLoc = gl.getAttribLocation(prog, 'aVertexPosition')
 
@@ -71,6 +74,7 @@ export default class Material {
             gl.disableVertexAttribArray(this.vertexNormalLoc)
         if (this.settings.textured)
             gl.disableVertexAttribArray(this.vertexUvLoc)
+        gl.bindVertexArray(null)
     }
 
     public setGlobalUniforms(data: any) {
@@ -100,18 +104,19 @@ export default class Material {
     }
 
     public bindMesh(mesh: GLMesh | GLTFMesh, numTris?: number) {
+        gl.bindVertexArray(this.vao)
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertBuffer)
-        gl.vertexAttribPointer(this.vertexPosLoc, 3, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray(this.vertexPosLoc)
+        gl.vertexAttribPointer(this.vertexPosLoc, 3, gl.FLOAT, false, 0, 0)
         if (this.settings.normals) {
             gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer)
-            gl.vertexAttribPointer(this.vertexNormalLoc, 3, gl.FLOAT, true, 0, 0)
             gl.enableVertexAttribArray(this.vertexNormalLoc)
+            gl.vertexAttribPointer(this.vertexNormalLoc, 3, gl.FLOAT, true, 0, 0)
         }
         if (this.settings.textured) {
             gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvsBuffer)
-            gl.vertexAttribPointer(this.vertexUvLoc, 2, gl.FLOAT, false, 0, 0)
             gl.enableVertexAttribArray(this.vertexUvLoc)
+            gl.vertexAttribPointer(this.vertexUvLoc, 2, gl.FLOAT, false, 0, 0)
         }
         this.boundMeshIsGLTF = mesh instanceof GLTFMesh
         if (this.boundMeshIsGLTF) {

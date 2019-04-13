@@ -10,7 +10,7 @@ import Material from './Material'
 let SCALE = 2
 const INIT_QUEUE_SIZE = 16
 
-export let gl: WebGLRenderingContext
+export let gl: WebGL2RenderingContext
 
 type RenderingQueue = Map<string, Map<string, { count: number; array: any[] }>>
 interface ITransform {
@@ -53,9 +53,11 @@ export default class Video {
         this.engine = engine
         this.resources = engine.resources
 
-        gl = this.el.getContext('webgl', {
+        gl = this.el.getContext('webgl2', {
             antialias: false
         })
+
+        gl.getExtension('EXT_color_buffer_float')
 
         gl.enable(gl.DEPTH_TEST)
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
