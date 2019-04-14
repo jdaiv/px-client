@@ -88,7 +88,7 @@ export default class EntityManager {
         const p = this.state.activePlayer
         this.state.npcs.forEach((n, id) => {
             const position = [n.x * TILE_SIZE, 0, n.y * TILE_SIZE]
-            this.engine.v.drawSprite('blob',
+            this.engine.v.drawSprite('skeleton',
                 { position, rotation },
                 'sprite', Math.floor(this.engine.time / 1000) % 2)
             if (Math.abs(n.x - p.x) <= 1 && Math.abs(n.y - p.y) <= 1) {
@@ -170,7 +170,7 @@ export default class EntityManager {
                     this.engine.v.drawSprite('poses', transform, 'sprite', 7)
                     break
                 case 'blob':
-                    this.engine.v.drawSprite('blob', transform, 'sprite', 2)
+                    this.engine.v.drawSprite('skeleton', transform, 'sprite', 2)
                     break
                 }
                 break

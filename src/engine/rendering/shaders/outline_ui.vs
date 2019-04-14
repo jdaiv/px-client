@@ -13,7 +13,7 @@ varying highp vec4 vVertexNormal;
 
 void main() {
     vec4 pos = uVP_Matrix * uM_Matrix * aVertexPosition;
-    float width = 0.15;
+    float width = 0.3;
     gl_Position = uVP_Matrix * uM_Matrix * (aVertexPosition + aVertexNormal * vec4(width, width, width, 0));
     vTextureCoord = aTextureCoord;
     vVertexNormal = aVertexNormal;

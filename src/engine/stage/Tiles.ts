@@ -49,7 +49,7 @@ export default class Tiles {
         this.foamEmitter = engine.particles.newEmitter({
             dampening: vec3.fromValues(0.9, 0.9, 0.9),
             gravity: vec3.fromValues(0, 0, 0),
-            size: [0.1, 0.3],
+            size: [0.5, 1],
             velocity: [0, 0.5],
             lifetime: [5, 10],
             color: [100, 0, 255, 255],
@@ -111,7 +111,7 @@ export default class Tiles {
             this.foamEmitter.position[2] = (gm.state.mapMaxY + gm.state.mapMinY) * TILE_SIZE / 2
             this.foamEmitter.cube[0] = halfW
             this.foamEmitter.cube[2] = halfH
-            this.foamEmitter.emit(10)
+            this.foamEmitter.emit(5)
             this.foamTimer = 0
         }
         this.foamTimer += dt

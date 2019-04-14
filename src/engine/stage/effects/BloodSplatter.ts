@@ -24,9 +24,9 @@ export default class BloodSplatter implements IEffect {
             rotation: vec3.fromValues(0, 0, 90),
         })
         this.splatEmitter = engine.particles.newEmitter({
-            dampening: vec3.fromValues(0.6, 0.6, 0.6),
+            dampening: vec3.fromValues(1, 1, 1),
             gravity: vec3.fromValues(0, -100, 0),
-            velocity: [1, 6],
+            velocity: [2, 10],
             size: [0.5, 1],
             lifetime: [5, 20],
             color: [150, 0, 0, 255],
@@ -39,7 +39,7 @@ export default class BloodSplatter implements IEffect {
     public * run(params: any) {
         let t = 0
         const pos = vec3.fromValues(params.x * TILE_SIZE, 8, params.y * TILE_SIZE)
-        const numChunks = 50
+        const numChunks = 10
         const chunks = new Array(numChunks)
         const chunksPos = new Array(numChunks)
         for (let i = 0; i < numChunks; i++) {
@@ -70,17 +70,20 @@ export default class BloodSplatter implements IEffect {
                 vec3.scaleAndAdd(cPos, cPos, x, dt)
                 vec3.copy(this.emitter.position, cPos)
                 if (cPos[1] < 0) {
-                    cPos[1] = 1
-                    x[1] *= -0.5
+                    cPos[1] = 0.1
+                    // x[1] *= -0.5
+                    x[1] = 0
                     vec3.copy(this.splatEmitter.position, cPos)
                     this.splatEmitter.emit(20)
+                } else {
+                    const duration = t / 60
+                    this.emitter.size[0] = 2 * (1 - duration) + 0.25
+                    this.emitter.size[1] = 4 * (1 - duration) + 0.25
+                    this.emitter.velocity[0] = -10 * Math.pow(1 - duration, 4) - 2
+                    this.emitter.velocity[1] = 10 * Math.pow(1 - duration, 4) + 2
+                    this.emitter.color[0] = this.splatEmitter.color[0] = Math.random() * 50 + 20
+                    this.emitter.emit(10)
                 }
-                const duration = t / 60
-                this.emitter.size[0] = 1 * (1 - duration) + 0.25
-                this.emitter.size[1] = 2 * (1 - duration) + 0.25
-                this.emitter.velocity[0] = -10 * Math.pow(1 - duration, 4) - 2
-                this.emitter.velocity[1] = 10 * Math.pow(1 - duration, 4) + 2
-                this.emitter.emit(100)
             })
 
             t++

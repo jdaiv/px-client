@@ -484,7 +484,7 @@ export default class Video {
         this.engine.particles.draw(data, this.fbos[0])
 
         const uiMatrix = mat4.perspective(mat4.create(),
-            35 * Math.PI / 180,
+            50 * Math.PI / 180,
             this.width / this.height,
             0.1, 1000)
 
@@ -503,7 +503,9 @@ export default class Video {
             const mMat = mat4.create()
             const rotation = quat.create()
             const scale = vec3.create()
+            // vec3.add(o.position, o.position, camera.target)
             quat.fromEuler(rotation, o.rotation[0], o.rotation[1], o.rotation[2])
+            // quat.mul(rotation, rotation, camera.rotation)
             vec3.copy(scale, o.scale)
             mat4.fromRotationTranslationScale(mMat, rotation, o.position, scale)
             if (o.animated) {

@@ -2,9 +2,10 @@
 
 precision highp float;
 
+uniform sampler2D uParticleTexture;
 in vec4 particleColor;
 out vec4 color;
 
 void main() {
-    color = particleColor;
+    color = texture(uParticleTexture, gl_PointCoord) * particleColor;
 }

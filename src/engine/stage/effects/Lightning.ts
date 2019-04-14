@@ -12,7 +12,7 @@ export default class Lightning implements IEffect {
     constructor(engine: Engine) {
         this.engine = engine
         this.emitter = engine.particles.newEmitter({
-            dampening: vec3.fromValues(0.8, 0.8, 0.8),
+            dampening: vec3.fromValues(0.8, 1, 0.8),
             gravity: vec3.fromValues(0, 0, 0),
             velocity: [10, 20],
             size: [4, 8],

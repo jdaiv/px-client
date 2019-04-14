@@ -2,8 +2,8 @@
 
 precision mediump float;
 
-uniform float uTexSize;
-uniform float uOffset;
+uniform int uTexSize;
+uniform int uOffset;
 
 in ivec2 aPoint;
 in highp vec4 aData;
@@ -18,9 +18,10 @@ vec2 map(vec2 s, float a1, float a2, float b1, float b2) {
 }
 
 void main() {
+    int idx = (aPoint.x + aPoint.y * uTexSize + uOffset) % (uTexSize * uTexSize);
     vec2 coords = map(
-        vec2(aPoint) + vec2(0.5),
-        0.0, uTexSize, -1.0, 1.0
+        vec2(idx % uTexSize, idx / uTexSize) + vec2(0.5),
+        0.0, float(uTexSize), -1.0, 1.0
     );
     gl_Position = vec4(coords, 0.0, 1.0);
     gl_PointSize = 1.0;

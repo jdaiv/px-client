@@ -3,6 +3,8 @@ import * as spritebinData from './sprites/bin.json'
 import spritebin from '../assets/sprites/bin.png'
 import * as spriteblobData from './sprites/blob.json'
 import spriteblob from '../assets/sprites/blob.png'
+import * as spritecircle8Data from './sprites/circle8.json'
+import spritecircle8 from '../assets/sprites/circle8.png'
 import * as spritecoloredData from './sprites/colored.json'
 import spritecolored from '../assets/sprites/colored.png'
 import * as spritecrosshairData from './sprites/crosshair.json'
@@ -25,6 +27,8 @@ import * as spritepaletteData from './sprites/palette.json'
 import spritepalette from '../assets/sprites/palette.png'
 import * as spriteposesData from './sprites/poses.json'
 import spriteposes from '../assets/sprites/poses.png'
+import * as spriteskeletonData from './sprites/skeleton.json'
+import spriteskeleton from '../assets/sprites/skeleton.png'
 import * as spritesmalldisplayleftData from './sprites/small-display-left.json'
 import spritesmalldisplayleft from '../assets/sprites/small-display-left.png'
 import * as spritesmalldisplayrightData from './sprites/small-display-right.json'
@@ -93,6 +97,7 @@ export const MODELS = {
 export const SPRITES = {
     'bin': { file: spritebin, data: spritebinData },
     'blob': { file: spriteblob, data: spriteblobData },
+    'circle8': { file: spritecircle8, data: spritecircle8Data },
     'colored': { file: spritecolored, data: spritecoloredData },
     'crosshair': { file: spritecrosshair, data: spritecrosshairData },
     'emotes': { file: spriteemotes, data: spriteemotesData },
@@ -104,6 +109,7 @@ export const SPRITES = {
     'loading': { file: spriteloading, data: spriteloadingData },
     'palette': { file: spritepalette, data: spritepaletteData },
     'poses': { file: spriteposes, data: spriteposesData },
+    'skeleton': { file: spriteskeleton, data: spriteskeletonData },
     'small-display-left': { file: spritesmalldisplayleft, data: spritesmalldisplayleftData },
     'small-display-right': { file: spritesmalldisplayright, data: spritesmalldisplayrightData },
     'small-display': { file: spritesmalldisplay, data: spritesmalldisplayData },

@@ -37,21 +37,27 @@ void main() {
                 break;
             case 3: // position
                 value += velocity * uTime;
+                if (value.y < 0.0 && bounce >= 0.0) {
+                    value.y = 0.0;
+                }
                 break;
             case 4: // velocity
                 vec4 gravity = getSlot(slot, 1);
                 vec4 dampening = getSlot(slot, 2);
                 value += gravity * uTime;
+                value -= velocity * ((1.0 - dampening) * uTime * 10.0);
+                if (bounce >= 0.0 && position.y <= 0.0) {
+                    value *= vec4(bounce, -bounce, bounce, 1);
+                }
                 break;
             case 5: // color
-                value.a = (currentLife / lifeTime) * 255.0;
+                value.a = mix(0.0, 1.0, currentLife / lifeTime) *
+                    1.0 - smoothstep(lifeTime - lifeTime * fadeTime, lifeTime, currentLife);
                 break;
         }
         // if (slot > 8.0 && slot < 12.0) {
         //     value = (value + (getSlot(base, slot - 9.0) * uTime) - value * ((1.0 - getSlot(base, slot - 6.0)) * uTime * 10.0));
-        //     if (bounce >= 0.0 && yPos <= 0.1) {
-        //         value *= slot == 10.0 ? -bounce : bounce;
-        //     }
+
         // } else if (slot > 5.0 && slot < 9.0) {
         //     value = value + getSlot(base, slot + 3.0) * uTime;
         //     if (bounce >= 0.0 && slot == 7.0 && value < 0.0) {

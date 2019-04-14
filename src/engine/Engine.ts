@@ -42,7 +42,7 @@ export default class Engine {
                 this,
                 this.materials.get('terrain'),
                 this.resources.sprites.get('terrain'))
-            this.particles = new Particles()
+            this.particles = new Particles(this)
             this.v.initQueue()
             this.stage = new Stage(this)
             this.start()

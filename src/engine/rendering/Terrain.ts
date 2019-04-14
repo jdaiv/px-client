@@ -246,6 +246,7 @@ export default class Terrain {
         m.bindMesh(this.waterMesh)
         m.preDraw()
         gl.enable(gl.BLEND)
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         gl.depthMask(false)
         mat4.fromTranslation(this.transform, [0, -14, 0])
         for (let i = 0; i < 24; i++) {

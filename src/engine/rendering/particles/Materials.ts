@@ -1,5 +1,4 @@
 import { mat4 } from 'gl-matrix'
-import GLMesh from '../GLMesh'
 import Shader from '../Shader'
 import { gl } from '../Video'
 
@@ -32,8 +31,8 @@ export class ParticleCreateMaterial {
     }
 
     public setGlobalUniforms(size: number, offset: number) {
-        gl.uniform1f(this.texSizeLoc, size)
-        gl.uniform1f(this.offsetLoc, offset)
+        gl.uniform1i(this.texSizeLoc, size)
+        gl.uniform1i(this.offsetLoc, offset)
     }
 
     public bindParticlePoints(buf: WebGLBuffer) {
@@ -113,6 +112,7 @@ export class ParticleDrawMaterial {
     private pointLoc: number
     private texSizeLoc: WebGLUniformLocation
     private textureOneLoc: WebGLUniformLocation
+    private textureTwoLoc: WebGLUniformLocation
 
     constructor(vs: string, fs: string) {
         this.shader = new Shader(vs, fs)
@@ -122,6 +122,7 @@ export class ParticleDrawMaterial {
         this.vpMatLoc = gl.getUniformLocation(prog, 'uVP_Matrix')
         this.texSizeLoc = gl.getUniformLocation(prog, 'uTexSize')
         this.textureOneLoc = gl.getUniformLocation(prog, 'uTexture')
+        this.textureTwoLoc = gl.getUniformLocation(prog, 'uParticleTexture')
     }
 
     public use() {
@@ -139,14 +140,20 @@ export class ParticleDrawMaterial {
 
     public bindParticlePoints(buf: WebGLBuffer) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-        gl.vertexAttribPointer(this.pointLoc, 1, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray(this.pointLoc)
+        gl.vertexAttribIPointer(this.pointLoc, 2, gl.INT, 0, 0)
     }
 
     public setTexture(tex: WebGLTexture) {
         gl.activeTexture(gl.TEXTURE0)
         gl.bindTexture(gl.TEXTURE_2D, tex)
         gl.uniform1i(this.textureOneLoc, 0)
+    }
+
+    public setParticleTexture(tex: WebGLTexture) {
+        gl.activeTexture(gl.TEXTURE1)
+        gl.bindTexture(gl.TEXTURE_2D, tex)
+        gl.uniform1i(this.textureTwoLoc, 1)
     }
 
     public draw(num: number) {
