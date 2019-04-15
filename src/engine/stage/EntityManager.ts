@@ -94,9 +94,9 @@ export default class EntityManager {
             if (Math.abs(n.x - p.x) <= 1 && Math.abs(n.y - p.y) <= 1) {
                 const aabb = {
                     min: vec3.sub(vec3.create(), position,
-                        [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF]),
+                        [TILE_SIZE_HALF, TILE_SIZE * 2, TILE_SIZE_HALF]),
                     max: vec3.add(vec3.create(), position,
-                        [TILE_SIZE_HALF, TILE_SIZE_HALF, TILE_SIZE_HALF])
+                        [TILE_SIZE_HALF, TILE_SIZE * 2, TILE_SIZE_HALF])
                 }
                 this.engine.interactions.addItem(
                     aabb,

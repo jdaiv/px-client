@@ -17,6 +17,8 @@ import * as spritefacesData from './sprites/faces.json'
 import spritefaces from '../assets/sprites/faces.png'
 import * as spritefireballData from './sprites/fireball.json'
 import spritefireball from '../assets/sprites/fireball.png'
+import * as spritehandData from './sprites/hand.json'
+import spritehand from '../assets/sprites/hand.png'
 import * as spriteiceboltData from './sprites/icebolt.json'
 import spriteicebolt from '../assets/sprites/icebolt.png'
 import * as spriteitembagData from './sprites/item-bag.json'
@@ -70,6 +72,7 @@ import modelhandgltfData from '../assets/models/hand.gltf.json'
 import modelhandcastgltfData from '../assets/models/hand_cast.gltf.json'
 import modelhousegltfData from '../assets/models/house.gltf.json'
 import modelitemspawnergltfData from '../assets/models/item_spawner.gltf.json'
+import modelnewhandgltfData from '../assets/models/newhand.gltf.json'
 import modelquadgltfData from '../assets/models/quad.gltf.json'
 import modelrocksgltfData from '../assets/models/rocks.gltf.json'
 import modelsigngltfData from '../assets/models/sign.gltf.json'
@@ -87,6 +90,7 @@ export const MODELS = {
     'hand_cast.gltf': modelhandcastgltfData,
     'house.gltf': modelhousegltfData,
     'item_spawner.gltf': modelitemspawnergltfData,
+    'newhand.gltf': modelnewhandgltfData,
     'quad.gltf': modelquadgltfData,
     'rocks.gltf': modelrocksgltfData,
     'sign.gltf': modelsigngltfData,
@@ -104,6 +108,7 @@ export const SPRITES = {
     'error': { file: spriteerror, data: spriteerrorData },
     'faces': { file: spritefaces, data: spritefacesData },
     'fireball': { file: spritefireball, data: spritefireballData },
+    'hand': { file: spritehand, data: spritehandData },
     'icebolt': { file: spriteicebolt, data: spriteiceboltData },
     'item-bag': { file: spriteitembag, data: spriteitembagData },
     'loading': { file: spriteloading, data: spriteloadingData },
