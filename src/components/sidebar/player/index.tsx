@@ -39,7 +39,7 @@ export default class Player extends Component<{ game?: GameStore }> {
             for (const key in player.skills) {
                 const s = player.skills[key]
                 skills.push(
-                    <StatBar label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
+                    <StatBar color={[0, 255, 0]} label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
             }
             const activeSpell = gs.combat.activeSpell
             for (const key in player.spells) {
