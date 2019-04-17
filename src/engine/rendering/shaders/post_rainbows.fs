@@ -1,19 +1,13 @@
+#version 300 es
+
 precision highp float;
 
 uniform highp float uTime;
 uniform vec4 uColor;
 uniform sampler2D uSampler;
-uniform mediump vec2 uScreenSize;
+uniform sampler2D uSamplerTwo;
 
-varying highp vec2 vTextureCoord;
-
-vec2 getScreenCoords(vec2 uv) {
-    return vec2(uv.x, uv.y) * uScreenSize;
-}
-
-vec2 getUV(vec2 screenCoord) {
-    return screenCoord /  uScreenSize;
-}
+out vec4 color;
 
 vec4 processColor(vec2 coords, vec4 color) {
     if (color.w >= 0.0 && length(color.xyz) > 0.0) {
@@ -25,10 +19,7 @@ vec4 processColor(vec2 coords, vec4 color) {
 }
 
 void main() {
-    vec2 screenCoords = getScreenCoords(vTextureCoord);
-    vec4 color = texture2D(uSampler, vTextureCoord);
+    color = texelFetch(uSamplerTwo, ivec2(gl_FragCoord), 0);
 
-    color = processColor(screenCoords, color);
-
-    gl_FragColor = color;
+    // color = processColor(screenCoords, color);
 }

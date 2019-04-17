@@ -68,7 +68,7 @@ export default class Video {
             // 'post_rainbows',
             // 'post_wobble',
             'post_bloom',
-            // 'post_none',
+            'post_none',
         ]
 
         this.resize = this.resize.bind(this)

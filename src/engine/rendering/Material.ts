@@ -18,10 +18,10 @@ export default class Material {
     private vpMatLoc: WebGLUniformLocation
     private mMatLoc: WebGLUniformLocation
     private textureOneLoc: WebGLUniformLocation
+    private textureTwoLoc: WebGLUniformLocation
     private spriteDataLoc: WebGLUniformLocation
     private colorLoc: WebGLUniformLocation
     private timeLoc: WebGLUniformLocation
-    private screenSizeLoc: WebGLUniformLocation
 
     private boundMeshIsGLTF = false
     private vao: WebGLVertexArrayObject
@@ -34,33 +34,15 @@ export default class Material {
         this.vao = gl.createVertexArray()
 
         this.vertexPosLoc = gl.getAttribLocation(prog, 'aVertexPosition')
-
-        if (settings.normals)
-            this.vertexNormalLoc = gl.getAttribLocation(prog, 'aVertexNormal')
-
-        if (settings.transform) {
-            this.vpMatLoc = gl.getUniformLocation(prog, 'uVP_Matrix')
-            this.mMatLoc = gl.getUniformLocation(prog, 'uM_Matrix')
-        }
-
-        if (settings.textured) {
-            this.vertexUvLoc = gl.getAttribLocation(prog, 'aTextureCoord')
-            this.textureOneLoc = gl.getUniformLocation(prog, 'uSampler')
-        }
-
-        if (settings.spriteData) {
-            this.spriteDataLoc = gl.getUniformLocation(prog, 'uSpriteData')
-        }
-
-        if (settings.color) {
-            this.colorLoc = gl.getUniformLocation(prog, 'uColor')
-        }
-
-        if (settings.time)
-            this.timeLoc = gl.getUniformLocation(prog, 'uTime')
-
-        if (settings.screenSize)
-            this.screenSizeLoc = gl.getUniformLocation(prog, 'uScreenSize')
+        this.vertexNormalLoc = gl.getAttribLocation(prog, 'aVertexNormal')
+        this.vpMatLoc = gl.getUniformLocation(prog, 'uVP_Matrix')
+        this.mMatLoc = gl.getUniformLocation(prog, 'uM_Matrix')
+        this.vertexUvLoc = gl.getAttribLocation(prog, 'aTextureCoord')
+        this.textureOneLoc = gl.getUniformLocation(prog, 'uSampler')
+        this.textureTwoLoc = gl.getUniformLocation(prog, 'uSamplerTwo')
+        this.spriteDataLoc = gl.getUniformLocation(prog, 'uSpriteData')
+        this.colorLoc = gl.getUniformLocation(prog, 'uColor')
+        this.timeLoc = gl.getUniformLocation(prog, 'uTime')
 
     }
 
@@ -69,51 +51,52 @@ export default class Material {
     }
 
     public end() {
-        gl.disableVertexAttribArray(this.vertexPosLoc)
-        if (this.settings.normals)
-            gl.disableVertexAttribArray(this.vertexNormalLoc)
-        if (this.settings.textured)
-            gl.disableVertexAttribArray(this.vertexUvLoc)
+        if (this.vertexPosLoc >= 0) gl.disableVertexAttribArray(this.vertexPosLoc)
+        if (this.vertexNormalLoc >= 0) gl.disableVertexAttribArray(this.vertexNormalLoc)
+        if (this.vertexUvLoc >= 0) gl.disableVertexAttribArray(this.vertexUvLoc)
         gl.bindVertexArray(null)
     }
 
     public setGlobalUniforms(data: any) {
-        if (this.settings.transform)
-            gl.uniformMatrix4fv(this.vpMatLoc, false, data.vpMatrix)
-        if (this.settings.time)
-            gl.uniform1f(this.timeLoc, data.time)
-        if (this.settings.screenSize)
-            gl.uniform2f(this.screenSizeLoc, data.width, data.height)
+        if (this.vpMatLoc != null) gl.uniformMatrix4fv(this.vpMatLoc, false, data.vpMatrix)
+        if (this.timeLoc != null) gl.uniform1f(this.timeLoc, data.time)
     }
 
     public setMeshUniforms(mMatrix: mat4, spriteData?: vec2, color?: vec4) {
-        if (this.settings.transform)
-            gl.uniformMatrix4fv(this.mMatLoc, false, mMatrix)
-        if (this.settings.spriteData)
-            gl.uniform2fv(this.spriteDataLoc, spriteData)
-        if (this.settings.color)
-            gl.uniform4fv(this.colorLoc, color)
+        if (this.mMatLoc != null) gl.uniformMatrix4fv(this.mMatLoc, false, mMatrix)
+        if (this.spriteDataLoc != null) gl.uniform2fv(this.spriteDataLoc, spriteData)
+        if (this.colorLoc != null) gl.uniform4fv(this.colorLoc, color)
     }
 
     public setTexture(tex: WebGLTexture) {
-        if (this.settings.textured) {
+        if (this.textureOneLoc != null) {
             gl.activeTexture(gl.TEXTURE0)
             gl.bindTexture(gl.TEXTURE_2D, tex)
             gl.uniform1i(this.textureOneLoc, 0)
         }
     }
 
+    public setTextureTwo(tex: WebGLTexture) {
+        if (this.textureTwoLoc != null) {
+            gl.activeTexture(gl.TEXTURE1)
+            gl.bindTexture(gl.TEXTURE_2D, tex)
+            gl.uniform1i(this.textureTwoLoc, 0)
+        }
+    }
+
     public bindMesh(mesh: GLMesh | GLTFMesh, numTris?: number) {
         gl.bindVertexArray(this.vao)
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertBuffer)
-        gl.enableVertexAttribArray(this.vertexPosLoc)
-        gl.vertexAttribPointer(this.vertexPosLoc, 3, gl.FLOAT, false, 0, 0)
-        if (this.settings.normals) {
+        if (this.vertexPosLoc >= 0) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertBuffer)
+            gl.enableVertexAttribArray(this.vertexPosLoc)
+            gl.vertexAttribPointer(this.vertexPosLoc, 3, gl.FLOAT, false, 0, 0)
+        }
+        if (this.vertexNormalLoc >= 0) {
             gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer)
             gl.enableVertexAttribArray(this.vertexNormalLoc)
             gl.vertexAttribPointer(this.vertexNormalLoc, 3, gl.FLOAT, true, 0, 0)
         }
-        if (this.settings.textured) {
+        if (this.vertexUvLoc >= 0) {
             gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvsBuffer)
             gl.enableVertexAttribArray(this.vertexUvLoc)
             gl.vertexAttribPointer(this.vertexUvLoc, 2, gl.FLOAT, false, 0, 0)

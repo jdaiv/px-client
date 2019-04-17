@@ -1,9 +1,12 @@
+#version 300 es
+
 precision highp float;
 
 uniform sampler2D uSampler;
+uniform sampler2D uSamplerTwo;
 
-varying highp vec2 vTextureCoord;
+out vec4 color;
 
 void main() {
-    gl_FragColor = texture2D(uSampler, vTextureCoord);
+    color = texelFetch(uSamplerTwo, ivec2(gl_FragCoord), 0);
 }

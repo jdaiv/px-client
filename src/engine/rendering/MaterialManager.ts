@@ -22,141 +22,61 @@ const MATERIALS = {
     error: {
         vs: errorVS,
         fs: errorFS,
-        transform: true,
-
-        textured: false,
-        normals: false,
-        spriteData: false,
-
-        screenSize: false,
-        time: true,
     },
     debugRay: {
+        manual: true,
         vs: debugRayVS,
         fs: debugRayFS,
-        transform: true,
     },
     textured: {
         vs: texturedVS,
         fs: texturedFS,
-        transform: true,
-
-        textured: true,
-        normals: true,
-        spriteData: true,
-
-        screenSize: false,
-        time: true,
     },
     terrain: {
+        manual: true,
         vs: terrainVS,
         fs: terrainFS,
-        transform: true,
 
-        textured: true,
-        normals: false,
-        spriteData: false,
-
-        screenSize: false,
-        time: true,
-
-        manual: true,
     },
     water: {
+        manual: true,
         vs: waterVS,
         fs: waterFS,
-        transform: true,
-
-        textured: true,
-        screenSize: true,
-        time: true,
-
-        manual: true,
     },
     sprite: {
         vs: texturedVS,
         fs: texturedFS,
-        transform: true,
         cull: 0,
-
-        textured: true,
-        normals: true,
-        spriteData: true,
-
-        screenSize: false,
-        time: true,
     },
     outline: {
         vs: outlineVS,
         fs: outlineFS,
-        transform: true,
         cull: -1,
-
-        textured: true,
-        normals: true,
-
-        screenSize: false,
-        time: false,
     },
     outlineUI: {
         vs: outlineUIVS,
         fs: outlineFS,
-        transform: true,
         cull: -1,
-
-        textured: true,
-        normals: true,
-
-        screenSize: false,
-        time: false,
     },
     post_none: {
         manual: true,
         vs: postVS,
         fs: postnoneFS,
-        transform: false,
-
-        textured: true,
-        normals: false,
-
-        screenSize: false,
-        time: false,
     },
     post_bloom: {
         manual: true,
         vs: postVS,
         fs: postbloomFS,
-        transform: false,
-
-        textured: true,
-        normals: false,
-
-        screenSize: true,
-        time: true,
     },
     post_rainbows: {
         manual: true,
         vs: postVS,
         fs: postrainbowsFS,
-        transform: false,
-
-        textured: true,
-        normals: false,
-
-        screenSize: true,
-        time: true,
     },
     post_wobble: {
         manual: true,
         vs: postVS,
         fs: postwobbleFS,
-        transform: false,
-
-        textured: true,
-        normals: false,
-
-        screenSize: true,
-        time: true,
     },
 }
 
