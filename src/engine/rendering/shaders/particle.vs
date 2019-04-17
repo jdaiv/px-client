@@ -9,6 +9,7 @@ uniform float uTexSize;
 in ivec2 aPoint;
 
 out vec4 particleColor;
+out float size;
 
 vec4 getOffset(float index) {
     return texelFetch(uTexture, aPoint + ivec2(index, 0), 0);
@@ -22,8 +23,9 @@ void main() {
     //     1
     // );
     gl_Position = pos;
-    gl_PointSize = getOffset(0.0).w * abs(200.0 / pos.z);
-    // gl_PointSize = 4.0;
+    size = getOffset(0.0).w * abs(200.0 / pos.z);
+    gl_PointSize = size;
     particleColor = getOffset(5.0);
-    particleColor.rbg *= particleColor.a;
+    particleColor.a *= particleColor.a;
+    // particleColor.rgb *= particleColor.a;
 }

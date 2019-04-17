@@ -1,10 +1,10 @@
 { "frames": {
    "water.aseprite": {
-    "frame": { "x": 0, "y": 0, "w": 256, "h": 256 },
+    "frame": { "x": 0, "y": 0, "w": 1024, "h": 1024 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 256 },
-    "sourceSize": { "w": 256, "h": 256 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 1024, "h": 1024 },
+    "sourceSize": { "w": 1024, "h": 1024 },
     "duration": 100
    }
  },
@@ -13,7 +13,7 @@
   "version": "1.2.9-x64",
   "image": "src/assets/sprites/water.png",
   "format": "RGBA8888",
-  "size": { "w": 256, "h": 256 },
+  "size": { "w": 1024, "h": 1024 },
   "scale": "1"
  }
 }

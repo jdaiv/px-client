@@ -33,12 +33,13 @@ void main() {
         switch (slot) {
             case 0: // time + size
                 value.x -= uTime;
-                value.w = (currentLife / lifeTime) * startSize;
+                value.w = (mix(0.0, 1.0, currentLife / lifeTime) *
+                    1.0 - smoothstep(lifeTime - lifeTime * fadeTime, lifeTime, currentLife)) * startSize;
                 break;
             case 3: // position
                 value += velocity * uTime;
-                if (value.y < 0.0 && bounce >= 0.0) {
-                    value.y = 0.0;
+                if (value.y < 0.01 && bounce >= 0.0) {
+                    value.y = 0.01;
                 }
                 break;
             case 4: // velocity
@@ -46,34 +47,14 @@ void main() {
                 vec4 dampening = getSlot(slot, 2);
                 value += gravity * uTime;
                 value -= velocity * ((1.0 - dampening) * uTime * 10.0);
-                if (bounce >= 0.0 && position.y <= 0.0) {
+                if (bounce >= 0.0 && position.y <= 0.01) {
                     value *= vec4(bounce, -bounce, bounce, 1);
                 }
                 break;
             case 5: // color
-                value.a = mix(0.0, 1.0, currentLife / lifeTime) *
-                    1.0 - smoothstep(lifeTime - lifeTime * fadeTime, lifeTime, currentLife);
+                value.a = (currentLife / lifeTime);
                 break;
         }
-        // if (slot > 8.0 && slot < 12.0) {
-        //     value = (value + (getSlot(base, slot - 9.0) * uTime) - value * ((1.0 - getSlot(base, slot - 6.0)) * uTime * 10.0));
-
-        // } else if (slot > 5.0 && slot < 9.0) {
-        //     value = value + getSlot(base, slot + 3.0) * uTime;
-        //     if (bounce >= 0.0 && slot == 7.0 && value < 0.0) {
-        //         value = 0.0;
-        //     }
-        // } else if (slot == 13.0) {
-        //     value = (
-        //         smoothstep(0.0, life, lifetime) *
-        //         1.0 - smoothstep(life - getSlot(base, 21.0), life, lifetime)
-        //      ) * getSlot(base, 12.0);
-        // } else if (slot == 17.0) {
-        //     value = mix(0.0, 1.0, lifetime / life) *
-        //         1.0 - smoothstep(life - life * getSlot(base, 21.0), life, lifetime);
-        // } else if (slot == 18.0) {
-        //     value -= uTime;
-        // }
     }
 
     color = value;

@@ -80,7 +80,7 @@ export default class Material {
         if (this.textureTwoLoc != null) {
             gl.activeTexture(gl.TEXTURE1)
             gl.bindTexture(gl.TEXTURE_2D, tex)
-            gl.uniform1i(this.textureTwoLoc, 0)
+            gl.uniform1i(this.textureTwoLoc, 1)
         }
     }
 

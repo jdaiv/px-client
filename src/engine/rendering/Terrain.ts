@@ -192,6 +192,8 @@ export default class Terrain {
             }
 
         })
+        start = [-256, -256]
+        end = [512, 512]
         x0 = TILE_SIZE * start[0] + 1 - TILE_SIZE_HALF
         z0 = TILE_SIZE * start[1] + 1 - TILE_SIZE_HALF
         y = 0
@@ -207,8 +209,8 @@ export default class Terrain {
         )
         u0 = 0
         v0 = 0
-        u1 = (TILE_SIZE / this.texWidth * 2) * (end[0] - start[0])
-        v1 = (TILE_SIZE / this.texHeight * 2) * (end[1] - start[1])
+        u1 = (TILE_SIZE / this.texWidth * 8) * (end[0] - start[0])
+        v1 = (TILE_SIZE / this.texHeight * 8) * (end[1] - start[1])
         waterUVs.push(
             u0, v1,
             u0, v0,
@@ -245,15 +247,18 @@ export default class Terrain {
         m.setTexture(this.waterTexture.texture.tex)
         m.bindMesh(this.waterMesh)
         m.preDraw()
+        mat4.fromTranslation(this.transform, [0, -4, 0])
+        m.setMeshUniforms(this.transform)
+        mat4.translate(this.transform, this.transform, [0, 0.5, 0])
+        m.draw()
         gl.enable(gl.BLEND)
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
         gl.depthMask(false)
-        mat4.fromTranslation(this.transform, [0, -14, 0])
-        for (let i = 0; i < 24; i++) {
-            m.setMeshUniforms(this.transform)
-            mat4.translate(this.transform, this.transform, [0, 0.5, 0])
-            m.draw()
-        }
+        // for (let i = 1; i < 24; i++) {
+        //     m.setMeshUniforms(this.transform)
+        //     mat4.translate(this.transform, this.transform, [0, 0.5, 0])
+        //     m.draw()
+        // }
         gl.disable(gl.BLEND)
         gl.depthMask(true)
         m.postDraw()

@@ -67,8 +67,8 @@ export default class Video {
         this.postStack = [
             // 'post_rainbows',
             // 'post_wobble',
-            'post_bloom',
             'post_none',
+            'post_bloom',
         ]
 
         this.resize = this.resize.bind(this)
@@ -489,7 +489,6 @@ export default class Video {
             0.1, 1000)
 
         data.vpMatrix = uiMatrix
-        gl.clear(gl.DEPTH_BUFFER_BIT)
         for (let i = 0; i < this.uiQueue.count; i++) {
             const o = this.uiQueue.array[i]
             const material = materials.get(o.material)
@@ -523,7 +522,6 @@ export default class Video {
         this.postStack.forEach((_, i) => {
             const fbo = this.fbos[i]
             if (i >= this.postStack.length - 1) {
-                gl.bindRenderbuffer(gl.RENDERBUFFER, null)
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null)
             } else {
                 this.fbos[i + 1].bind()

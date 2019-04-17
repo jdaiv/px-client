@@ -22,7 +22,7 @@ export interface IEmitterOpts {
     bounce?: number
     shape?: 'cube' | 'square' | 'sphere' | 'point'
     cube?: vec3
-    rotation?: vec3
+    emitDir?: vec3
     outline?: boolean
     fadeTime?: number
 }
@@ -43,14 +43,9 @@ export default class Emitter implements IEmitterOpts {
     public bounce = -1
     public shape: 'cube' | 'square' | 'sphere' | 'point' = 'point'
     public cube: vec3
+    public emitDir: vec3 = vec3.fromValues(0, 1, 0)
     public outline = false
-    public fadeTime = 0.01
-
-    private angle = quat.create()
-
-    public set rotation(v: vec3) {
-        quat.fromEuler(this.angle, v[0], v[1], v[2])
-    }
+    public fadeTime = 0.05
 
     constructor(particles: Particles, opts: IEmitterOpts) {
         this.particles = particles
@@ -121,10 +116,10 @@ export default class Emitter implements IEmitterOpts {
                 }
                 vec3.add(p.position, p.position, offset)
             }
-            vec3.set(p.velocity, 1, 0, 0)
+            vec3.copy(p.velocity, this.emitDir)
+            vec3.normalize(p.velocity, p.velocity)
             vec3.rotateY(p.velocity, p.velocity, [0, 0, 0], randN(-this.spread, this.spread))
             vec3.rotateZ(p.velocity, p.velocity, [0, 0, 0], randN(-this.spread, this.spread))
-            vec3.transformQuat(p.velocity, p.velocity, this.angle)
             vec3.scale(p.velocity, p.velocity, randN(this.velocity[0], this.velocity[1]))
             p.color[0] = this.color[0]
             p.color[1] = this.color[1]

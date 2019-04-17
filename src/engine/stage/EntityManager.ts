@@ -175,7 +175,7 @@ export default class EntityManager {
                 }
                 break
             case 'item_spawner':
-                this.engine.v.drawMesh(e.type, transform, 'outline', 'colored')
+                // this.engine.v.drawMesh(e.type, transform, 'outline', 'colored')
                 this.engine.v.drawMesh(e.type, transform, 'textured', 'colored')
                 break
             case 'npc_spawner':
@@ -187,7 +187,7 @@ export default class EntityManager {
                 transform.position[0] -= TILE_SIZE / 2
                 transform.position[2] -= TILE_SIZE / 2
             default:
-                this.engine.v.drawMesh(e.type, transform, 'outline', e.type)
+                // this.engine.v.drawMesh(e.type, transform, 'outline', e.type)
                 this.engine.v.drawMesh(e.type, transform, 'textured', e.type)
                 break
             }
