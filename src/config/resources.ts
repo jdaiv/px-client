@@ -31,10 +31,6 @@ import * as spriteposesData from './sprites/poses.json'
 import spriteposes from '../assets/sprites/poses.png'
 import * as spriteskeletonData from './sprites/skeleton.json'
 import spriteskeleton from '../assets/sprites/skeleton.png'
-import * as spritesmalldisplayleftData from './sprites/small-display-left.json'
-import spritesmalldisplayleft from '../assets/sprites/small-display-left.png'
-import * as spritesmalldisplayrightData from './sprites/small-display-right.json'
-import spritesmalldisplayright from '../assets/sprites/small-display-right.png'
 import * as spritesmalldisplayData from './sprites/small-display.json'
 import spritesmalldisplay from '../assets/sprites/small-display.png'
 import * as spritestationdoorData from './sprites/station-door.json'
@@ -115,8 +111,6 @@ export const SPRITES = {
     'palette': { file: spritepalette, data: spritepaletteData },
     'poses': { file: spriteposes, data: spriteposesData },
     'skeleton': { file: spriteskeleton, data: spriteskeletonData },
-    'small-display-left': { file: spritesmalldisplayleft, data: spritesmalldisplayleftData },
-    'small-display-right': { file: spritesmalldisplayright, data: spritesmalldisplayrightData },
     'small-display': { file: spritesmalldisplay, data: spritesmalldisplayData },
     'station-door': { file: spritestationdoor, data: spritestationdoorData },
     'station-posters': { file: spritestationposters, data: spritestationpostersData },

@@ -59,7 +59,7 @@ export default class Tiles {
         })
     }
 
-    private set = (state: GameState, zoneChanged: boolean) => {
+    private set = (state: GameState, zoneChanged: boolean, mapChanged: boolean) => {
         if (zoneChanged) {
             this.trees.clear()
             this.rocks.clear()
@@ -93,14 +93,16 @@ export default class Tiles {
                 this.rocks.delete(i)
             }
         })
-        this.engine.terrain.set(state.tiles, [state.mapMinX, state.mapMinY], [state.mapMaxX, state.mapMaxY])
+        if (mapChanged) {
+            this.engine.terrain.set(state.tiles, [state.mapMinX, state.mapMinY], [state.mapMaxX, state.mapMaxY])
+        }
     }
 
     private foamTimer = 0
 
     public tick(dt: number) {
         const gm = GameManager.instance
-        if (this.engine.terrain.edges && this.foamTimer > 0.05) {
+        if (this.foamTimer > 0.05) {
             const halfW = ((gm.state.mapMaxX - gm.state.mapMinX) / 2 + 64.5) * TILE_SIZE
             const halfH = ((gm.state.mapMaxY - gm.state.mapMinY) / 2 + 64.5) * TILE_SIZE
             this.foamEmitter.position[0] = (gm.state.mapMaxX + gm.state.mapMinX) * TILE_SIZE / 2
