@@ -26,11 +26,12 @@ export default class BloodSplatter implements IEffect {
             dampening: vec3.fromValues(1, 1, 1),
             gravity: vec3.fromValues(0, -50, 0),
             velocity: [2, 4],
-            size: [0.5, 1.5],
+            size: [2, 4],
             lifetime: [5, 20],
             color: [255, 0, 0, 255],
             bounce: 0,
             spread: 1,
+            fadeTime: 0,
         })
     }
 

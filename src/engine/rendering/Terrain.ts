@@ -8,6 +8,7 @@ import { gl } from './Video'
 export const TEX_TILE_SIZE = 32
 export const TILE_SIZE = 16
 export const TILE_SIZE_HALF = TILE_SIZE / 2
+const TILE_SUBDIV = 32
 
 export default class Terrain {
 
@@ -22,8 +23,13 @@ export default class Terrain {
 
     private texWidth: number
     private texHeight: number
-    private tilesX: number
     private transform: mat4
+
+    private heightMap = new Float32Array(2048 * 2048)
+    private heightTexture: WebGLTexture
+
+    private start = [0, 0]
+    private end = [0, 0]
 
     constructor(engine: Engine, material: Material, texture: SpriteResource) {
         this.material = material
@@ -32,125 +38,99 @@ export default class Terrain {
         this.waterTexture = engine.resources.sprites.get('water')
         this.texWidth = texture.width
         this.texHeight = texture.height
-        this.tilesX = Math.floor(this.texWidth / TEX_TILE_SIZE)
-        this.mesh = new GLMesh({}, gl.DYNAMIC_DRAW)
+        this.createMesh()
+        this.createTexture()
         this.waterMesh = new GLMesh({}, gl.DYNAMIC_DRAW)
-
         this.transform = mat4.fromTranslation(mat4.create(), [0, 0, 0])
     }
 
-    private buildHeightMap(map: any, start: number[], end: number[]): vec3[][] {
-        const tiles = new Array<number[]>()
-        for (let x = start[0]; x <= end[0]; x++) {
-            tiles[x] = new Array<number>()
-            for (let y = start[1]; y <= end[1]; y++) {
-                tiles[x][y] = -1
-            }
-        }
-        map.forEach(t => {
-            tiles[t.x][t.y] = t.id
-        })
+    private createMesh() {
+        const verts: number[] = []
+        let flip = false
+        for (let x = 0; x < TILE_SUBDIV * 4; x++) {
+            for (let y = 0; y < TILE_SUBDIV * 4; y++) {
+                const vt0 = [x / TILE_SUBDIV * TILE_SIZE, y / TILE_SUBDIV * TILE_SIZE]
+                const vt1 = [(x + 1) / TILE_SUBDIV * TILE_SIZE, (y + 1) / TILE_SUBDIV * TILE_SIZE]
 
-        let heightMap = new Array<vec3[]>()
-        for (let x = start[0] * TILE_SIZE; x < (end[0] + 1) * TILE_SIZE; x++) {
-            heightMap[x] = new Array<vec3>()
-            const xI = Math.floor(x / TILE_SIZE)
-            for (let y = start[1] * TILE_SIZE; y < (end[1] + 1) * TILE_SIZE; y++) {
-                const yI = Math.floor(y / TILE_SIZE)
-                const t = tiles[xI][yI]
-                heightMap[x][y] = vec3.fromValues(
-                    x - TILE_SIZE_HALF, (t >= 0 && t !== 4) ? (t > 4 ? 2 : 0) : -16, y - TILE_SIZE_HALF
-                )
+                if (flip) {
+                    verts.push(
+                        vt0[0], 0, vt0[1],
+                        vt1[0], 0, vt1[1],
+                        vt1[0], 0, vt0[1],
+
+                        vt0[0], 0, vt0[1],
+                        vt0[0], 0, vt1[1],
+                        vt1[0], 0, vt1[1],
+                    )
+                } else {
+                    verts.push(
+                        vt0[0], 0, vt0[1],
+                        vt0[0], 0, vt1[1],
+                        vt1[0], 0, vt0[1],
+
+                        vt1[0], 0, vt0[1],
+                        vt0[0], 0, vt1[1],
+                        vt1[0], 0, vt1[1],
+                    )
+                }
+                flip = !flip
             }
         }
-        for (let i = 0; i < 8; i++) {
-            const smoothHeightMap = new Array<vec3[]>()
-            smoothHeightMap[start[0] * TILE_SIZE] = heightMap[start[0] * TILE_SIZE]
-            smoothHeightMap[(end[0] + 1) * TILE_SIZE - 1] = heightMap[(end[0] + 1) * TILE_SIZE - 1]
-            for (let x = start[0] * TILE_SIZE + 1; x < (end[0] + 1) * TILE_SIZE - 1; x++) {
-                smoothHeightMap[x] = new Array<vec3>()
-                smoothHeightMap[x][start[1] * TILE_SIZE] = heightMap[x][start[1] * TILE_SIZE]
-                smoothHeightMap[x][(end[1] + 1) * TILE_SIZE - 1] = heightMap[x][(end[1] + 1) * TILE_SIZE - 1]
-                for (let y = start[1] * TILE_SIZE + 1; y < (end[1] + 1) * TILE_SIZE - 1; y++) {
-                    const smooth = vec3.create()
-                    new Array<[vec3, number]>(
-                        [heightMap[x - 0][y - 0], 4.0],
-                        [heightMap[x - 1][y - 0], 2.0],
-                        [heightMap[x - 0][y - 1], 2.0],
-                        [heightMap[x + 1][y - 0], 2.0],
-                        [heightMap[x - 0][y + 1], 2.0],
-                        [heightMap[x - 1][y - 1], 1.0],
-                        [heightMap[x + 1][y + 1], 1.0],
-                        [heightMap[x + 1][y - 1], 1.0],
-                        [heightMap[x - 1][y + 1], 1.0],
-                    ).forEach(([v, s]) => {
-                        vec3.scaleAndAdd(smooth, smooth, v, s)
-                    })
-                    vec3.scale(smooth, smooth, 1 / 16)
-                    smoothHeightMap[x][y] = smooth
+        this.mesh = new GLMesh({verts})
+    }
+
+    private createTexture() {
+        this.heightTexture = gl.createTexture()
+        gl.bindTexture(gl.TEXTURE_2D, this.heightTexture)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, 2048, 2048, 0, gl.RED, gl.FLOAT, null)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    }
+
+    private buildHeightMap(map: any) {
+        const newHeightMap = new Float32Array(this.heightMap.length)
+
+        for (let i = 0; i < this.heightMap.length; i++) {
+            newHeightMap[i] = -16
+        }
+
+        map.forEach(t => {
+            if (t.id === 4) return
+            for (let x = 0; x <= 2; x++) {
+                for (let y = 0; y <= 2; y++) {
+                    const idx = ((t.y + 512) * 2 + y) * 2048 + ((t.x + 512) * 2 + x)
+                    const newHeight = t.id > 4 ? 1 : 0
+                    if (newHeightMap[idx] < newHeight) {
+                        newHeightMap[idx] = newHeight
+                    }
                 }
             }
-            heightMap = smoothHeightMap
-        }
+        })
 
-        return heightMap
+        this.heightMap = newHeightMap
+
+        gl.bindTexture(gl.TEXTURE_2D, this.heightTexture)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, 2048, 2048, 0, gl.RED, gl.FLOAT, this.heightMap)
     }
 
     public set(map: any[], start: number[], end: number[]) {
-        const verts: number[] = []
-        const uvs: number[] = []
+        this.start = start
+        this.end = end
+
+        this.buildHeightMap(map)
+
         const waterVerts: number[] = []
         const waterUVs: number[] = []
-        let y = 0
-        let x0: number
-        let z0: number
-        let x1: number
-        let z1: number
-        let u0: number
-        let v0: number
-        let u1: number
-        let v1: number
-        u0 = 3 * TEX_TILE_SIZE / this.texWidth
-        v0 = 0
-        u1 = (3 + 1) * TEX_TILE_SIZE / this.texWidth
-        v1 = (0 + 1) * TEX_TILE_SIZE / this.texHeight
 
-        const heightMap = this.buildHeightMap(map, start, end)
-
-        for (let x = start[0] * TILE_SIZE; x < (end[0] + 1) * TILE_SIZE - 1; x++) {
-            for (y = start[1] * TILE_SIZE; y < (end[1] + 1) * TILE_SIZE - 1; y++) {
-                const vt0 = heightMap[x][y]
-                const vt1 = heightMap[x + 1][y]
-                const vt2 = heightMap[x + 1][y + 1]
-                const vt3 = heightMap[x][y + 1]
-
-                verts.push(
-                    vt0[0], vt0[1], vt0[2],
-                    vt2[0], vt2[1], vt2[2],
-                    vt1[0], vt1[1], vt1[2],
-
-                    vt0[0], vt0[1], vt0[2],
-                    vt3[0], vt3[1], vt3[2],
-                    vt2[0], vt2[1], vt2[2],
-                )
-                uvs.push(
-                    u0, v0,
-                    u0, v1,
-                    u1, v0,
-
-                    u0, v1,
-                    u1, v1,
-                    u1, v0,
-                )
-            }
-        }
         start = [-256, -256]
         end = [512, 512]
-        x0 = TILE_SIZE * start[0] + 1 - TILE_SIZE_HALF
-        z0 = TILE_SIZE * start[1] + 1 - TILE_SIZE_HALF
-        y = 0
-        x1 = (end[0]) * TILE_SIZE + TILE_SIZE_HALF - 1
-        z1 = (end[1]) * TILE_SIZE + TILE_SIZE_HALF - 1
+        const x0 = TILE_SIZE * start[0] + 1 - TILE_SIZE_HALF
+        const z0 = TILE_SIZE * start[1] + 1 - TILE_SIZE_HALF
+        const y = 0
+        const x1 = (end[0]) * TILE_SIZE + TILE_SIZE_HALF - 1
+        const z1 = (end[1]) * TILE_SIZE + TILE_SIZE_HALF - 1
         waterVerts.push(
             x0, y, z0,
             x0, y, z1,
@@ -159,10 +139,10 @@ export default class Terrain {
             x1, y, z1,
             x1, y, z0,
         )
-        u0 = 0
-        v0 = 0
-        u1 = (TILE_SIZE / this.texWidth * 8) * (end[0] - start[0])
-        v1 = (TILE_SIZE / this.texHeight * 8) * (end[1] - start[1])
+        const u0 = 0
+        const v0 = 0
+        const u1 = (TILE_SIZE / this.texWidth * 8) * (end[0] - start[0])
+        const v1 = (TILE_SIZE / this.texHeight * 8) * (end[1] - start[1])
         waterUVs.push(
             u0, v1,
             u0, v0,
@@ -172,8 +152,6 @@ export default class Terrain {
             u1, v1,
         )
 
-        this.mesh.setVerts(verts)
-        this.mesh.setUVs(uvs)
         this.waterMesh.setVerts(waterVerts)
         this.waterMesh.setUVs(waterUVs)
     }
@@ -182,12 +160,17 @@ export default class Terrain {
         const m = this.material
         m.use()
         m.setGlobalUniforms(data)
-        mat4.fromTranslation(this.transform, [0, 0, 0])
-        m.setMeshUniforms(this.transform)
         m.setTexture(this.texture.texture.tex)
+        m.setTextureTwo(this.heightTexture)
         m.bindMesh(this.mesh)
         m.preDraw()
-        m.draw()
+        for (let x = Math.floor(this.start[0] / 4) * 4; x <= Math.floor(this.end[0] / 4) * 4; x += 4) {
+            for (let y = Math.floor(this.start[1] / 4) * 4; y <= Math.floor(this.end[1] / 4) * 4; y += 4) {
+                mat4.fromTranslation(this.transform, [x * TILE_SIZE, 0, y * TILE_SIZE])
+                m.setMeshUniforms(this.transform)
+                m.draw()
+            }
+        }
         m.postDraw()
         m.end()
     }
