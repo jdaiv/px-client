@@ -4,6 +4,7 @@ precision highp float;
 
 uniform sampler2D uSampler;
 uniform sampler2D uSamplerTwo;
+uniform float uTime;
 
 in highp vec2 vTextureCoord;
 in highp vec3 vPos;

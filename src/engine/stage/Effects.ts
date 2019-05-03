@@ -44,6 +44,7 @@ export default class Effects {
     }
 
     public handleEffect = (data: any) => {
+        console.log(data)
         if (data.single) {
             if (this.effects.has(data.type)) {
                 const effect = this.effects.get(data.type).run(data)
