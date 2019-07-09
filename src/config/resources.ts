@@ -71,9 +71,12 @@ import modelitemspawnergltfData from '../assets/models/item_spawner.gltf.json'
 import modelnewhandgltfData from '../assets/models/newhand.gltf.json'
 import modelquadgltfData from '../assets/models/quad.gltf.json'
 import modelrocksgltfData from '../assets/models/rocks.gltf.json'
+import modelshovelgltfData from '../assets/models/shovel.gltf.json'
 import modelsigngltfData from '../assets/models/sign.gltf.json'
+import modelspheregltfData from '../assets/models/sphere.gltf.json'
 import modelswordgltfData from '../assets/models/sword.gltf.json'
 import modelswordanimatedgltfData from '../assets/models/sword_animated.gltf.json'
+import modelterraingltfData from '../assets/models/terrain.gltf.json'
 import modeltreegltfData from '../assets/models/tree.gltf.json'
 
 export const MODELS = {
@@ -89,9 +92,12 @@ export const MODELS = {
     'newhand.gltf': modelnewhandgltfData,
     'quad.gltf': modelquadgltfData,
     'rocks.gltf': modelrocksgltfData,
+    'shovel.gltf': modelshovelgltfData,
     'sign.gltf': modelsigngltfData,
+    'sphere.gltf': modelspheregltfData,
     'sword.gltf': modelswordgltfData,
     'sword_animated.gltf': modelswordanimatedgltfData,
+    'terrain.gltf': modelterraingltfData,
     'tree.gltf': modeltreegltfData,
 }
 export const SPRITES = {

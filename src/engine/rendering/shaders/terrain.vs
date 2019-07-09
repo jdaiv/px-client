@@ -15,6 +15,8 @@ out highp vec3 vPos;
 
 void main() {
     vec4 pos = uM_Matrix * aVertexPosition;
+    pos.x += (texture(uSampler, pos.xz / 4000.0).g - 0.5) * 128.0;
+    pos.z += (texture(uSampler, pos.xz / 4000.0).g - 0.5) * 128.0;
     vTextureCoord = (pos.xz / 16.0 + 512.75) / 1024.0;
     pos.y = texture(uSamplerTwo, vTextureCoord).r;
     pos.y += texture(uSampler, pos.xz / 512.0).g * (pos.y / 2.0 - 0.25) * 8.0;

@@ -8,7 +8,8 @@ import { gl } from './Video'
 export const TEX_TILE_SIZE = 32
 export const TILE_SIZE = 16
 export const TILE_SIZE_HALF = TILE_SIZE / 2
-const TILE_SUBDIV = 32
+const TILE_SUBDIV = 16
+const TILE_DIM = 36
 
 export default class Terrain {
 
@@ -19,7 +20,6 @@ export default class Terrain {
     public waterTexture: SpriteResource
     public material: Material
     public waterMaterial: Material
-    // public edges: boolean[][][]
 
     private texWidth: number
     private texHeight: number
@@ -47,8 +47,8 @@ export default class Terrain {
     private createMesh() {
         const verts: number[] = []
         let flip = false
-        for (let x = 0; x < TILE_SUBDIV * 4; x++) {
-            for (let y = 0; y < TILE_SUBDIV * 4; y++) {
+        for (let x = 0; x < TILE_SUBDIV * TILE_DIM; x++) {
+            for (let y = 0; y < TILE_SUBDIV * TILE_DIM; y++) {
                 const vt0 = [x / TILE_SUBDIV * TILE_SIZE, y / TILE_SUBDIV * TILE_SIZE]
                 const vt1 = [(x + 1) / TILE_SUBDIV * TILE_SIZE, (y + 1) / TILE_SUBDIV * TILE_SIZE]
 
@@ -75,6 +75,7 @@ export default class Terrain {
                 }
                 flip = !flip
             }
+            flip = !flip
         }
         this.mesh = new GLMesh({verts})
     }
@@ -89,25 +90,28 @@ export default class Terrain {
         gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
     }
 
-    private buildHeightMap(map: any) {
+    private buildHeightMap(map: any, start: number[], end: number[]) {
         const newHeightMap = new Float32Array(this.heightMap.length)
 
         for (let i = 0; i < this.heightMap.length; i++) {
             newHeightMap[i] = -16
         }
 
-        map.forEach(t => {
-            if (t.id === 4) return
-            for (let x = 0; x <= 2; x++) {
-                for (let y = 0; y <= 2; y++) {
-                    const idx = ((t.y + 512) * 2 + y) * 2048 + ((t.x + 512) * 2 + x)
-                    const newHeight = t.id > 4 ? 1 : 0
-                    if (newHeightMap[idx] < newHeight) {
-                        newHeightMap[idx] = newHeight
+        for (let x = 0; x < end[0]; x++) {
+            for (let y = 0; y < end[1]; y++) {
+                const t = map[x + y * end[0]]
+                if (t.id === 4) continue
+                for (let _x = 0; _x <= 2; _x++) {
+                    for (let _y = 0; _y <= 2; _y++) {
+                        const idx = ((y + 512) * 2 + _y) * 2048 + ((x + 512) * 2 + _x)
+                        const newHeight = t.id > 4 ? 1 : 0
+                        if (newHeightMap[idx] < newHeight) {
+                            newHeightMap[idx] = newHeight
+                        }
                     }
                 }
             }
-        })
+        }
 
         this.heightMap = newHeightMap
 
@@ -119,7 +123,7 @@ export default class Terrain {
         this.start = start
         this.end = end
 
-        this.buildHeightMap(map)
+        this.buildHeightMap(map, start, end)
 
         const waterVerts: number[] = []
         const waterUVs: number[] = []
@@ -164,13 +168,9 @@ export default class Terrain {
         m.setTextureTwo(this.heightTexture)
         m.bindMesh(this.mesh)
         m.preDraw()
-        for (let x = Math.floor(this.start[0] / 4) * 4; x <= Math.floor(this.end[0] / 4) * 4; x += 4) {
-            for (let y = Math.floor(this.start[1] / 4) * 4; y <= Math.floor(this.end[1] / 4) * 4; y += 4) {
-                mat4.fromTranslation(this.transform, [x * TILE_SIZE, 0, y * TILE_SIZE])
-                m.setMeshUniforms(this.transform)
-                m.draw()
-            }
-        }
+        mat4.fromTranslation(this.transform, [-2, 0, -2])
+        m.setMeshUniforms(this.transform)
+        m.draw()
         m.postDraw()
         m.end()
     }
@@ -182,7 +182,7 @@ export default class Terrain {
         m.setTexture(this.waterTexture.texture.tex)
         m.bindMesh(this.waterMesh)
         m.preDraw()
-        mat4.fromTranslation(this.transform, [0, -4, 0])
+        mat4.fromTranslation(this.transform, [0, -2, 0])
         m.setMeshUniforms(this.transform)
         mat4.translate(this.transform, this.transform, [0, 0.5, 0])
         m.draw()

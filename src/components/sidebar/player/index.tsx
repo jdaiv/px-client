@@ -16,7 +16,6 @@ export default class Player extends Component<{ game?: GameStore }> {
         const stats = []
         const equipped = []
         const bag = []
-        const skills = []
         const spells = []
 
         const gs = game.state
@@ -36,35 +35,11 @@ export default class Player extends Component<{ game?: GameStore }> {
                 bag.push(
                     <Gear item={{ ...player.inventory[key], bag: true }} />)
             }
-            for (const key in player.skills) {
-                const s = player.skills[key]
-                skills.push(
-                    <StatBar color={[0, 255, 0]} label={`L${s.level} ${key}`} min={s.xp} max={100} small={true} />)
-            }
             const activeSpell = gs.combat.activeSpell
             for (const key in player.spells) {
                 const s = player.spells[key]
                 spells.push(<Spell id={key} spell={s} inCombat={gs.inCombat} activeSpell={activeSpell} />)
             }
-        }
-
-        const combatInfo = []
-        if (gs.inCombat) {
-            combatInfo.push(<h2>combat!</h2>)
-            combatInfo.push(<p class={style.invItem}>in combat: {gs.inCombat.toString()}</p>)
-            // combatInfo.push(<p class={style.invItem}>waiting: {ci.waiting.toString()}</p>)
-            // combatInfo.push(<p class={style.invItem}>turn: {ci.turn}</p>)
-            combatInfo.push(<p class={style.invItem}>combatants:</p>)
-            gs.combatants.forEach((c: any) => {
-                const actor = c.isPlayer ?  gs.players.get(c.id) : gs.npcs.get(c.id)
-                if (!actor) return
-                combatInfo.push(
-                    <p class={style.invItem}>
-                        ({c.initiative === gs.currentInitiative ? '>' : ' '}&nbsp;
-                        {c.initiative}) {actor.name} - {c.timer}
-                    </p>
-                )
-            })
         }
 
         return(
@@ -74,9 +49,6 @@ export default class Player extends Component<{ game?: GameStore }> {
                 <ToggleSection title="stats">{stats}</ToggleSection>
                 <ToggleSection title="equipped" open={true}>{equipped}</ToggleSection>
                 <ToggleSection title="bag">{bag}</ToggleSection>
-                <ToggleSection title="skills">{skills}</ToggleSection>
-                {/* <ToggleSection title="spells">{spells}</ToggleSection> */}
-                {combatInfo}
             </div >
         )
     }

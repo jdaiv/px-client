@@ -22,18 +22,20 @@ float getDepthWithOffset(float x, float y) {
 }
 
 float maxDepthDiff = 0.025;
-vec3 outlineColor = vec3(0, 1, 0);
+vec3 outlineColor = vec3(0, 0.25, 0);
 
 void main() {
     color = getWithOffset(0.0, 0.0);
-    float depth = getDepthWithOffset(0.0, 0.0);
+    // float depth = getDepthWithOffset(0.0, 0.0);
 
-    if (abs(depth - getDepthWithOffset(-1.0, 0.0)) > maxDepthDiff ||
-        abs(depth - getDepthWithOffset(1.0, 0.0)) > maxDepthDiff ||
-        abs(depth - getDepthWithOffset(0.0, -1.0)) > maxDepthDiff ||
-        abs(depth - getDepthWithOffset(0.0, 1.0)) > maxDepthDiff) {
-        color.rgb = outlineColor;
-    }
+    // if (abs(depth - getDepthWithOffset(-1.0, 0.0)) > maxDepthDiff ||
+    //     abs(depth - getDepthWithOffset(1.0, 0.0)) > maxDepthDiff ||
+    //     abs(depth - getDepthWithOffset(0.0, -1.0)) > maxDepthDiff ||
+    //     abs(depth - getDepthWithOffset(0.0, 1.0)) > maxDepthDiff) {
+    //     color.rgb *= 0.5;
+    // } else {
+    //     // color.rgb *= 0.75;
+    // }
 
-    color.a = depth;
+    // color.a = depth;
 }

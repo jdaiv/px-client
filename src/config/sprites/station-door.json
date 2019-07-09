@@ -10,8 +10,8 @@
  },
  "meta": {
   "app": "http://www.aseprite.org/",
-  "version": "1.2.9-x64",
-  "image": "src/assets/sprites/station-door.png",
+  "version": "1.2.11-x64",
+  "image": "station-door.png",
   "format": "RGBA8888",
   "size": { "w": 16, "h": 26 },
   "scale": "1"

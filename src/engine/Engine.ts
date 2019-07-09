@@ -2,6 +2,7 @@
 import Interactions from './Interactions'
 import Overlay from './Overlay'
 import Camera from './rendering/Camera'
+import Foliage from './rendering/Foliage'
 import Material from './rendering/Material'
 import MaterialManager from './rendering/MaterialManager'
 import Particles from './rendering/Particles'
@@ -17,6 +18,7 @@ export default class Engine {
     public camera: Camera
     public v: Video
     public particles: Particles
+    public foliage: Foliage
     public terrain: Terrain
     public stage: Stage
     public overlay: Overlay
@@ -43,6 +45,7 @@ export default class Engine {
                 this.materials.get('terrain'),
                 this.resources.sprites.get('terrain'))
             this.particles = new Particles(this)
+            this.foliage = new Foliage(this)
             this.v.initQueue()
             this.stage = new Stage(this)
             this.start()

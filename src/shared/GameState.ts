@@ -27,14 +27,10 @@ export default class GameState {
     private oldTiles: number[][]
     private mapChanged = false
     @observable public zoneName = ''
-    @observable public mapMinX = 0
-    @observable public mapMaxX = 0
-    @observable public mapMinY = 0
-    @observable public mapMaxY = 0
+    @observable public mapWidth = 0
+    @observable public mapHeight = 0
 
     @observable public inCombat = false
-    @observable public currentInitiative = 0
-    public combatants: IObservableArray<any>
 
     private listeners = new Array<Listener>()
 
@@ -44,7 +40,6 @@ export default class GameState {
         this.items = new Map()
         this.npcs = new Map()
         this.tiles = observable.array(null, { deep: false })
-        this.combatants = observable.array(null, { deep: false })
     }
 
     public registerListener(fn: Listener) {
@@ -54,7 +49,7 @@ export default class GameState {
     @action
     public readData(data: any) {
         this.zoneName = data.zone.name
-        this.setTiles(data.zone.map)
+        this.setTiles(data.zone.map, data.zone.width, data.zone.height)
         this.set(data.player,
             data.zone.players,
             data.zone.entities,
@@ -62,9 +57,6 @@ export default class GameState {
             data.zone.npcs)
         this.valid = true
         this.inCombat = data.zone.inCombat
-        this.currentInitiative = data.zone.currentInitiative
-        this.combatants = data.zone.combatants
-        this.combatants.sort((a, b) => b.initiative - a.initiative)
         this.definitions = data.defs
         this.zoneDebug = data.debugZone
         this.allZones = data.allZones
@@ -73,50 +65,24 @@ export default class GameState {
         this.mapChanged = false
     }
 
-    public setTiles(map: any) {
-        let mapMinX = 0
-        let mapMaxX = 0
-        let mapMinY = 0
-        let mapMaxY = 0
-
-        map.forEach(t => {
-            const x = t.x
-            const y = t.y
-            if (x < mapMinX) {
-                mapMinX = x
-            }
-            if (x > mapMaxX) {
-                mapMaxX = x
-            }
-            if (y < mapMinY) {
-                mapMinY = y
-            }
-            if (y > mapMaxY) {
-                mapMaxY = y
-            }
-        })
+    public setTiles(map: any, width: number, height: number) {
 
         // if the map size has changed everything is invalid
         const newTiles: number[][] = []
-        for (let x = mapMinX; x <= mapMaxX; x++) {
+        for (let x = 0; x < width; x++) {
             newTiles[x] = new Array<number>()
-            for (let y = mapMinY; y <= mapMaxY; y++) {
-                newTiles[x][y] = -1
+            for (let y = 0; y < height; y++) {
+                newTiles[x][y] = map[x + y * width].id
             }
         }
-        map.forEach(t => {
-            newTiles[t.x][t.y] = t.id
-        })
 
-        if (this.mapMinX === mapMinX ||
-            this.mapMaxX === mapMaxX ||
-            this.mapMinY === mapMinY ||
-            this.mapMaxY === mapMaxY) {
+        if (this.mapWidth === width ||
+            this.mapHeight === height) {
 
             if (this.oldTiles != null) {
                 let diff = false
-                for (let x = mapMinX; x <= mapMaxX; x++) {
-                    for (let y = mapMinY; y <= mapMaxY; y++) {
+                for (let x = 0; x < width; x++) {
+                    for (let y = 0; y < height; y++) {
                         if (newTiles[x][y] !== this.oldTiles[x][y]) {
                             diff = true
                             break
@@ -130,10 +96,8 @@ export default class GameState {
 
         this.oldTiles = newTiles
 
-        this.mapMinX = mapMinX
-        this.mapMaxX = mapMaxX
-        this.mapMinY = mapMinY
-        this.mapMaxY = mapMaxY
+        this.mapWidth = width
+        this.mapHeight = height
 
         this.tiles.replace(map)
         this.mapChanged = true

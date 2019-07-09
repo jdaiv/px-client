@@ -108,13 +108,13 @@ export default class Player {
         transform.position[1] *= -1
         // this.engine.v.drawModelUI(!this.use && GameManager.instance.state.combat.casting ? 'hand_cast' : 'hand',
         //     transform, 'outlineUI', 'colored')
-        this.engine.v.drawModelUI(!this.use && GameManager.instance.state.combat.casting ? 'hand_cast' : 'hand',
-            transform, 'textured_ui', 'colored')
+        // this.engine.v.drawModelUI(!this.use && GameManager.instance.state.combat.casting ? 'hand_cast' : 'hand',
+        //     transform, 'textured_ui', 'colored')
         vec3.add(transform.position, this.weaponPos, this.weaponOffset)
         // this.engine.v.drawModelUIAnimated('sword_animated', transform, 'outlineUI', 'colored',
         //     this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
-        this.engine.v.drawModelUIAnimated('sword_animated', transform, 'textured_ui', 'colored',
-            this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
+        // this.engine.v.drawModelUIAnimated('sword_animated', transform, 'textured_ui', 'colored',
+        //     this.swordAttack > 0 ? 'Attack' : 'Hold', 2 - this.swordAttack)
 
         this.use = false
     }

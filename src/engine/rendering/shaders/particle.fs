@@ -13,9 +13,9 @@ void main() {
         discard;
     }
     color = particleColor;
-    if ((color.a < 0.5 && (iCoords.x % 2 ^ iCoords.y % 2) == 1) ||
-        (color.a < 0.25 && (iCoords.x % 2 + iCoords.y % 2) > 1)) {
-        discard;
-    }
-    color.a = 1.0;
+    // if ((color.a < 0.5 && (iCoords.x % 2 ^ iCoords.y % 2) == 1) ||
+    //     (color.a < 0.25 && (iCoords.x % 2 + iCoords.y % 2) > 1)) {
+    //     discard;
+    // }
+    // color.a = 1.0;
 }

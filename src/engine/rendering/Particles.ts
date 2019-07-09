@@ -257,11 +257,11 @@ export default class Particles {
         // gl.blendFunc(gl.ONE_MINUS_SRC_ALPHA, gl.ONE)
         // gl.blendFunc(gl.ONE, gl.ONE)
         // gl.blendEquation(gl.FUNC_REVERSE_SUBTRACT)
-        gl.depthMask(false)
+        // gl.depthMask(false)
         gl.drawArrays(gl.POINTS, 0, MAX_PARTICLES)
         // gl.disable(gl.BLEND)
-        gl.depthMask(true)
-        gl.blendEquation(gl.FUNC_ADD)
+        // gl.depthMask(true)
+        // gl.blendEquation(gl.FUNC_ADD)
         m.end()
 
         this.flip = !this.flip

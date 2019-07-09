@@ -10,8 +10,8 @@
  },
  "meta": {
   "app": "http://www.aseprite.org/",
-  "version": "1.2.9-x64",
-  "image": "src/assets/sprites/water.png",
+  "version": "1.2.11-x64",
+  "image": "water.png",
   "format": "RGBA8888",
   "size": { "w": 1024, "h": 1024 },
   "scale": "1"

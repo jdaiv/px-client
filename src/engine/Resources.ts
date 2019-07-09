@@ -28,12 +28,13 @@ export default class Resources {
         for (const key in SPRITES) {
             const url = SPRITES[key].file
             const mapKey = key
-            console.log(`[engine/resources] loading sprite ${key}`)
+            console.log(`[engine/resources] loading sprite ${key}`, key !== 'water' && key !== 'terrain')
             stats.total++
-            promises.push(SpriteResource.load(url, SPRITES[key].data).then((res) => {
-                this.sprites.set(mapKey, res)
-                updateStats()
-            }))
+            promises.push(SpriteResource.load(url, SPRITES[key].data,
+                key !== 'water' && key !== 'terrain').then((res) => {
+                    this.sprites.set(mapKey, res)
+                    updateStats()
+                }))
         }
 
         for (const key in TEXTURES) {

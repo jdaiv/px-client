@@ -6,7 +6,6 @@ export default class GLTexture {
 
     constructor(image: TexImageSource, sprite: boolean = false) {
         this.tex = gl.createTexture()
-        sprite = true
         gl.bindTexture(gl.TEXTURE_2D, this.tex)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
         if (!GLTexture.isPowerOf2(image.width) || !GLTexture.isPowerOf2(image.height)) {

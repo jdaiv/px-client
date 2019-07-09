@@ -10,14 +10,20 @@ in highp vec2 vTextureCoord;
 in highp vec3 vPos;
 out vec4 color;
 
-void main() {
-    vec2 dist = mod(vPos.xy, 16.0) / 16.0;
-    dist = ((dist * 2.0) - 1.0);
-    // color = vec4(0, 1, 0, 1) * smoothstep(0.6, 0.7, (1.0 - dot(dist, dist)));
-    color = vec4(0, 0.5, 0, 1) * smoothstep(0.95, 1.0, 1.0 - abs(dist.x * dist.y));
-    color.g -= abs(vPos.z / (vPos.z > 0.0 ? 2.0 : 8.0));
+float lineWidth = 0.25;
 
-    color += (texture(uSampler, vPos.xy / 64.0) * vec4(0, 1, 0, 0) +
-              texture(uSampler, vPos.yx / 256.0) * vec4(0, 1, 0, 0) +
-              texture(uSampler, vPos.xy / 32.0) * vec4(0, 1, 0, 0)) / 1.5;
+void main() {
+    color += (texture(uSampler, vPos.xy / 512.0) * vec4(0, 1, 0, 0) +
+              texture(uSampler, vPos.yx / 1024.0) * vec4(0, 0.5, 0, 0) +
+              texture(uSampler, vPos.xy / 128.0) * vec4(0, 0.5, 0, 0));
+
+    vec2 pos = mod(vPos.xy + 8.0, 16.0);
+    color.g -= abs(vPos.z * (vPos.z > 0.0 ? 0.25 : 0.125));
+
+    if (mod(pos.x, 2.0) > 1.5 && mod(pos.y, 2.0) > 1.5 &&
+        (pos.x <= lineWidth || pos.x > 16.0 - lineWidth ||
+        pos.y <= lineWidth || pos.y > 16.0 - lineWidth)) {
+        color.g = (1.0 - color.g) * 0.1;
+    }
+
 }

@@ -481,6 +481,7 @@ export default class Video {
         })
 
         this.engine.terrain.drawWater(data)
+        this.engine.foliage.draw(data)
         this.engine.particles.draw(data, this.fbos[0])
 
         const uiMatrix = mat4.perspective(mat4.create(),

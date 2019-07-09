@@ -9,16 +9,16 @@ uniform sampler2D uSamplerTwo;
 
 out vec4 color;
 
-float colorLevels = 5.0;
+float colorLevels = 32.0;
 
 void main() {
     ivec2 iCoords = ivec2(gl_FragCoord);
     color = texelFetch(uSampler, iCoords, 0);
-    float lum = max(color.r, max(color.g, color.b));
-    color = floor(color * colorLevels) / colorLevels;
-    if (lum <= 0.4 && (iCoords.x % 2 ^ iCoords.y % 2) >= 1) {
-        discard;
-    } else if (lum <= 0.8 && (iCoords.x % 2 + iCoords.y % 2) > 0) {
-        color.rgb *= 0.5;
-    }
+    // float lum = max(color.r, max(color.g, color.b));
+    // color = floor(color * colorLevels) / colorLevels;
+    // if (lum <= 0.4 && (iCoords.x % 2 ^ iCoords.y % 2) >= 1) {
+    //     discard;
+    // } else if (lum <= 0.8 && (iCoords.x % 2 + iCoords.y % 2) > 0) {
+    //     color.rgb *= 0.5;
+    // }
 }

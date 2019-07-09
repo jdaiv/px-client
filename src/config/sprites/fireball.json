@@ -10,8 +10,8 @@
  },
  "meta": {
   "app": "http://www.aseprite.org/",
-  "version": "1.2.9-x64",
-  "image": "src/assets/sprites/fireball.png",
+  "version": "1.2.11-x64",
+  "image": "fireball.png",
   "format": "RGBA8888",
   "size": { "w": 32, "h": 32 },
   "scale": "1"

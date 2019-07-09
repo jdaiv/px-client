@@ -19,7 +19,6 @@ export default class Lightning implements IEffect {
             lifetime: [0.25, 0.5],
             color: [50, 0, 128, 255],
             spread: 10,
-            rotation: vec3.fromValues(0, 0, 0),
             shape: 'cube',
             outline: false,
             cube: vec3.fromValues(1, 64, 1)
